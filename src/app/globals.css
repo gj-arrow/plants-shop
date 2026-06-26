@@ -1,27 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8faf9;
-  --foreground: #171717;
+  --green: #4CAF50;
+  --green-light: #81C784;
+  --green-secondary: #66BB6A;
+  --green-very-light: #C8E6C9;
+  --mint: #8ECDA8;
+  --cream: #FDF6F0;
+  --dark: #2D1B4E;
+  --dark-secondary: #4A3267;
+  --background: var(--cream);
+  --foreground: var(--dark);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--cream);
+  color: var(--dark);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Градиентный фон */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Gradient animated background (vibrant green tones) */
 .bg-gradient-animated {
-  background: linear-gradient(-45deg, #f8faf9, #e8f5e9, #f1f8e9, #e0f2f1);
+  background: linear-gradient(-45deg, #FDF6F0, #C8E6C9, #A5D6A7, #E8F5E9, #F1F8E9);
   background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  animation: gradientShift 12s ease infinite;
 }
 
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* Primary gradient button (green) */
+.btn-primary {
+  background: linear-gradient(135deg, var(--green), var(--green-light));
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(76, 175, 80, 0.5);
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* Secondary button (outlined) */
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--green);
+  color: var(--dark);
+  transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+  background: var(--green);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--green), var(--green-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Анимации кнопок */
@@ -82,8 +131,8 @@ body {
 }
 
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(76, 175, 80, 0.25), 0 8px 20px rgba(102, 187, 106, 0.15);
 }
 
 /* Pulse для уведомлений */
@@ -107,10 +156,75 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Логотип вращение */
+@keyframes flowerRotate {
+  0% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+  100% { transform: rotate(-8deg); }
+}
+
 /* Утилиты */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* ===== Falling Leaves ===== */
+.leaf-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.leaf {
+  position: absolute;
+  top: -40px;
+  animation: leafFall linear forwards;
+}
+
+@keyframes leafFall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(25vh) translateX(30px) rotate(90deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(50vh) translateX(-20px) rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(75vh) translateX(25px) rotate(270deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(105vh) translateX(-10px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Подсветка поиска */
+.highlight {
+  box-shadow: 0 0 0 2px var(--green);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--green);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-light);
 }

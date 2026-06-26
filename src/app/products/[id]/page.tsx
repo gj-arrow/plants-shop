@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
           <p className="text-gray-600 mb-4">К сожалению, этот товар не существует</p>
           <button
             onClick={() => router.push('/')}
-            className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-6 py-3 rounded-xl font-medium btn-press ripple"
+            className="bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-6 py-3 rounded-xl font-medium btn-press ripple"
           >
             ← Вернуться в каталог
           </button>
@@ -102,7 +102,7 @@ export default function ProductDetailPage() {
         {/* Кнопка назад */}
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-green-600 mb-6 fade-in btn-press"
+          className="flex items-center gap-2 text-gray-600 hover:text-[#4CAF50] mb-6 fade-in btn-press"
         >
           <span>←</span>
           <span>Назад</span>
@@ -113,7 +113,7 @@ export default function ProductDetailPage() {
             {/* Галерея изображений */}
             <div className="p-6 bg-gray-50">
               {/* Основное изображение */}
-              <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9]">
                 {product.images && product.images.length > 0 ? (
                   <img
                     src={product.images[selectedImageIndex]}
@@ -131,7 +131,7 @@ export default function ProductDetailPage() {
                   <span
                     className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg ${
                       product.stock > 0
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-[#4CAF50] text-white'
                         : 'bg-red-500 text-white'
                     }`}
                   >
@@ -141,7 +141,7 @@ export default function ProductDetailPage() {
 
                 {/* Бэдж корзины */}
                 {isInCart && (
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg pulse-soft">
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg pulse-soft">
                     В корзине: {quantityInCart} шт.
                   </div>
                 )}
@@ -156,7 +156,7 @@ export default function ProductDetailPage() {
                       onClick={() => setSelectedImageIndex(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
                         selectedImageIndex === index
-                          ? 'border-green-500 ring-2 ring-green-200'
+                          ? 'border-[#4CAF50] ring-2 ring-[rgba(76,175,80,0.2)]'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -175,7 +175,7 @@ export default function ProductDetailPage() {
             <div className="p-8 flex flex-col">
               {/* Категория */}
               <div className="mb-3">
-                <span className="inline-block bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-sm font-medium">
+                <span className="inline-block bg-[#E8F5E9] text-[#4CAF50] px-4 py-1.5 rounded-full text-sm font-medium">
                   {product.category || 'Без категории'}
                 </span>
               </div>
@@ -185,7 +185,7 @@ export default function ProductDetailPage() {
 
               {/* Цена */}
               <div className="mb-6">
-                <span className="text-4xl font-bold text-green-600">{product.price} ₽</span>
+                <span className="text-4xl font-bold text-[#4CAF50]">{product.price} р.</span>
               </div>
 
               {/* Описание */}
@@ -224,11 +224,11 @@ export default function ProductDetailPage() {
                         </button>
                         <div className="flex-1 text-center">
                           <span className="text-sm text-gray-500 block">В корзине</span>
-                          <span className="text-2xl font-bold text-green-600">{quantityInCart} шт.</span>
+                          <span className="text-2xl font-bold text-[#4CAF50]">{quantityInCart} шт.</span>
                         </div>
                         <button
                           onClick={() => handleUpdateQuantity(quantityInCart + 1)}
-                          className="w-12 h-12 rounded-xl bg-green-600 text-white font-bold text-xl btn-press hover:bg-green-700 transition flex items-center justify-center"
+                          className="w-12 h-12 rounded-xl bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white font-bold text-xl btn-press hover:shadow-[0_4px_12px_rgba(76,175,80,0.4)] transition flex items-center justify-center"
                           aria-label="Увеличить количество"
                           disabled={quantityInCart >= product.stock}
                         >
@@ -246,7 +246,7 @@ export default function ProductDetailPage() {
                         </button>
                         <button
                           onClick={() => router.push('/cart')}
-                          className="flex-1 bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-3 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
+                          className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
                         >
                           В корзину
                         </button>
@@ -258,7 +258,7 @@ export default function ProductDetailPage() {
                       className={`w-full px-6 py-4 rounded-xl font-medium btn-press ripple shadow-lg transition flex items-center justify-center gap-2 ${
                         lastAdded
                           ? 'bg-green-500 text-white pulse-soft'
-                          : 'bg-gradient-to-r from-green-600 to-emerald-500 text-white hover:shadow-xl'
+                          : 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white hover:shadow-xl'
                       }`}
                     >
                       <span>🛒</span>

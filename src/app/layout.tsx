@@ -3,10 +3,19 @@ import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
+import FallingLeaves from "@/components/FallingLeaves";
 
 export const metadata: Metadata = {
-  title: "Plant Shop - Магазин растений",
+  title: "Plant Shop — Магазин растений",
   description: "Современный магазин комнатных растений с доставкой",
+  icons: {
+    icon: [
+      {
+        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -16,7 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="h-full antialiased">
-      <body className="min-h-full flex flex-col font-sans">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-full flex flex-col">
+        <FallingLeaves />
         <SessionProvider>
           <CartProvider>
             <Navbar />

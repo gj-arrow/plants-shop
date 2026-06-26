@@ -36,9 +36,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { customer_name, phone, email, address, items, user_id } = body;
 
-    if (!customer_name || !phone || !email || !address || !items || items.length === 0) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!customer_name || !phone || !items || items.length === 0) {
+      return NextResponse.json({ error: 'customer_name, phone, and items are required' }, { status: 400 });
     }
+
+    // Defaults для быстрого заказа
+    const customerEmail = email || 'не указан';
+    const customerAddress = address || 'Самовывоз';
 
     // Рассчитываем общую сумму и проверяем товары
     let total = 0;
@@ -54,7 +58,7 @@ export async function POST(request: NextRequest) {
     const orderResult = db.prepare(`
       INSERT INTO orders (user_id, customer_name, phone, email, address, total, status)
       VALUES (?, ?, ?, ?, ?, ?, 'new')
-    `).run(user_id || null, customer_name, phone, email, address, total);
+    `).run(user_id || null, customer_name, phone, customerEmail, customerAddress, total);
 
     // Добавляем элементы заказа
     const insertItem = db.prepare(`

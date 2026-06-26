@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
   return (
     <div className="bg-gradient-animated min-h-[calc(100vh-4rem)]">
-      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         <div className="bg-white rounded-2xl shadow-xl p-8 fade-in">
           <div className="text-center mb-6">
             <span className="text-4xl mb-2 block">🌿</span>
@@ -106,29 +106,6 @@ export default function RegisterPage() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               Продолжить с Google
-            </button>
-            
-            <button
-              onClick={() => handleOAuth('yandex')}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 hover:border-yellow-500 hover:bg-yellow-50 text-gray-700 py-2.5 rounded-xl font-medium btn-press transition disabled:opacity-50"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <rect fill="#FC3F1D" width="24" height="24" rx="4"/>
-                <path fill="#fff" d="M15.8 7.6h-2.8v2.8h2.8V7.6zm-2.8 5.6h2.8v2.8h-2.8v-2.8zm-5.6 0h2.8v2.8H7.4v-2.8zm0-5.6h2.8v2.8H7.4V7.6z"/>
-              </svg>
-              Продолжить с Яндекс
-            </button>
-            
-            <button
-              onClick={() => handleOAuth('vk')}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 text-gray-700 py-2.5 rounded-xl font-medium btn-press transition disabled:opacity-50"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#0077FF">
-                <path d="M15.07 2H8.93C5.1 2 2 5.1 2 8.93v6.14C2 18.9 5.1 22 8.93 22h6.14c3.83 0 6.93-3.1 6.93-6.93V8.93C22 5.1 18.9 2 15.07 2zM17.6 14.5c.3.3.3.8 0 1.1l-1.2 1.2c-.3.3-.8.3-1.1 0l-2.3-2.3c-.3-.3-.8-.3-1.1 0l-2.3 2.3c-.3.3-.8.3-1.1 0l-1.2-1.2c-.3-.3-.3-.8 0-1.1l2.3-2.3c.3-.3.3-.8 0-1.1L7.3 8.8c-.3-.3-.3-.8 0-1.1l1.2-1.2c.3-.3.8-.3 1.1 0l2.3 2.3c.3.3.8.3 1.1 0l2.3-2.3c.3-.3.8-.3 1.1 0l1.2 1.2c.3.3.3.8 0 1.1l-2.3 2.3c-.3.3-.3.8 0 1.1l2.3 2.3z"/>
-              </svg>
-              Продолжить с VK
             </button>
           </div>
 

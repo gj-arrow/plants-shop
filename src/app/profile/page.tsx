@@ -323,7 +323,7 @@ export default function ProfilePage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-green-600">{order.total} ₽</p>
+                            <p className="text-2xl font-bold text-green-600">{order.total} р.</p>
                           </div>
                         </div>
 
@@ -346,7 +346,7 @@ export default function ProfilePage() {
                                 <span className="text-gray-600">
                                   {item.product_name} × {item.quantity}
                                 </span>
-                                <span className="font-medium">{item.price * item.quantity} ₽</span>
+                                <span className="font-medium">{item.price * item.quantity} р.</span>
                               </div>
                             ))}
                           </div>

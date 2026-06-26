@@ -27,9 +27,11 @@ Order: `npm install && npm run init-db && npm run dev` for fresh setup.
 
 ## Known Bugs & Gotchas
 
-- **Admin logout broken**: `src/app/admin/layout.tsx:11` calls `fetch('/api/auth', { method: 'POST' })` with no body. The POST handler requires an `action` field and returns 400. Should be `DELETE /api/auth`.
-- **Empty route stubs**: `src/app/api/user/` directory exists with subdirectories (`auth/`, `orders/`, `profile/`) but no implemented route files.
+- **Admin login broken**: `src/app/admin/login/page.tsx:21` sends `{username, password}` without `action` field. The POST handler in `src/app/api/auth/route.ts:112` requires `action='login'` and destructures `email` not `username`. Login always returns 400 "Неверное действие".
+- **Middleware is dead code**: `src/middleware.ts` protects `/api/admin/:path*` (matcher line 35), but no `/api/admin/` API routes exist. Uses its own separate `sessions` Map and `admin_session` cookie name — disconnected from the real auth system in `auth/route.ts`.
+- **Empty route stubs**: `src/app/api/user/` directory exists with subdirectories (`auth/`, `orders/`, `profile/`) but no implemented route files. Checkout page fetches `GET /api/user/profile` — fails silently (empty catch).
 - **Order items denormalized**: Stored as `GROUP_CONCAT` text string (`product_id:quantity:price`) in SQL query, parsed server-side with split/parseInt. Not proper JSON or normalized query.
+- **No product images directory**: Seed data references `/images/monstera.jpg` etc., but `/public/images/` doesn't exist. Products use emoji fallback (`🪴`).
 - **Route handler params**: Use `params: Promise<{ id: string }>` pattern (Next.js 15+ async params requirement).
 
 ## Architecture & Patterns
@@ -43,6 +45,7 @@ Order: `npm install && npm run init-db && npm run dev` for fresh setup.
 - **All UI text**: Russian
 - **TypeScript**: Strict mode enabled
 - **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax (new Tailwind v4), PostCSS config imports `@tailwindcss/postcss`
+- **No test framework** configured. No CI.
 
 ## Project Structure
 
@@ -55,7 +58,7 @@ src/
 │   ├── checkout/       # Checkout form
 │   ├── layout.tsx      # Root layout (SessionProvider + CartProvider)
 │   └── page.tsx        # Home page (product catalog)
-├── components/         # Navbar.tsx, AdminAuth.tsx
+├── components/         # Navbar.tsx, AdminAuth.tsx, FallingLeaves.tsx
 ├── contexts/           # CartContext.tsx
 ├── lib/                # db.ts, auth.ts (NextAuth config)
 └── middleware.ts       # Admin API protection (checks /api/admin/* paths)

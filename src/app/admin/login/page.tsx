@@ -35,45 +35,45 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 bg-gradient-animated">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-md p-8">
+        <div className="bg-white rounded-3xl shadow-[0_15px_50px_rgba(76,175,80,0.15)] p-8 border border-[rgba(76,175,80,0.1)]">
           <div className="text-center mb-6">
             <span className="text-4xl mb-2 block">🔐</span>
-            <h1 className="text-2xl font-bold text-gray-800">Админ-панель</h1>
-            <p className="text-gray-600 text-sm mt-1">Войдите для управления магазином</p>
+            <h1 className="text-3xl font-['Playfair_Display'] font-bold text-[#2D1B4E]">Админ-панель</h1>
+            <p className="text-[#4A3267] text-sm mt-1">Войдите для управления магазином</p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-3 bg-[#FFEBEE] text-[#C62828] rounded-xl text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[#4A3267] mb-1">
                 Логин
               </label>
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50]"
                 placeholder="admin"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[#4A3267] mb-1">
                 Пароль
               </label>
               <input
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-4 py-2 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50]"
                 placeholder="••••••••"
                 required
               />
@@ -82,16 +82,16 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white py-2 rounded-xl font-medium hover:shadow-lg hover:shadow-[rgba(76,175,80,0.3)] transition disabled:opacity-50"
             >
               {loading ? 'Вход...' : 'Войти'}
             </button>
           </form>
 
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
+          <div className="mt-4 p-3 bg-[#E8F5E9] border border-[rgba(76,175,80,0.15)] rounded-xl text-xs text-[#4A3267]">
             <p className="font-medium mb-1">Тестовые учётные данные:</p>
-            <p>Логин: <code className="bg-gray-200 px-1 rounded">admin</code></p>
-            <p>Пароль: <code className="bg-gray-200 px-1 rounded">admin123</code></p>
+            <p>Логин: <code className="bg-[rgba(76,175,80,0.1)] text-[#4CAF50] px-1 rounded">admin</code></p>
+            <p>Пароль: <code className="bg-[rgba(76,175,80,0.1)] text-[#4CAF50] px-1 rounded">admin123</code></p>
           </div>
         </div>
       </div>
