@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCart, Product, parseImages } from '@/contexts/CartContext';
+import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 import FallingLeaves from '@/components/FallingLeaves';
 
@@ -11,7 +11,6 @@ export default function FavoritesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const { favorites, toggleFavorite, loading: favoritesLoading } = useFavorites();
-  const { items, addToCart, updateQuantity } = useCart();
 
   useEffect(() => {
     if (favoritesLoading) return;
@@ -28,10 +27,6 @@ export default function FavoritesPage() {
       })
       .catch(() => setLoadingProducts(false));
   }, [favorites, favoritesLoading]);
-
-  const handleAddToCart = (product: Product) => {
-    addToCart(product, 1);
-  };
 
   return (
     <>
@@ -66,10 +61,6 @@ export default function FavoritesPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map(product => {
-                const cartItem = items.find(i => i.id === product.id);
-                const qty = cartItem?.quantity || 0;
-                const inCart = qty > 0;
-
                 return (
                   <div
                     key={product.id}
@@ -89,11 +80,6 @@ export default function FavoritesPage() {
                           <span className="text-6xl group-hover:scale-110 transition-transform duration-300">🪴</span>
                         );
                       })()}
-                      {inCart && (
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg pulse-soft">
-                          ✓ {qty} шт.
-                        </div>
-                      )}
                     </div>
 
                     <div className="p-4 flex flex-col flex-1">
@@ -116,68 +102,23 @@ export default function FavoritesPage() {
                         </span>
                       </div>
 
-                      {product.stock > 0 ? (
-                        <div className="flex gap-2">
-                          {inCart ? (
-                            <div className="flex items-center gap-2 w-full">
-                              <button
-                                onClick={() => updateQuantity(product.id, qty - 1)}
-                                className="w-10 h-10 rounded-xl bg-[rgba(102,187,106,0.12)] text-[#66BB6A] font-bold text-lg btn-press hover:bg-[rgba(102,187,106,0.25)] transition flex items-center justify-center"
-                              >
-                                −
-                              </button>
-                              <div className="flex-1 text-center">
-                                <span className="text-sm text-[#8a7a9a] block">В корзине</span>
-                                <span className="text-xl font-bold text-[#4CAF50]">{qty} шт.</span>
-                              </div>
-                              <button
-                                onClick={() => updateQuantity(product.id, qty + 1)}
-                                className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white font-bold text-lg btn-press hover:shadow-[0_4px_12px_rgba(76,175,80,0.4)] transition flex items-center justify-center"
-                                disabled={qty >= product.stock}
-                              >
-                                +
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => handleAddToCart(product)}
-                                className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
-                              >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                                </svg>
-                                <span>В корзину</span>
-                              </button>
-                              <button
-                                onClick={() => toggleFavorite(product.id)}
-                                className="w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 border-red-200 bg-red-50 text-red-500 hover:bg-red-100"
-                                aria-label="Убрать из избранного"
-                              >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <button disabled className="flex-1 bg-gray-200 text-gray-500 px-4 py-3 rounded-xl font-medium cursor-not-allowed">
-                            Нет в наличии
-                          </button>
-                          <button
-                            onClick={() => toggleFavorite(product.id)}
-                            className="w-12 h-12 rounded-xl border-2 border-red-200 bg-red-50 text-red-500 btn-press transition flex items-center justify-center shrink-0 hover:bg-red-100"
-                            aria-label="Убрать из избранного"
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex gap-2">
+                        <a
+                          href={`/products/${product.id}`}
+                          className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
+                        >
+                          Подробнее
+                        </a>
+                        <button
+                          onClick={() => toggleFavorite(product.id)}
+                          className="w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 border-red-200 bg-red-50 text-red-500 hover:bg-red-100"
+                          aria-label="Убрать из избранного"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
