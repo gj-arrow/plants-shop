@@ -1,28 +1,9 @@
 'use client';
 
+import { type Product, parseImages } from '@/lib/product-utils';
+export { type Product, parseImages };
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export interface Product {
-  id: number;
-  name: string;
-  description: string | null;
-  price: number;
-  stock: number;
-  category: string | null;
-  image_url: string | null;
-}
-
-// Парсит image_url: строка (старый формат) или JSON-массив строк
-export function parseImages(product: { image_url: string | null }): string[] {
-  if (!product.image_url) return [];
-  try {
-    const parsed = JSON.parse(product.image_url);
-    if (Array.isArray(parsed)) return parsed.slice(0, 3);
-    return [product.image_url];
-  } catch {
-    return [product.image_url];
-  }
-}
 
 export interface CartItem extends Product {
   quantity: number;
