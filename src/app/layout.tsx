@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { CartProvider } from "@/contexts/CartContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
-import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
+
 export const metadata: Metadata = {
   title: "Plant Shop — Магазин растений",
   description: "Современный магазин комнатных растений с доставкой",
@@ -29,14 +28,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col">
-        <SessionProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-            </CartProvider>
-          </FavoritesProvider>
-        </SessionProvider>
+        <FavoritesProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+        </FavoritesProvider>
       </body>
     </html>
   );
