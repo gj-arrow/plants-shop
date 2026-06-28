@@ -7,21 +7,6 @@ const db = new Database(dbPath);
 
 // Инициализация схемы БД
 export function initDatabase() {
-  // Таблица пользователей
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE NOT NULL,
-      password_hash TEXT,
-      name TEXT NOT NULL,
-      phone TEXT,
-      auth_provider TEXT DEFAULT 'email',
-      auth_provider_id TEXT,
-      avatar_url TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
   // Таблица администраторов
   db.exec(`
     CREATE TABLE IF NOT EXISTS admins (
@@ -69,48 +54,6 @@ export function initDatabase() {
       image_url TEXT,
       category TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Таблица избранного
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS user_favorites (
-      user_id INTEGER NOT NULL,
-      product_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(user_id, product_id),
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (product_id) REFERENCES products(id)
-    )
-  `);
-
-  // Таблица заказов (обновлена с user_id)
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      customer_name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      email TEXT NOT NULL,
-      address TEXT NOT NULL,
-      delivery_method TEXT DEFAULT 'Самовывоз',
-      total REAL NOT NULL,
-      status TEXT DEFAULT 'new',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-  `);
-
-  // Таблица элементов заказа
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS order_items (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      order_id INTEGER NOT NULL,
-      product_id INTEGER NOT NULL,
-      quantity INTEGER NOT NULL,
-      price REAL NOT NULL,
-      FOREIGN KEY (order_id) REFERENCES orders(id),
-      FOREIGN KEY (product_id) REFERENCES products(id)
     )
   `);
 
