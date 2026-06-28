@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCart, Product, parseImages } from '@/contexts/CartContext';
-import { useFavorites } from '@/hooks/useFavorites';
+import { Product, parseImages } from '@/lib/product-utils';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 interface ProductDetail extends Product {}
 
@@ -15,9 +15,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const { addToCart, removeFromCart, updateQuantity, items } = useCart();
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const [lastAdded, setLastAdded] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     if (id) {
@@ -36,29 +34,6 @@ export default function ProductDetailPage() {
         });
     }
   }, [id]);
-
-  const handleAddToCart = () => {
-    if (product) {
-      addToCart(product, 1);
-      setLastAdded(true);
-      setTimeout(() => setLastAdded(false), 600);
-    }
-  };
-
-  const handleUpdateQuantity = (newQuantity: number) => {
-    if (!product) return;
-    if (newQuantity <= 0) {
-      removeFromCart(product.id);
-    } else if (newQuantity <= product.stock) {
-      updateQuantity(product.id, newQuantity);
-    }
-  };
-
-  const handleRemoveFromCart = () => {
-    if (product) {
-      removeFromCart(product.id);
-    }
-  };
 
   if (loading) {
     return (
@@ -88,10 +63,6 @@ export default function ProductDetailPage() {
       </div>
     );
   }
-
-  const cartItem = items.find(item => item.id === product.id);
-  const quantityInCart = cartItem?.quantity || 0;
-  const isInCart = quantityInCart > 0;
 
   return (
     <div className="min-h-screen bg-gradient-animated">
@@ -143,12 +114,7 @@ export default function ProductDetailPage() {
                         </span>
                       </div>
 
-                      {/* Бэдж корзины */}
-                      {isInCart && (
-                        <div className="absolute top-4 right-4 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg pulse-soft">
-                          В корзине: {quantityInCart} шт.
-                        </div>
-                      )}
+
                     </div>
 
                     {/* Миниатюры */}
@@ -218,75 +184,28 @@ export default function ProductDetailPage() {
               {/* Кнопки действий */}
               <div className="mt-auto">
                 {product.stock > 0 ? (
-                  isInCart ? (
-                    <div className="space-y-3">
-                      {/* Контролы количества */}
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => handleUpdateQuantity(quantityInCart - 1)}
-                          className="w-12 h-12 rounded-xl bg-red-50 text-red-600 font-bold text-xl btn-press hover:bg-red-100 transition flex items-center justify-center"
-                          aria-label="Уменьшить количество"
-                        >
-                          −
-                        </button>
-                        <div className="flex-1 text-center">
-                          <span className="text-sm text-gray-500 block">В корзине</span>
-                          <span className="text-2xl font-bold text-[#4CAF50]">{quantityInCart} шт.</span>
-                        </div>
-                        <button
-                          onClick={() => handleUpdateQuantity(quantityInCart + 1)}
-                          className="w-12 h-12 rounded-xl bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white font-bold text-xl btn-press hover:shadow-[0_4px_12px_rgba(76,175,80,0.4)] transition flex items-center justify-center"
-                          aria-label="Увеличить количество"
-                          disabled={quantityInCart >= product.stock}
-                        >
-                          +
-                        </button>
-                      </div>
-                      {/* Кнопки действий */}
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleRemoveFromCart}
-                          className="flex-1 bg-red-100 text-red-600 px-4 py-3 rounded-xl font-medium btn-press ripple hover:bg-red-200 transition flex items-center justify-center gap-2"
-                        >
-                          <span>🗑️</span>
-                          <span>Удалить</span>
-                        </button>
-                        <button
-                          onClick={() => router.push('/cart')}
-                          className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
-                        >
-                          В корзину
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleAddToCart}
-                        className={`flex-1 px-6 py-4 rounded-xl font-medium btn-press ripple shadow-lg transition flex items-center justify-center gap-2 ${
-                          lastAdded
-                            ? 'bg-green-500 text-white pulse-soft'
-                            : 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white hover:shadow-xl'
-                        }`}
-                      >
-                        <span>🛒</span>
-                        <span>{lastAdded ? 'Добавлено!' : 'Добавить в корзину'}</span>
-                      </button>
-                      <button
-                        onClick={() => toggleFavorite(product.id)}
-                        className={`w-14 h-14 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 shadow-lg ${
-                          isFavorite(product.id)
-                            ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
-                            : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
-                        }`}
-                        aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
-                      >
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  )
+                  <div className="flex gap-3">
+                    <a
+                      href="/"
+                      className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-6 py-4 rounded-xl font-medium btn-press ripple shadow-lg transition hover:shadow-xl flex items-center justify-center gap-2"
+                    >
+                      <span>←</span>
+                      <span>В каталог</span>
+                    </a>
+                    <button
+                      onClick={() => toggleFavorite(product.id)}
+                      className={`w-14 h-14 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 shadow-lg ${
+                        isFavorite(product.id)
+                          ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+                          : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
+                      }`}
+                      aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                  </div>
                 ) : (
                   <div className="flex gap-3">
                     <button
