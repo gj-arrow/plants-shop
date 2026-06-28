@@ -44,7 +44,7 @@ export default function LoginPage() {
       if (data.user.role === 'admin') {
         router.push('/admin/products');
       } else {
-        router.push('/profile');
+        router.push('/');
       }
     } catch (err: any) {
       setError(err.message);
@@ -58,7 +58,7 @@ export default function LoginPage() {
 
     try {
       await signIn(provider, { 
-        callbackUrl: '/profile',
+        callbackUrl: '/',
         redirect: true,
       });
     } catch (err: any) {

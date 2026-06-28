@@ -12,6 +12,18 @@ export interface Product {
   image_url: string | null;
 }
 
+// Парсит image_url: строка (старый формат) или JSON-массив строк
+export function parseImages(product: { image_url: string | null }): string[] {
+  if (!product.image_url) return [];
+  try {
+    const parsed = JSON.parse(product.image_url);
+    if (Array.isArray(parsed)) return parsed.slice(0, 3);
+    return [product.image_url];
+  } catch {
+    return [product.image_url];
+  }
+}
+
 export interface CartItem extends Product {
   quantity: number;
 }
@@ -53,16 +65,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, isLoaded]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
+    if (product.stock <= 0) return;
+    const clampedQuantity = Math.min(quantity, product.stock);
     setItems(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
+        const newQuantity = Math.min(existing.quantity + clampedQuantity, product.stock);
         return prev.map(item =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: newQuantity }
             : item
         );
       }
-      return [...prev, { ...product, quantity }];
+      return [...prev, { ...product, quantity: clampedQuantity }];
     });
   };
 
@@ -77,7 +92,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     setItems(prev =>
       prev.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.id === productId
+          ? { ...item, quantity: Math.min(quantity, item.stock) }
+          : item
       )
     );
   };

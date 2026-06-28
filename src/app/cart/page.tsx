@@ -1,13 +1,15 @@
 'use client';
 
-import { useCart } from '@/contexts/CartContext';
+import { useCart, parseImages } from '@/contexts/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, total } = useCart();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [showQuickOrder, setShowQuickOrder] = useState(false);
   const [quickName, setQuickName] = useState('');
   const [quickPhone, setQuickPhone] = useState('');
@@ -67,7 +69,7 @@ export default function CartPage() {
             <span className="text-5xl block mb-3">✅</span>
             <h3 className="text-xl font-bold text-[#2D1B4E] mb-2">Заказ оформлен!</h3>
             <p className="text-[#4CAF50] font-semibold text-lg mb-1">№{quickSuccess}</p>
-            <p className="text-[#8a7a9a] text-sm mb-6">Менеджер свяжется с вами в ближайшее время</p>
+            <p className="text-[#8a7a9a] text-sm mb-6">Спасибо за заказ! В ближайшее время свяжусь с Вами.</p>
             <button
               onClick={resetQuickOrder}
               className="bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-8 py-3 rounded-xl font-medium btn-press ripple shadow-[0_4px_15px_rgba(76,175,80,0.3)] transition"
@@ -78,7 +80,7 @@ export default function CartPage() {
         ) : (
           <>
             <h3 className="text-xl font-bold font-['Playfair_Display'] text-[#2D1B4E] mb-2">Быстрый заказ</h3>
-            <p className="text-[#8a7a9a] text-sm mb-5">Оставьте имя и телефон — мы перезвоним для подтверждения</p>
+            <p className="text-[#8a7a9a] text-sm mb-5">Оставьте имя и телефон — свяжусь с Вами для подтверждения</p>
 
             {quickError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-sm mb-4">
@@ -161,15 +163,18 @@ export default function CartPage() {
                 href={`/products/${item.id}`}
                 className="w-20 h-20 bg-gradient-to-br from-[#E8F5E9] via-[#FDF6F0] to-[#F1F8E9] rounded-xl flex items-center justify-center flex-shrink-0 shadow-[0_2px_8px_rgba(76,175,80,0.1)] hover:shadow-[0_4px_12px_rgba(76,175,80,0.2)] transition overflow-hidden"
               >
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform"
-                    />
-                  ) : (
-                    <span className="text-3xl">🪴</span>
-                  )}
+                  {(() => {
+                    const imgs = parseImages(item);
+                    return imgs.length > 0 ? (
+                      <img
+                        src={imgs[0]}
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-xl hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <span className="text-3xl">🪴</span>
+                    );
+                  })()}
                 </Link>
 
               <div className="flex-1 min-w-0">
@@ -221,12 +226,14 @@ export default function CartPage() {
               >
                 Очистить корзину
               </button>
-              <button
-                onClick={() => setShowQuickOrder(true)}
-                className="px-6 py-3.5 rounded-xl font-medium text-[#4CAF50] border-2 border-[#4CAF50] btn-press hover:bg-[#4CAF50] hover:text-white transition"
-              >
-                Быстрый заказ
-              </button>
+              {status === 'unauthenticated' && (
+                <button
+                  onClick={() => setShowQuickOrder(true)}
+                  className="px-6 py-3.5 rounded-xl font-medium text-[#4CAF50] border-2 border-[#4CAF50] btn-press hover:bg-[#4CAF50] hover:text-white transition"
+                >
+                  Быстрый заказ
+                </button>
+              )}
               <button
                 onClick={() => router.push('/checkout')}
                 className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-6 py-3.5 rounded-xl font-medium btn-press ripple shadow-[0_4px_15px_rgba(76,175,80,0.3)] hover:shadow-[0_6px_20px_rgba(76,175,80,0.4)] hover:from-[#388E3C] hover:to-[#4CAF50] transition"

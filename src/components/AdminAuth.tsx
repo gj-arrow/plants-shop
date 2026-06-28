@@ -18,14 +18,14 @@ export default function AdminAuth({ children }: AdminAuthProps) {
         return res.json();
       })
       .then(data => {
-        if (data.authenticated) {
+        if (data.authenticated && data.user?.role === 'admin') {
           setIsAuthenticated(true);
         } else {
-          router.push('/admin/login');
+          router.push('/login');
         }
       })
       .catch(() => {
-        router.push('/admin/login');
+        router.push('/login');
       });
   }, [router]);
 

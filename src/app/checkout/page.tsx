@@ -21,6 +21,7 @@ export default function CheckoutPage() {
     phone: '',
     email: '',
     address: '',
+    delivery_method: 'Самовывоз',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -36,13 +37,14 @@ export default function CheckoutPage() {
             phone: data.user.phone || '',
             email: data.user.email || '',
             address: '',
+            delivery_method: 'Самовывоз',
           });
         }
       })
       .catch(() => {});
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -163,17 +165,40 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#4A3267] mb-1">Адрес доставки</label>
-                  <textarea
-                    name="address"
-                    value={formData.address}
+                  <label className="block text-sm font-medium text-[#4A3267] mb-1">Способ доставки</label>
+                  <select
+                    name="delivery_method"
+                    value={formData.delivery_method}
                     onChange={handleChange}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition resize-none"
-                    placeholder="Город, улица, дом, квартира"
-                  />
+                    className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition bg-white appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234A3267' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      paddingRight: '36px',
+                    }}
+                  >
+                    <option value="Самовывоз">Самовывоз</option>
+                    <option value="Европочта">Европочта</option>
+                    <option value="Белпочта">Белпочта</option>
+                  </select>
+                  <p className="text-xs text-[#8a7a9a] italic mt-1.5">Крупномеры только самовывоз!</p>
                 </div>
+
+                {formData.delivery_method !== 'Самовывоз' && (
+                  <div className="fade-in">
+                    <label className="block text-sm font-medium text-[#4A3267] mb-1">Адрес доставки</label>
+                    <textarea
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      required={formData.delivery_method !== 'Самовывоз'}
+                      rows={3}
+                      className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition resize-none"
+                      placeholder="Город, улица, дом, квартира"
+                    />
+                  </div>
+                )}
               </div>
 
               <button
@@ -214,7 +239,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-4 p-3 bg-[#E8F5E9] rounded-xl text-sm text-[#4CAF50]">
-                <span className="font-medium">✓</span> Менеджер свяжется с вами для подтверждения
+                <span className="font-medium">✓</span> Свяжусь с вами для подтверждения
               </div>
             </div>
           </div>

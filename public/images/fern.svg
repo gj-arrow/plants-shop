@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#2E7D32"/>
+  <text x="100" y="80" text-anchor="middle" font-family="sans-serif" font-size="16" fill="white" font-weight="bold">Папоротник</text>
+  <text x="100" y="105" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#A5D6A7">Нефролепис</text>
+  <ellipse cx="100" cy="155" rx="40" ry="10" fill="#1B5E20" opacity="0.5"/>
+  <path d="M100 150 Q70 100 100 50" stroke="#43A047" stroke-width="3" fill="none"/>
+  <path d="M100 150 Q130 100 100 50" stroke="#43A047" stroke-width="3" fill="none"/>
+  <path d="M85 80 L60 70" stroke="#4CAF50" stroke-width="2" fill="none"/>
+  <path d="M115 80 L140 70" stroke="#4CAF50" stroke-width="2" fill="none"/>
+  <path d="M88 100 L65 90" stroke="#4CAF50" stroke-width="2" fill="none"/>
+  <path d="M112 100 L135 90" stroke="#4CAF50" stroke-width="2" fill="none"/>
+  <path d="M92 120 L72 112" stroke="#4CAF50" stroke-width="2" fill="none"/>
+  <path d="M108 120 L128 112" stroke="#4CAF50" stroke-width="2" fill="none"/>
+</svg>

@@ -32,6 +32,32 @@ export function initDatabase() {
     )
   `);
 
+  // Таблица категорий
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE NOT NULL,
+      description TEXT DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Seed default categories from existing product categories
+  const existingCategories = db.prepare('SELECT COUNT(*) as count FROM categories').get() as { count: number };
+  if (existingCategories.count === 0) {
+    const defaultCategories = [
+      { name: 'Комнатные', description: 'Комнатные растения для дома' },
+      { name: 'Деревья', description: 'Декоративные деревья' },
+      { name: 'Суккуленты', description: 'Суккуленты и кактусы' },
+      { name: 'Папоротники', description: 'Папоротники' },
+      { name: 'Цветущие', description: 'Цветущие растения' },
+    ];
+    const insertCategory = db.prepare('INSERT INTO categories (name, description) VALUES (?, ?)');
+    for (const cat of defaultCategories) {
+      insertCategory.run(cat.name, cat.description);
+    }
+  }
+
   // Таблица товаров
   db.exec(`
     CREATE TABLE IF NOT EXISTS products (
@@ -46,6 +72,18 @@ export function initDatabase() {
     )
   `);
 
+  // Таблица избранного
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_favorites (
+      user_id INTEGER NOT NULL,
+      product_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, product_id),
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (product_id) REFERENCES products(id)
+    )
+  `);
+
   // Таблица заказов (обновлена с user_id)
   db.exec(`
     CREATE TABLE IF NOT EXISTS orders (
@@ -55,6 +93,7 @@ export function initDatabase() {
       phone TEXT NOT NULL,
       email TEXT NOT NULL,
       address TEXT NOT NULL,
+      delivery_method TEXT DEFAULT 'Самовывоз',
       total REAL NOT NULL,
       status TEXT DEFAULT 'new',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -86,14 +125,14 @@ export function initDatabase() {
 
   // Добавляем тестовые товары
   const testProducts = [
-    { name: 'Монстера деликатесная', description: 'Крупное тропическое растение с резными листьями. Любит яркий рассеянный свет.', price: 2500, stock: 15, category: 'Комнатные', image_url: '/images/monstera.jpg' },
-    { name: 'Фикус лирата', description: 'Эффектное дерево с крупными листьями в форме скрипки. Требует хорошего освещения.', price: 4500, stock: 8, category: 'Деревья', image_url: '/images/ficus.jpg' },
-    { name: 'Сансевиерия', description: 'Неприхотливое растение с мечевидными листьями. Очищает воздух.', price: 1200, stock: 25, category: 'Суккуленты', image_url: '/images/sansevieria.jpg' },
-    { name: 'Папоротник Нефролепис', description: 'Ампельное растение с ажурными листьями. Любит влажность.', price: 1800, stock: 12, category: 'Папоротники', image_url: '/images/fern.jpg' },
-    { name: 'Орхидея Фаленопсис', description: 'Элегантная орхидея с долгим цветением. Требует специального ухода.', price: 3200, stock: 10, category: 'Цветущие', image_url: '/images/orchid.jpg' },
-    { name: 'Кактус Эхинокактус', description: 'Крупный шаровидный кактус. Очень неприхотлив, любит солнце.', price: 1500, stock: 20, category: 'Суккуленты', image_url: '/images/cactus.jpg' },
-    { name: 'Спатифиллум', description: '«Женское счастье» с белыми цветами. Теневыносливое растение.', price: 1600, stock: 18, category: 'Цветущие', image_url: '/images/spathiphyllum.jpg' },
-    { name: 'Драцена Маргината', description: 'Дерево с узкими листьями и красной каймой. Растёт медленно.', price: 2800, stock: 14, category: 'Деревья', image_url: '/images/dracaena.jpg' },
+    { name: 'Монстера деликатесная', description: 'Крупное тропическое растение с резными листьями. Любит яркий рассеянный свет.', price: 2500, stock: 15, category: 'Комнатные', image_url: '/images/monstera.svg' },
+    { name: 'Фикус лирата', description: 'Эффектное дерево с крупными листьями в форме скрипки. Требует хорошего освещения.', price: 4500, stock: 8, category: 'Деревья', image_url: '/images/ficus.svg' },
+    { name: 'Сансевиерия', description: 'Неприхотливое растение с мечевидными листьями. Очищает воздух.', price: 1200, stock: 25, category: 'Суккуленты', image_url: '/images/sansevieria.svg' },
+    { name: 'Папоротник Нефролепис', description: 'Ампельное растение с ажурными листьями. Любит влажность.', price: 1800, stock: 12, category: 'Папоротники', image_url: '/images/fern.svg' },
+    { name: 'Орхидея Фаленопсис', description: 'Элегантная орхидея с долгим цветением. Требует специального ухода.', price: 3200, stock: 10, category: 'Цветущие', image_url: '/images/orchid.svg' },
+    { name: 'Кактус Эхинокактус', description: 'Крупный шаровидный кактус. Очень неприхотлив, любит солнце.', price: 1500, stock: 20, category: 'Суккуленты', image_url: '/images/cactus.svg' },
+    { name: 'Спатифиллум', description: '«Женское счастье» с белыми цветами. Теневыносливое растение.', price: 1600, stock: 18, category: 'Цветущие', image_url: '/images/spathiphyllum.svg' },
+    { name: 'Драцена Маргината', description: 'Дерево с узкими листьями и красной каймой. Растёт медленно.', price: 2800, stock: 14, category: 'Деревья', image_url: '/images/dracaena.svg' },
   ];
 
   const insertProduct = db.prepare(`

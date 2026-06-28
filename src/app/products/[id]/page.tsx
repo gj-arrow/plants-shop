@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCart, Product } from '@/contexts/CartContext';
+import { useCart, Product, parseImages } from '@/contexts/CartContext';
+import { useFavorites } from '@/hooks/useFavorites';
 
-interface ProductDetail extends Product {
-  images?: string[];
-}
+interface ProductDetail extends Product {}
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -15,7 +14,9 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
   const { addToCart, removeFromCart, updateQuantity, items } = useCart();
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [lastAdded, setLastAdded] = useState(false);
 
   useEffect(() => {
@@ -27,10 +28,6 @@ export default function ProductDetailPage() {
         })
         .then(data => {
           setProduct(data);
-          // Generate gallery images (main + placeholders for demo)
-          if (data.image_url) {
-            data.images = [data.image_url, data.image_url, data.image_url];
-          }
           setLoading(false);
         })
         .catch(err => {
@@ -112,63 +109,73 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Галерея изображений */}
             <div className="p-6 bg-gray-50">
-              {/* Основное изображение */}
-                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9]">
-                {product.images && product.images.length > 0 ? (
-                  <img
-                    src={product.images[selectedImageIndex]}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-8xl">🪴</span>
-                  </div>
-                )}
-                
-                {/* Бэдж наличия */}
-                <div className="absolute top-4 left-4">
-                  <span
-                    className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg ${
-                      product.stock > 0
-                        ? 'bg-[#4CAF50] text-white'
-                        : 'bg-red-500 text-white'
-                    }`}
-                  >
-                    {product.stock > 0 ? '✓ В наличии' : '✗ Нет в наличии'}
-                  </span>
-                </div>
+              {(() => {
+                const images = parseImages(product);
+                const hasImages = images.length > 0;
+                const currentImage = hasImages ? images[selectedImageIndex] : null;
 
-                {/* Бэдж корзины */}
-                {isInCart && (
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg pulse-soft">
-                    В корзине: {quantityInCart} шт.
-                  </div>
-                )}
-              </div>
+                return (
+                  <>
+                    {/* Основное изображение */}
+                    <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9]">
+                      {hasImages ? (
+                        <img
+                          src={currentImage!}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-8xl">🪴</span>
+                        </div>
+                      )}
+                      
+                      {/* Бэдж наличия */}
+                      <div className="absolute top-4 left-4">
+                        <span
+                          className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg ${
+                            product.stock > 0
+                              ? 'bg-[#4CAF50] text-white'
+                              : 'bg-red-500 text-white'
+                          }`}
+                        >
+                          {product.stock > 0 ? '✓ В наличии' : '✗ Нет в наличии'}
+                        </span>
+                      </div>
 
-              {/* Миниатюры */}
-              {product.images && product.images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
-                  {product.images.map((img, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === index
-                          ? 'border-[#4CAF50] ring-2 ring-[rgba(76,175,80,0.2)]'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`${product.name} - ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+                      {/* Бэдж корзины */}
+                      {isInCart && (
+                        <div className="absolute top-4 right-4 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg pulse-soft">
+                          В корзине: {quantityInCart} шт.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Миниатюры */}
+                    {images.length > 1 && (
+                      <div className="flex gap-2">
+                        {images.map((url, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedImageIndex(index)}
+                            className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                              selectedImageIndex === index
+                                ? 'border-[#4CAF50] ring-2 ring-[rgba(76,175,80,0.2)]'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <img
+                              src={url}
+                              alt={`${product.name} — ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Информация о товаре */}
@@ -253,25 +260,55 @@ export default function ProductDetailPage() {
                       </div>
                     </div>
                   ) : (
-                    <button
-                      onClick={handleAddToCart}
-                      className={`w-full px-6 py-4 rounded-xl font-medium btn-press ripple shadow-lg transition flex items-center justify-center gap-2 ${
-                        lastAdded
-                          ? 'bg-green-500 text-white pulse-soft'
-                          : 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white hover:shadow-xl'
-                      }`}
-                    >
-                      <span>🛒</span>
-                      <span>{lastAdded ? 'Добавлено!' : 'Добавить в корзину'}</span>
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleAddToCart}
+                        className={`flex-1 px-6 py-4 rounded-xl font-medium btn-press ripple shadow-lg transition flex items-center justify-center gap-2 ${
+                          lastAdded
+                            ? 'bg-green-500 text-white pulse-soft'
+                            : 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white hover:shadow-xl'
+                        }`}
+                      >
+                        <span>🛒</span>
+                        <span>{lastAdded ? 'Добавлено!' : 'Добавить в корзину'}</span>
+                      </button>
+                      <button
+                        onClick={() => toggleFavorite(product.id)}
+                        className={`w-14 h-14 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 shadow-lg ${
+                          isFavorite(product.id)
+                            ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+                            : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
+                        }`}
+                        aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
+                      >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                      </button>
+                    </div>
                   )
                 ) : (
-                  <button
-                    disabled
-                    className="w-full bg-gray-200 text-gray-500 px-6 py-4 rounded-xl font-medium cursor-not-allowed"
-                  >
-                    Нет в наличии
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      disabled
+                      className="flex-1 bg-gray-200 text-gray-500 px-6 py-4 rounded-xl font-medium cursor-not-allowed"
+                    >
+                      Нет в наличии
+                    </button>
+                    <button
+                      onClick={() => toggleFavorite(product.id)}
+                      className={`w-14 h-14 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 shadow-lg ${
+                        isFavorite(product.id)
+                          ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+                          : 'border-gray-200 text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
+                      }`}
+                      aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -279,12 +316,7 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Дополнительная информация */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="bg-white rounded-2xl p-6 shadow-md">
-            <div className="text-3xl mb-3">🚚</div>
-            <h3 className="font-semibold text-gray-800 mb-2">Быстрая доставка</h3>
-            <p className="text-gray-600 text-sm">Доставим в удобное для вас время</p>
-          </div>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="bg-white rounded-2xl p-6 shadow-md">
             <div className="text-3xl mb-3">🌱</div>
             <h3 className="font-semibold text-gray-800 mb-2">Гарантия качества</h3>
@@ -292,8 +324,8 @@ export default function ProductDetailPage() {
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-md">
             <div className="text-3xl mb-3">💬</div>
-            <h3 className="font-semibold text-gray-800 mb-2">Поддержка 24/7</h3>
-            <p className="text-gray-600 text-sm">Поможем с выбором и уходом</p>
+              <h3 className="font-semibold text-gray-800 mb-2">Поддержка</h3>
+            <p className="text-gray-600 text-sm">Помогу с выбором и уходом</p>
           </div>
         </div>
       </div>

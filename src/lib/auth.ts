@@ -56,10 +56,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (session.user as any).provider = token.provider as string;
         
         // Получаем пользователя из БД
-        const user = db.prepare('SELECT id, email, name, avatar_url FROM users WHERE email = ?').get(session.user?.email) as any;
+        const user = db.prepare('SELECT id, email, name, avatar_url, phone, created_at FROM users WHERE email = ?').get(session.user?.email) as any;
         if (user) {
           (session.user as any).id = user.id;
           (session.user as any).avatar_url = user.avatar_url;
+          (session.user as any).phone = user.phone;
+          (session.user as any).created_at = user.created_at;
         }
       }
       return session;

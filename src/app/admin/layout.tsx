@@ -9,11 +9,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleLogout = async () => {
     await fetch('/api/auth', { method: 'DELETE' });
-    router.push('/admin/login');
+    router.push('/login');
   };
 
   const navItems = [
     { href: '/admin/products', label: 'Товары' },
+    { href: '/admin/categories', label: 'Категории' },
     { href: '/admin/orders', label: 'Заказы' },
   ];
 

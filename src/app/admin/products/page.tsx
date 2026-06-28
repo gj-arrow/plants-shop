@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminAuth from '@/components/AdminAuth';
+import { parseImages } from '@/contexts/CartContext';
 
 interface Product {
   id: number;
@@ -24,12 +25,15 @@ const emptyProduct: Omit<Product, 'id'> = {
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
+  const [priceInput, setPriceInput] = useState('0');
+  const [stockInput, setStockInput] = useState('0');
   const [uploading, setUploading] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string>('');
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -42,24 +46,33 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(() => {});
   }, []);
 
   const openModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
+      const images = parseImages(product);
       setFormData({
         name: product.name,
         description: product.description || '',
         price: product.price,
         stock: product.stock,
         category: product.category || '',
-        image_url: product.image_url || '',
+        image_url: images.length > 0 ? JSON.stringify(images) : '',
       });
-      setPreviewImage(product.image_url || '');
+      setPriceInput(String(product.price));
+      setStockInput(String(product.stock));
+      setPreviewImages(images);
     } else {
       setEditingProduct(null);
       setFormData(emptyProduct);
-      setPreviewImage('');
+      setPriceInput('0');
+      setStockInput('0');
+      setPreviewImages([]);
     }
     setIsModalOpen(true);
   };
@@ -68,37 +81,63 @@ export default function AdminProductsPage() {
     setIsModalOpen(false);
     setEditingProduct(null);
     setFormData(emptyProduct);
-    setPreviewImage('');
+    setPriceInput('0');
+    setStockInput('0');
+    setPreviewImages([]);
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const formDataObj = new FormData();
+    formDataObj.append('file', file);
+    const response = await fetch('/api/upload', { method: 'POST', body: formDataObj });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
+    return data.url;
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
     try {
-      const formDataObj = new FormData();
-      formDataObj.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formDataObj,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ошибка загрузки');
+      const newUrls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file);
+        newUrls.push(url);
       }
 
-      setFormData(prev => ({ ...prev, image_url: data.url }));
-      setPreviewImage(data.url);
+      const allUrls = [...previewImages, ...newUrls].slice(0, 3);
+      setPreviewImages(allUrls);
+      setFormData(prev => ({
+        ...prev,
+        image_url: allUrls.length > 0 ? JSON.stringify(allUrls) : '',
+      }));
     } catch (error: any) {
       alert(error.message || 'Ошибка при загрузке изображения');
     } finally {
       setUploading(false);
       e.target.value = '';
     }
+  };
+
+  const removeImage = (index: number) => {
+    const remaining = previewImages.filter((_, i) => i !== index);
+    setPreviewImages(remaining);
+    setFormData(prev => ({
+      ...prev,
+      image_url: remaining.length > 0 ? JSON.stringify(remaining) : '',
+    }));
+  };
+
+  const setMainImage = (index: number) => {
+    if (index === 0) return;
+    const reordered = [previewImages[index], ...previewImages.filter((_, i) => i !== index)];
+    setPreviewImages(reordered);
+    setFormData(prev => ({
+      ...prev,
+      image_url: JSON.stringify(reordered),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -168,11 +207,14 @@ export default function AdminProductsPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-gradient-to-br from-[#E8F5E9] via-[#FDF6F0] to-[#F1F8E9] rounded-xl flex items-center justify-center shadow-sm">
-                          {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-xl" />
-                          ) : (
-                            <span className="text-xl">🪴</span>
-                          )}
+                          {(() => {
+                            const imgs = parseImages(product);
+                            return imgs.length > 0 ? (
+                              <img src={imgs[0]} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                            ) : (
+                              <span className="text-xl">🪴</span>
+                            );
+                          })()}
                         </div>
                         <div>
                           <div className="font-semibold text-[#2D1B4E]">{product.name}</div>
@@ -190,7 +232,7 @@ export default function AdminProductsPage() {
                       <span className={`text-sm px-3 py-1 rounded-full font-medium ${
                         product.stock > 0 ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#FFEBEE] text-[#C62828]'
                       }`}>
-                        {product.stock > 0 ? `✓ ${product.stock}` : '✗ Нет'}
+                        {product.stock > 0 ? `✓ ${product.stock}` : '✗ Нет в наличии'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -202,7 +244,7 @@ export default function AdminProductsPage() {
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="text-[#66BB6A] hover:bg-[#F1F8E9] px-3 py-1.5 rounded-lg font-medium text-sm btn-press transition"
+                        className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg font-medium text-sm btn-press transition"
                       >
                         🗑️ Удалить
                       </button>
@@ -252,79 +294,118 @@ export default function AdminProductsPage() {
                     <div>
                       <label className="block text-sm font-medium text-[#4A3267] mb-1">Цена (р.)</label>
                       <input
-                        type="number"
-                        value={formData.price}
-                        onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                        type="text"
+                        inputMode="numeric"
+                        value={priceInput}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/[^0-9]/g, '');
+                          setPriceInput(digits);
+                          setFormData({ ...formData, price: digits === '' ? 0 : parseInt(digits, 10) });
+                        }}
                         className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
                         required
-                        min="0"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#4A3267] mb-1">Остаток</label>
                       <input
-                        type="number"
-                        value={formData.stock}
-                        onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
+                        type="text"
+                        inputMode="numeric"
+                        value={stockInput}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/[^0-9]/g, '');
+                          setStockInput(digits);
+                          setFormData({ ...formData, stock: digits === '' ? 0 : parseInt(digits, 10) });
+                        }}
                         className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
-                        min="0"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#4A3267] mb-1">Категория</label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition bg-white appearance-none cursor-pointer"
-                      >
-                        <option value="">Выберите категорию</option>
-                        <option value="Комнатные">Комнатные</option>
-                        <option value="Деревья">Деревья</option>
-                        <option value="Суккуленты">Суккуленты</option>
-                        <option value="Папоротники">Папоротники</option>
-                        <option value="Цветущие">Цветущие</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#4A3267] mb-1">Изображение</label>
+                  {/* Категория — на всю ширину */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#4A3267] mb-1">Категория</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition bg-white appearance-none cursor-pointer"
+                    >
+                      <option value="">Выберите категорию</option>
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Изображения — на всю ширину, крупнее */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#4A3267] mb-2">
+                      Изображения (до 3 шт.)
+                    </label>
+
+                    {/* Сетка превью */}
+                    {previewImages.length > 0 && (
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        {previewImages.map((url, index) => (
+                          <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#E8F5E9] group shadow-sm">
+                            <img
+                              src={url}
+                              alt={`Фото ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1.5 right-1.5 bg-[#66BB6A] text-white p-1.5 rounded-full btn-press hover:bg-[#4CAF50] transition opacity-0 group-hover:opacity-100"
+                              title="Удалить"
+                            >
+                              ✕
+                            </button>
+                            {index === 0 ? (
+                              <div className="absolute bottom-1.5 left-1.5 bg-yellow-500 text-white text-xs px-2.5 py-1 rounded-full shadow font-medium">
+                                ⭐ Главная
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setMainImage(index)}
+                                className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-yellow-600 font-medium"
+                                title="Сделать главной"
+                              >
+                                ⭐ Сделать главной
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {/* Пустые слоты */}
+                        {Array.from({ length: 3 - previewImages.length }).map((_, i) => (
+                          <div key={`empty-${i}`} className="aspect-[4/3] rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <span className="text-gray-300 text-3xl">+</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Кнопка загрузки */}
+                    {previewImages.length < 3 && (
                       <div className="space-y-2">
                         <input
                           type="file"
-                          accept="image/*"
+                          accept="image/*,.heic,.heif"
+                          multiple
                           onChange={handleImageUpload}
                           disabled={uploading}
-                          className="w-full px-3 py-2 border-2 border-[rgba(76,175,80,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
+                          className="w-full px-4 py-3 border-2 border-[rgba(76,175,80,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-[#E8F5E9] file:text-[#4CAF50] file:font-medium file:text-sm hover:file:bg-[#C8E6C9]"
                         />
                         {uploading && (
                           <p className="text-xs text-[#4CAF50]">🔄 Загрузка...</p>
                         )}
                       </div>
-                    </div>
+                    )}
+                    {previewImages.length === 0 && (
+                      <p className="text-xs text-gray-400 mt-1">Загрузите до 3 изображений товара. Первое будет главным.</p>
+                    )}
                   </div>
-
-                  {/* Предпросмотр изображения */}
-                  {previewImage && (
-                    <div className="relative rounded-xl overflow-hidden bg-[#E8F5E9] aspect-video">
-                      <img
-                        src={previewImage}
-                        alt="Предпросмотр"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPreviewImage('');
-                          setFormData({ ...formData, image_url: '' });
-                        }}
-                        className="absolute top-2 right-2 bg-[#66BB6A] text-white p-1.5 rounded-full btn-press hover:bg-[#4CAF50] transition"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )}
 
                   <div className="flex gap-3 pt-4">
                     <button

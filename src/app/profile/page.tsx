@@ -27,6 +27,7 @@ interface Order {
   phone: string;
   email: string;
   address: string;
+  delivery_method: string;
   total: number;
   status: string;
   created_at: string;
@@ -58,34 +59,69 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'orders'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '' });
+  const [isCustomAuth, setIsCustomAuth] = useState(false);
+
+  // Переключение таба из query-параметра
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'orders') setActiveTab('orders');
+  }, []);
 
   useEffect(() => {
     if (status === 'loading') return;
-    
-    if (!session?.user) {
-      router.push('/login');
+
+    // Если есть NextAuth-сессия — используем её
+    if (session?.user) {
+      const userWithRole = session.user as any;
+      if (userWithRole.role === 'admin') {
+        router.push('/admin/products');
+        return;
+      }
+      setUser({
+        id: userWithRole.id,
+        email: userWithRole.email,
+        name: userWithRole.name,
+        phone: userWithRole.phone || null,
+        created_at: userWithRole.created_at || new Date().toISOString(),
+        avatar_url: userWithRole.avatar_url,
+      });
+      setEditForm({
+        name: userWithRole.name || '',
+        phone: userWithRole.phone || '',
+      });
+      fetchUserOrders();
       return;
     }
-    
-    const userWithRole = session.user as any;
-    if (userWithRole.role === 'admin') {
-      router.push('/admin/products');
-      return;
-    }
-    
-    setUser({
-      id: userWithRole.id,
-      email: userWithRole.email,
-      name: userWithRole.name,
-      phone: userWithRole.phone || null,
-      created_at: userWithRole.created_at || new Date().toISOString(),
-      avatar_url: userWithRole.avatar_url,
-    });
-    setEditForm({ 
-      name: userWithRole.name || '', 
-      phone: userWithRole.phone || '' 
-    });
-    fetchUserOrders();
+
+    // Если нет NextAuth — проверяем кастомную auth (email/password)
+    fetch('/api/auth')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          if (data.user.role === 'admin') {
+            router.push('/admin/products');
+            return;
+          }
+          setIsCustomAuth(true);
+          setUser({
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name || data.user.email,
+            phone: data.user.phone || null,
+            created_at: data.user.created_at || new Date().toISOString(),
+          });
+          setEditForm({
+            name: data.user.name || data.user.email,
+            phone: data.user.phone || '',
+          });
+          fetchUserOrders();
+        } else {
+          router.push('/login');
+        }
+      })
+      .catch(() => {
+        router.push('/login');
+      });
   }, [session, status, router]);
 
   const fetchUserOrders = async () => {
@@ -102,8 +138,34 @@ export default function ProfilePage() {
     }
   };
 
+  const cancelOrder = async (orderId: number) => {
+    if (!confirm('Вы уверены, что хотите отменить заказ?')) return;
+
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'cancelled' }),
+      });
+
+      if (response.ok) {
+        setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Ошибка при отмене заказа');
+      }
+    } catch (error) {
+      alert('Ошибка при отмене заказа');
+    }
+  };
+
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    if (isCustomAuth) {
+      await fetch('/api/auth', { method: 'DELETE' });
+    } else {
+      await signOut({ callbackUrl: '/' });
+    }
+    window.location.href = '/';
   };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
@@ -319,36 +381,59 @@ export default function ProfilePage() {
                               </span>
                             </div>
                             <p className="text-sm text-gray-500">
-                              {new Date(order.created_at).toLocaleString('ru-RU')}
+                              {new Date(order.created_at + 'Z').toLocaleString('ru-RU')}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex flex-col items-end gap-2">
                             <p className="text-2xl font-bold text-green-600">{order.total} р.</p>
+                            {order.status === 'new' && (
+                              <button
+                                onClick={() => cancelOrder(order.id)}
+                                className="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition border border-red-200"
+                              >
+                                Отменить заказ
+                              </button>
+                            )}
                           </div>
                         </div>
 
-                        <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                          <p className="text-sm text-gray-600 mb-2">
-                            📍 {order.address}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            👤 {order.customer_name} | 📞 {order.phone}
-                          </p>
-                        </div>
-
-                        <details className="mt-2">
-                          <summary className="cursor-pointer text-sm text-green-600 font-medium hover:text-green-700">
-                            Показать состав заказа
-                          </summary>
-                          <div className="mt-2 space-y-1 pl-2">
+                        {/* Состав заказа — всегда виден */}
+                        <div className="bg-[#F8FAF5] rounded-lg p-3 mb-3">
+                          <p className="text-xs font-semibold text-[#4CAF50] uppercase tracking-wider mb-2">Состав заказа</p>
+                          <div className="space-y-1">
                             {order.items.map((item, index) => (
                               <div key={index} className="flex justify-between text-sm">
-                                <span className="text-gray-600">
-                                  {item.product_name} × {item.quantity}
+                                <span className="text-gray-700">
+                                  {item.product_name} <span className="text-gray-400">×</span> {item.quantity}
                                 </span>
-                                <span className="font-medium">{item.price * item.quantity} р.</span>
+                                <span className="font-medium text-gray-800">{item.price * item.quantity} р.</span>
                               </div>
                             ))}
+                            <div className="border-t border-[#E0E8D8] mt-2 pt-1 flex justify-between text-sm font-bold">
+                              <span className="text-gray-700">Итого</span>
+                              <span className="text-green-600">{order.total} р.</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Детали доставки — под катом */}
+                        <details className="group">
+                          <summary className="cursor-pointer text-sm text-green-600 font-medium hover:text-green-700 list-none flex items-center gap-1">
+                            <svg className="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                            Детали доставки
+                          </summary>
+                          <div className="mt-2 bg-gray-50 rounded-lg p-3 space-y-1">
+                            <p className="text-sm text-gray-600">
+                              🚚 Способ: <span className="font-medium text-gray-800">{order.delivery_method}</span>
+                            </p>
+                            {order.delivery_method !== 'Самовывоз' && (
+                              <p className="text-sm text-gray-600">
+                                📍 Адрес: <span className="font-medium text-gray-800">{order.address}</span>
+                              </p>
+                            )}
+                            <p className="text-sm text-gray-600">
+                              👤 {order.customer_name} | 📞 {order.phone}
+                            </p>
                           </div>
                         </details>
                       </div>

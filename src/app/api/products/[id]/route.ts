@@ -71,6 +71,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
+    // Удаляем сначала связи в order_items, потом сам товар
+    db.prepare('DELETE FROM order_items WHERE product_id = ?').run(id);
     db.prepare('DELETE FROM products WHERE id = ?').run(id);
     return NextResponse.json({ message: 'Product deleted' });
   } catch (error) {

@@ -12,10 +12,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Проверяем тип файла
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'];
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
       return NextResponse.json({ 
-        error: 'Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, GIF' 
+        error: 'Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, GIF, HEIC' 
       }, { status: 400 });
     }
 
@@ -34,7 +36,6 @@ export async function POST(request: NextRequest) {
     // Генерируем уникальное имя файла
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
-    const fileExtension = file.name.split('.').pop() || 'jpg';
     const filename = `${timestamp}-${randomString}.${fileExtension}`;
     const filepath = path.join(uploadsDir, filename);
 

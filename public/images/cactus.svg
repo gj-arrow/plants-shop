@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#33691E"/>
+  <text x="100" y="80" text-anchor="middle" font-family="sans-serif" font-size="16" fill="white" font-weight="bold">Кактус</text>
+  <text x="100" y="105" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#AED581">Эхинокактус</text>
+  <ellipse cx="100" cy="165" rx="50" ry="12" fill="#1B5E20" opacity="0.5"/>
+  <ellipse cx="100" cy="135" rx="35" ry="40" fill="#4CAF50"/>
+  <ellipse cx="100" cy="135" rx="30" ry="35" fill="#66BB6A" opacity="0.5"/>
+  <circle cx="100" cy="100" r="8" fill="#FFEB3B"/>
+  <circle cx="100" cy="100" r="5" fill="#FFC107"/>
+  <line x1="100" y1="130" x2="85" y2="125" stroke="#2E7D32" stroke-width="1.5"/>
+  <line x1="100" y1="130" x2="115" y2="125" stroke="#2E7D32" stroke-width="1.5"/>
+</svg>

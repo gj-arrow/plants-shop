@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#2E7D32"/>
+  <text x="100" y="85" text-anchor="middle" font-family="sans-serif" font-size="16" fill="white" font-weight="bold">Монстера</text>
+  <text x="100" y="110" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#A5D6A7">деликатесная</text>
+  <ellipse cx="100" cy="150" rx="40" ry="8" fill="#1B5E20" opacity="0.5"/>
+  <path d="M100 140 Q80 100 90 60" stroke="#4CAF50" stroke-width="3" fill="none"/>
+  <path d="M100 140 Q120 100 110 60" stroke="#4CAF50" stroke-width="3" fill="none"/>
+  <ellipse cx="85" cy="55" rx="20" ry="12" fill="#4CAF50" opacity="0.8"/>
+  <ellipse cx="115" cy="55" rx="20" ry="12" fill="#4CAF50" opacity="0.8"/>
+</svg>

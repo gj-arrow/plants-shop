@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 
-// PUT /api/orders/[id] - обновить статус заказа (admin only)
+// PUT /api/orders/[id] - обновить статус заказа
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -11,7 +11,7 @@ export async function PUT(
     const body = await request.json();
     const { status } = body;
 
-    const existing = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+    const existing = db.prepare('SELECT * FROM orders WHERE id = ?').get(id) as any;
     if (!existing) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
@@ -21,9 +21,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
+    // Отменить можно только новый заказ
+    if (status === 'cancelled' && existing.status !== 'new') {
+      return NextResponse.json({ error: 'Можно отменить только новый заказ' }, { status: 400 });
+    }
+
     db.prepare(`
       UPDATE orders SET status = ? WHERE id = ?
-    `).run(status || (existing as any).status, id);
+    `).run(status || existing.status, id);
 
     const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
     return NextResponse.json(updated);

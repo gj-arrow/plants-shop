@@ -217,10 +217,10 @@ export async function GET(request: NextRequest) {
         user: admin ? { id: admin.id, email: admin.email, role: 'admin' as const } : null
       });
     } else {
-      const user = db.prepare('SELECT id, email, name, auth_provider, avatar_url FROM users WHERE id = ?').get(session.userId) as any;
+      const user = db.prepare('SELECT id, email, name, auth_provider, avatar_url, phone, created_at FROM users WHERE id = ?').get(session.userId) as any;
       return NextResponse.json({
         authenticated: true,
-        user: user ? { id: user.id, email: user.email, name: user.name, avatar_url: user.avatar_url, role: 'user' as const } : null
+        user: user ? { id: user.id, email: user.email, name: user.name, avatar_url: user.avatar_url, phone: user.phone, created_at: user.created_at, role: 'user' as const } : null
       });
     }
   } catch (error) {
