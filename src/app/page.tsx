@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCart, Product, parseImages } from '@/contexts/CartContext';
+import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 import FallingLeaves from '@/components/FallingLeaves';
 
@@ -15,14 +15,12 @@ export default function HomePage() {
 }
 
 function HomePageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const { items, addToCart, updateQuantity: updateCartQuantity } = useCart();
-  const [lastAddedId, setLastAddedId] = useState<number | null>(null);
+
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
@@ -46,19 +44,6 @@ function HomePageContent() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleAddToCartWithFeedback = (product: Product) => {
-    addToCart(product, 1);
-    setLastAddedId(product.id);
-    setTimeout(() => setLastAddedId(null), 600);
-  };
-
-  const handleUpdateQuantity = (productId: number, newQuantity: number, maxStock: number) => {
-    if (newQuantity <= 0) {
-      updateCartQuantity(productId, 0);
-    } else if (newQuantity <= maxStock) {
-      updateCartQuantity(productId, newQuantity);
-    }
-  };
 
   return (
     <>
@@ -126,11 +111,7 @@ function HomePageContent() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product, index) => {
-              const cartItem = items.find(item => item.id === product.id);
-              const quantityInCart = cartItem?.quantity || 0;
-
-              return (
+            {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
                   className="fade-in"
@@ -138,16 +119,11 @@ function HomePageContent() {
                 >
                   <ProductCard
                     product={product}
-                    quantityInCart={quantityInCart}
-                    onAddToCart={handleAddToCartWithFeedback}
-                    onUpdateQuantity={handleUpdateQuantity}
-                    isHighlighted={lastAddedId === product.id}
                     isFavorite={isFavorite(product.id)}
                     onToggleFavorite={toggleFavorite}
                   />
                 </div>
-              );
-            })}
+              ))}
           </div>
         )}
         </div>
@@ -307,25 +283,16 @@ function HomePageContent() {
 
 interface ProductCardProps {
   product: Product;
-  quantityInCart: number;
-  onAddToCart: (p: Product) => void;
-  onUpdateQuantity: (id: number, qty: number, maxStock: number) => void;
-  isHighlighted: boolean;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
 }
 
 function ProductCard({
   product,
-  quantityInCart,
-  onAddToCart,
-  onUpdateQuantity,
-  isHighlighted,
   isFavorite,
   onToggleFavorite,
 }: ProductCardProps) {
   const router = useRouter();
-  const isInCart = quantityInCart > 0;
 
   const handleCardClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) {
@@ -337,9 +304,7 @@ function ProductCard({
   return (
     <div
       onClick={handleCardClick}
-      className={`bg-white rounded-[20px] shadow-md overflow-hidden card-hover flex flex-col h-full cursor-pointer border border-[rgba(76,175,80,0.1)] ${
-        isHighlighted ? 'pulse-soft ring-2 ring-[#66BB6A]' : ''
-      }`}
+      className="bg-white rounded-[20px] shadow-md overflow-hidden card-hover flex flex-col h-full cursor-pointer border border-[rgba(76,175,80,0.1)]"
     >
       <div className="h-48 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9] flex items-center justify-center relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(76,175,80,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -355,11 +320,6 @@ function ProductCard({
             <span className="text-6xl group-hover:scale-110 transition-transform duration-300">🪴</span>
           );
         })()}
-        {isInCart && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg pulse-soft">
-            ✓ {quantityInCart} шт.
-          </div>
-        )}
       </div>
 
       <div className="p-4 flex flex-col flex-1">
@@ -382,77 +342,28 @@ function ProductCard({
           </span>
         </div>
 
-        {product.stock > 0 ? (
-          <div className="flex gap-2">
-            {isInCart ? (
-              <div className="flex items-center gap-2 w-full">
-                <button
-                  onClick={() => onUpdateQuantity(product.id, quantityInCart - 1, product.stock)}
-                  className="w-10 h-10 rounded-xl bg-[rgba(102,187,106,0.12)] text-[#66BB6A] font-bold text-lg btn-press hover:bg-[rgba(102,187,106,0.25)] transition flex items-center justify-center"
-                  aria-label="Уменьшить количество"
-                >
-                  −
-                </button>
-                <div className="flex-1 text-center">
-                  <span className="text-sm text-[#8a7a9a] block">В корзине</span>
-                  <span className="text-xl font-bold text-[#4CAF50]">{quantityInCart} шт.</span>
-                </div>
-                <button
-                  onClick={() => onUpdateQuantity(product.id, quantityInCart + 1, product.stock)}
-                  className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white font-bold text-lg btn-press hover:shadow-[0_4px_12px_rgba(76,175,80,0.4)] transition flex items-center justify-center"
-                  aria-label="Увеличить количество"
-                  disabled={quantityInCart >= product.stock}
-                >
-                  +
-                </button>
-              </div>
-            ) : (
-              <>
-                <button
-                  onClick={() => onAddToCart(product)}
-                  className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                  </svg>
-                  <span>В корзину</span>
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
-                  className={`w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 ${
-                    isFavorite
-                      ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
-                      : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
-                  }`}
-                  aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </button>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              disabled
-              className="flex-1 bg-gray-200 text-gray-500 px-4 py-3 rounded-xl font-medium cursor-not-allowed"
-            >
-              Нет в наличии
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
-              className="w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 text-[#8a7a9a] border-gray-200 cursor-pointer hover:border-red-200 hover:text-red-400 hover:bg-red-50"
-              aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-            </button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <a
+            href={`/products/${product.id}`}
+            className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Подробнее →
+          </a>
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
+            className={`w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 ${
+              isFavorite
+                ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+                : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
+            }`}
+            aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
