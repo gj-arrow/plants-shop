@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminAuth from '@/components/AdminAuth';
-import { parseImages } from '@/contexts/CartContext';
+import { parseImages } from '@/lib/product-utils';
 
 interface Product {
   id: number;
