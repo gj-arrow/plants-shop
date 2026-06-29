@@ -20,7 +20,13 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      setFavorites(saved ? JSON.parse(saved) : []);
+      const parsed = saved ? JSON.parse(saved) : [];
+      if (!Array.isArray(parsed)) {
+        localStorage.removeItem(STORAGE_KEY);
+        setFavorites([]);
+      } else {
+        setFavorites(parsed);
+      }
     } catch {
       setFavorites([]);
     }
@@ -33,7 +39,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       const updated = alreadyFav
         ? prev.filter(id => id !== productId)
         : [...prev, productId];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Failed to save favorites to localStorage:', e);
+      }
       return updated;
     });
   }, []);

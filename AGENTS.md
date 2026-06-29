@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-E-commerce app for indoor plants. Next.js 16 App Router + React 19 + TypeScript 5 + Tailwind CSS 4. SQLite (better-sqlite3), NextAuth 5 (Google OAuth), custom bcrypt admin auth.
+E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 4. SQLite (better-sqlite3). **No test framework, no CI.**
 
 ## Build & Run
 
@@ -11,61 +11,76 @@ E-commerce app for indoor plants. Next.js 16 App Router + React 19 + TypeScript 
 | `npm run dev` | Dev server (Turbopack) on :3000 |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint (flat config) |
-| `npm run init-db` | Seed DB with admin + 8 sample products |
+| `npm run init-db` | Seed DB with admin + 8 sample products + categories |
 | `npm start` | Run production build |
 
-Order: `npm install && npm run init-db && npm run dev` for fresh setup.
+**Fresh setup order:** `npm install && npm run init-db && npm run dev`
 
-## Auth & Security
+## Auth
 
-- **Two auth systems**: NextAuth 5 (Google OAuth, JWT strategy) for customers; custom bcrypt + in-memory `Map` for admin
-- **Admin sessions**: Stored in-memory `Map` in `src/app/api/auth/route.ts` — **lost on server restart**, not production-grade
-- **No API auth guards**: Product CRUD, order CRUD, and upload routes have **no session checks**. Auth is entirely client-side via `<AdminAuth>` component
-- **Admin credentials**: `admin` / `admin123` (seeded by `init-db`)
-- **AdminAuth component** (`src/components/AdminAuth.tsx`): calls `GET /api/auth` on mount, redirects to `/admin/login` if not authenticated. Only checks `authenticated` boolean — does not verify admin role
-- **Env vars required** (`.env.local`): `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_SECRET`, `NEXTAUTH_URL`
+- **Single auth system**: admin-only bcrypt + in-memory `Map<string, session>` in `src/app/api/auth/route.ts`
+- **Sessions lost on server restart** — in-memory Map, not production-grade
+- **No API auth guards** — product/category/upload routes have no server-side session check. Auth is entirely client-side via `<AdminAuth>` component
+- **Admin credentials** (seeded by `init-db`): `admin` / `admin123`
+- **Login flow**: `POST /api/auth` with `{action:"login", email, password}` → `bcrypt.compareSync` → sets `session` cookie. `GET /api/auth` checks cookie. `DELETE /api/auth` clears it
+- **No env vars required** — `.env.local.example` is stale (references removed NextAuth/Google OAuth/SMTP). Ignore it
+- **Login page**: `src/app/login/page.tsx` — sends `action:"login"` with `email` field (maps to DB `username` column)
 
-## Known Bugs & Gotchas
+## Architecture
 
-- **Admin login broken**: `src/app/admin/login/page.tsx:21` sends `{username, password}` without `action` field. The POST handler in `src/app/api/auth/route.ts:112` requires `action='login'` and destructures `email` not `username`. Login always returns 400 "Неверное действие".
-- **Middleware is dead code**: `src/middleware.ts` protects `/api/admin/:path*` (matcher line 35), but no `/api/admin/` API routes exist. Uses its own separate `sessions` Map and `admin_session` cookie name — disconnected from the real auth system in `auth/route.ts`.
-- **Empty route stubs**: `src/app/api/user/` directory exists with subdirectories (`auth/`, `orders/`, `profile/`) but no implemented route files. Checkout page fetches `GET /api/user/profile` — fails silently (empty catch).
-- **Order items denormalized**: Stored as `GROUP_CONCAT` text string (`product_id:quantity:price`) in SQL query, parsed server-side with split/parseInt. Not proper JSON or normalized query.
-- **No product images directory**: Seed data references `/images/monstera.jpg` etc., but `/public/images/` doesn't exist. Products use emoji fallback (`🪴`).
-- **Route handler params**: Use `params: Promise<{ id: string }>` pattern (Next.js 15+ async params requirement).
-
-## Architecture & Patterns
-
-- **`@/*` path alias** = `./src/*` (configured in tsconfig.json)
-- **Layout chain**: Root layout (`src/app/layout.tsx`) wraps `<SessionProvider>` → `<CartProvider>` → `<Navbar>` → `<main>`
-- **Interactive components**: Mark with `'use client'` directive
-- **Cart persistence**: localStorage via `CartContext` (`src/contexts/CartContext.tsx`)
+- `@/*` path alias = `./src/*`
+- **Layout chain**: `<FavoritesProvider>` → `<Navbar>` → `<main>` (no SessionProvider, no CartProvider)
 - **DB**: Synchronous API — `db.prepare('SQL').all()/.get()/.run()` (better-sqlite3)
-- **CSS animations**: Custom utility classes in `globals.css` — `btn-press`, `card-hover`, `fade-in`, `pulse-soft`, `ripple`, `slide-in`, `bg-gradient-animated`
 - **All UI text**: Russian
-- **TypeScript**: Strict mode enabled
-- **Tailwind CSS 4**: Uses `@import "tailwindcss"` syntax (new Tailwind v4), PostCSS config imports `@tailwindcss/postcss`
-- **No test framework** configured. No CI.
+- **TypeScript**: Strict mode
+- **Tailwind CSS 4**: `@import "tailwindcss"` syntax, PostCSS config imports `@tailwindcss/postcss`
+- **Interactive components**: Mark with `'use client'`
+- **Route handler params**: `params: Promise<{ id: string }>` (Next.js 15+ async params requirement)
 
-## Project Structure
+## Key Files & Structure
 
 ```
 src/
 ├── app/
-│   ├── api/            # Route handlers (auth, products, orders, upload, user/)
-│   ├── admin/          # Admin panel pages (login, products, orders)
-│   ├── cart/           # Shopping cart page
-│   ├── checkout/       # Checkout form
-│   ├── layout.tsx      # Root layout (SessionProvider + CartProvider)
-│   └── page.tsx        # Home page (product catalog)
-├── components/         # Navbar.tsx, AdminAuth.tsx, FallingLeaves.tsx
-├── contexts/           # CartContext.tsx
-├── lib/                # db.ts, auth.ts (NextAuth config)
-└── middleware.ts       # Admin API protection (checks /api/admin/* paths)
+│   ├── api/
+│   │   ├── auth/route.ts        # POST (login), GET (check), DELETE (logout)
+│   │   ├── products/route.ts    # GET (list), POST (create)
+│   │   ├── products/[id]/       # GET, PUT, DELETE
+│   │   ├── categories/route.ts  # GET (list), POST (create)
+│   │   ├── categories/[id]/     # PUT, DELETE
+│   │   └── upload/route.ts      # POST (images, max 5MB, JPEG/PNG/WebP/GIF/HEIC)
+│   ├── admin/
+│   │   ├── products/page.tsx    # CRUD table + modal form + image upload
+│   │   ├── categories/page.tsx  # CRUD table + modal form
+│   │   └── layout.tsx           # Admin nav, logout button
+│   ├── favorites/page.tsx       # Client-side, reads localStorage FavoritesContext
+│   ├── products/[id]/           # Public product detail page
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Catalog with category filter + search
+├── components/
+│   ├── AdminAuth.tsx            # Auth guard wrapper (calls GET /api/auth, checks role === 'admin')
+│   ├── Navbar.tsx               # Nav with search, favorites badge, admin links
+│   └── FallingLeaves.tsx        # Decorative animated leaves
+├── contexts/FavoritesContext.tsx # localStorage-based favorites (no server)
+├── hooks/useFavorites.ts        # Re-export from context
+├── lib/
+│   ├── db.ts                    # better-sqlite3 init + schema (admins, categories, products) + seed
+│   └── product-utils.ts         # Product type, parseImages()
+└── middleware.ts                # DELETED (was dead code)
 ```
 
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+## Gotchas
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+- **AdminAuth checks role**: `data.user?.role === 'admin'` at `src/components/AdminAuth.tsx:21`. It does NOT just check `authenticated` boolean
+- **Category delete cascades**: sets `products.category = NULL` on affected products (`src/app/api/categories/[id]/route.ts:61`)
+- **Category rename cascades**: updates `products.category` to new name (`src/app/api/categories/[id]/route.ts:37`)
+- **Images stored as JSON array** in `products.image_url` column — parsed by `parseImages()` in `product-utils.ts`. Can be a plain path string or `["url1","url2","url3"]` array string
+- **Max 3 images per product**, enforced client-side only
+- **Uploaded files** go to `public/uploads/products/`, served at `/uploads/products/filename`
+- **No `public/images/` dir** — seed data references `/images/*.svg` (doesn't exist), products fall back to `🪴` emoji
+- **No GitHub Pages / Vercel deploy** — `npm run build` + `npm start` for production
+- **DB file** `plant-shop.db` is gitignored — `npm run init-db` recreates it
+
+<!-- BEGIN:nextjs-agent-rules -->
+This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->

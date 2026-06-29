@@ -126,8 +126,8 @@ export default function AdminCategoriesPage() {
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(76,175,80,0.12)] overflow-hidden fade-in">
-            <table className="w-full">
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(76,175,80,0.12)] fade-in overflow-x-auto">
+            <table className="w-full min-w-[600px]">
               <thead className="bg-gradient-to-r from-[#E8F5E9] to-[#F1F8E9]">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Название</th>

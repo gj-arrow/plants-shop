@@ -66,13 +66,13 @@ export async function GET(request: NextRequest) {
   try {
     const sessionId = request.cookies.get('session')?.value;
     if (!sessionId) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     const session = sessions.get(sessionId);
     if (!session || session.expiresAt < Date.now()) {
       sessions.delete(sessionId);
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
     const admin = db.prepare('SELECT id, username as email FROM admins WHERE id = ?').get(session.userId) as any;

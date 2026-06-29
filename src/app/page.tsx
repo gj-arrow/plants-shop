@@ -267,7 +267,7 @@ function HomePageContent() {
         {/* Наверх */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="absolute -right-20 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] flex items-center justify-center shadow-[0_4px_15px_rgba(76,175,80,0.35)] hover:shadow-[0_8px_25px_rgba(76,175,80,0.5)] hover:scale-110 transition-all duration-300 cursor-pointer"
+          className="hidden xl:flex absolute -right-20 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] items-center justify-center shadow-[0_4px_15px_rgba(76,175,80,0.35)] hover:shadow-[0_8px_25px_rgba(76,175,80,0.5)] hover:scale-110 transition-all duration-300 cursor-pointer"
           aria-label="Наверх"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

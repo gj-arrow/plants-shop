@@ -190,8 +190,8 @@ export default function AdminProductsPage() {
             <p className="text-[#4A3267]">Загрузка...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(76,175,80,0.12)] overflow-hidden fade-in">
-            <table className="w-full">
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(76,175,80,0.12)] fade-in overflow-x-auto">
+            <table className="w-full min-w-[700px]">
               <thead className="bg-gradient-to-r from-[#E8F5E9] to-[#F1F8E9]">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Товар</th>
@@ -258,7 +258,7 @@ export default function AdminProductsPage() {
 
         {/* Модальное окно */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto slide-in">
               <div className="p-6">
                 <h2 className="text-xl font-bold text-[#2D1B4E] mb-4 flex items-center gap-2">
@@ -388,18 +388,23 @@ export default function AdminProductsPage() {
 
                     {/* Кнопка загрузки */}
                     {previewImages.length < 3 && (
-                      <div className="space-y-2">
-                        <input
-                          type="file"
-                          accept="image/*,.heic,.heif"
-                          multiple
-                          onChange={handleImageUpload}
-                          disabled={uploading}
-                          className="w-full px-4 py-3 border-2 border-[rgba(76,175,80,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-[#E8F5E9] file:text-[#4CAF50] file:font-medium file:text-sm hover:file:bg-[#C8E6C9]"
-                        />
-                        {uploading && (
-                          <p className="text-xs text-[#4CAF50]">🔄 Загрузка...</p>
-                        )}
+                      <div>
+                        <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(76,175,80,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDF6F0] transition">
+                          <span className="inline-block bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
+                            {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
+                          </span>
+                          <span className="text-sm text-[#8a7a9a]">
+                            PNG, JPG, WebP до 5MB
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageUpload}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
                       </div>
                     )}
                     {previewImages.length === 0 && (

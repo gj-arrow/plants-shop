@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Plant Shop — Магазин растений",
-  description: "Современный магазин комнатных растений с доставкой",
+  description: "Магазин растений",
   icons: {
     icon: [
       {

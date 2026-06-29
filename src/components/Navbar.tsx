@@ -53,8 +53,8 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-4">
-            {/* Поиск */}
-            <div className="relative">
+            {/* Поиск — скрыт на мобилках для админа */}
+            <div className={`relative ${customUser?.role === 'admin' ? 'hidden sm:block' : ''}`}>
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4CAF50]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
@@ -156,13 +156,13 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/admin/products"
-                  className="text-sm bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-1.5 rounded-full font-medium btn-press hover:shadow-[0_4px_15px_rgba(76,175,80,0.4)] transition no-underline"
+                  className="text-xs sm:text-sm bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-2 sm:px-4 py-1 sm:py-1.5 rounded-full font-medium btn-press hover:shadow-[0_4px_15px_rgba(76,175,80,0.4)] transition no-underline whitespace-nowrap"
                 >
                   Товары
                 </Link>
                 <Link
                   href="/admin/categories"
-                  className="text-sm bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-1.5 rounded-full font-medium btn-press hover:shadow-[0_4px_15px_rgba(76,175,80,0.4)] transition no-underline"
+                  className="text-xs sm:text-sm bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-2 sm:px-4 py-1 sm:py-1.5 rounded-full font-medium btn-press hover:shadow-[0_4px_15px_rgba(76,175,80,0.4)] transition no-underline whitespace-nowrap"
                 >
                   Категории
                 </Link>
