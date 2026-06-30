@@ -48,38 +48,59 @@ function HomePageContent() {
   return (
     <>
       <FallingLeaves />
-      <div className="bg-gradient-animated min-h-screen" style={{ paddingTop: '5rem' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Hero секция */}
-          <div className="relative overflow-hidden rounded-3xl p-10 md:p-14 mb-10 text-white fade-in"
-          style={{
-            background: 'linear-gradient(135deg, #1B5E20 0%, #4CAF50 40%, #8BC34A 70%, #D4E157 100%)',
-            boxShadow: '0 15px 50px rgba(27, 94, 32, 0.4)'
-          }}
-        >
-          <div className="relative z-0">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-['Playfair_Display'] leading-tight">
+      <div className="bg-gradient-animated min-h-screen">
+        {/* Hero секция — на всю ширину */}
+        <div className="relative pt-20 px-10 pb-10 md:pt-20 md:px-14 md:pb-14 mb-0 text-white fade-in"
+        style={{
+          background: 'linear-gradient(135deg, #388E3C 0%, #66BB6A 35%, #A5D6A7 65%, #C8E6C9 100%)',
+          maskImage: 'linear-gradient(to bottom, black 0% 70%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0% 70%, transparent 100%)',
+        }}
+      >
+        {/* Фоновое изображение */}
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src="/uploads/products/plant-28.jpg"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 40%, black 70%, transparent 95%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%, black 70%, transparent 95%)',
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 font-['Playfair_Display'] leading-tight bg-gradient-to-r from-white via-[#C8E6C9] to-[#FFF9C4] bg-clip-text text-transparent">
               Цветы, которые<br />говорят с душой
             </h1>
             <p className="text-white/90 text-lg md:text-xl max-w-xl mb-7 font-['Playfair_Display'] font-light italic leading-relaxed">
               Каждое растение — маленькая история уюта, свежести и гармонии. Найдите свою.
             </p>
-            <div className="flex gap-3 flex-wrap">
-              <button
-                onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-white text-[#4CAF50] px-7 py-3 rounded-[50px] font-semibold btn-press hover:shadow-lg transition"
-              >
-                Найти своё растение ✨
-              </button>
-            </div>
           </div>
-          {/* Декоративные элементы */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-xl"></div>
-          <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/8 blur-lg"></div>
-          <div className="absolute top-1/2 right-16 w-20 h-20 rounded-full bg-white/6 blur-md"></div>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 2 }}>
+        {/* Картинка справа до края */}
+        <div className="hidden md:block absolute top-0 right-0 bottom-0 w-[55%] overflow-hidden">
+          <img
+            src="/uploads/products/plant-17.jpg"
+            alt="Комнатное растение"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              maskImage: 'linear-gradient(to left, black 55%, transparent 80%)',
+              WebkitMaskImage: 'linear-gradient(to left, black 55%, transparent 80%)',
+            }}
+          />
+        </div>
+
+        {/* Декоративные элементы */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-xl"></div>
+        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/8 blur-lg"></div>
+      </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div style={{ position: 'relative', zIndex: 2 }}>
           {/* Фильтр по категориям */}
           <div id="catalog" className="mb-8 flex flex-wrap gap-2 fade-in" style={{ animationDelay: '0.1s' }}>
             {categories.map((cat) => (
@@ -89,7 +110,7 @@ function HomePageContent() {
                 className={`px-5 py-2.5 rounded-[50px] text-sm font-semibold btn-press transition-all duration-300 ${
                   selectedCategory === cat
                     ? 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white shadow-[0_4px_15px_rgba(76,175,80,0.35)]'
-                    : 'bg-white text-[#4A3267] border-2 border-[rgba(76,175,80,0.2)] shadow-sm hover:border-[#81C784] hover:bg-[rgba(76,175,80,0.08)]'
+                    : 'bg-white text-[#4A3267] border-2 border-[rgba(76,175,80,0.2)] shadow-sm hover:border-[#2E7D32] hover:bg-[rgba(76,175,80,0.15)] hover:shadow-md'
                 }`}
               >
                 {cat === 'all' ? '🌱 Все' : cat}
@@ -168,7 +189,7 @@ function HomePageContent() {
             📍 Могилёвская область, г. Горки.
           </p>
           <p className="text-[#4A3267] text-base leading-relaxed mt-2">
-            Европочта, крупномеры самовывоз.
+            Европочта, Белпочта. Крупномеры самовывоз.
           </p>
         </div>
 

@@ -23,17 +23,9 @@ body {
   font-family: 'Playfair Display', Georgia, serif;
 }
 
-/* Gradient animated background (vibrant green tones) */
+/* Gradient background for main page */
 .bg-gradient-animated {
-  background: linear-gradient(-45deg, #FDF6F0, #C8E6C9, #A5D6A7, #E8F5E9, #F1F8E9);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  background: linear-gradient(180deg, #a5d6a7 0%, #c8e6c9 25%, #e8f5e9 50%, #f1f8e9 75%, #f9fbe7 100%);
 }
 
 /* Primary gradient button (green) */
@@ -132,7 +124,7 @@ body {
 
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 40px rgba(76, 175, 80, 0.25), 0 8px 20px rgba(102, 187, 106, 0.15);
+  box-shadow: 0 20px 50px rgba(76, 175, 80, 0.35), 0 8px 25px rgba(102, 187, 106, 0.25);
 }
 
 /* Pulse для уведомлений */

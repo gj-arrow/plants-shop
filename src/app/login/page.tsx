@@ -92,11 +92,6 @@ export default function LoginPage() {
               {loading ? 'Вход...' : 'Войти'}
             </button>
           </form>
-
-          <div className="mt-4 p-3 bg-blue-50 rounded-xl text-xs text-blue-700">
-            <p className="font-medium mb-1">Тестовые учётные данные:</p>
-            <p>Админ: <code className="bg-blue-100 px-1 rounded">admin / admin123</code></p>
-          </div>
         </div>
       </div>
     </div>
