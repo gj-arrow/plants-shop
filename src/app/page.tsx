@@ -184,9 +184,9 @@ function HomePageContent() {
                       href={`/products/${product.id}`}
                       className={`group ${isWide ? 'lg:col-span-2' : ''} reveal reveal-delay-${Math.min((i % 6) + 1, 5)}`}
                     >
-                      <div className="bg-white border border-[#E5E5E0] shadow-sm rounded-sm">
+                      <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)]">
                         {/* Image */}
-                        <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden img-zoom relative`}>
+                        <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative`}>
                           {images.length > 0 ? (
                             <img
                               src={images[0]}
