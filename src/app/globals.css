@@ -44,6 +44,21 @@ html {
   color: white;
 }
 
+/* Card entrance animation (for async-loaded products) */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.card-enter {
+  animation: cardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Scroll-reveal base */
 .reveal {
   opacity: 0;

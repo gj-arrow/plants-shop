@@ -136,7 +136,7 @@ function HomePageContent() {
         <div className="max-w-7xl mx-auto px-6 pb-8">
           <div style={{ position: 'relative', zIndex: 2 }}>
             {/* Categories */}
-            <div className="flex flex-wrap gap-2 justify-center reveal" id="catalog">
+            <div className="flex flex-wrap gap-2 justify-center" id="catalog">
               <button
                 onClick={() => setSelectedCategory('all')}
                 className={`px-6 py-2 rounded-full text-sm transition-all ${
@@ -151,7 +151,7 @@ function HomePageContent() {
                 <button
                   key={i}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2 rounded-full text-sm transition-all reveal reveal-delay-${Math.min(i + 1, 5)} ${
+                  className={`px-6 py-2 rounded-full text-sm transition-all ${
                     selectedCategory === cat
                       ? 'bg-sage text-white'
                       : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
@@ -175,18 +175,18 @@ function HomePageContent() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
                 {filteredProducts.map((product, i) => {
-                  const isWide = (i + 1) % 3 === 0;
                   const images = parseImages(product);
                   
                   return (
                     <Link
                       key={product.id}
                       href={`/products/${product.id}`}
-                      className={`group ${isWide ? 'lg:col-span-2' : ''} reveal reveal-delay-${Math.min((i % 6) + 1, 5)}`}
+                      className="group card-enter"
+                      style={{ animationDelay: `${Math.min(i, 5) * 0.1}s` }}
                     >
                       <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)]">
                         {/* Image */}
-                        <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative`}>
+                        <div className="aspect-[4/5] bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative">
                           {images.length > 0 ? (
                             <img
                               src={images[0]}
@@ -241,7 +241,7 @@ function HomePageContent() {
         </div>
 
       {/* About */}
-      <section className="py-24 bg-[#F5F5F0]">
+      <section id="about" className="py-24 bg-[#F5F5F0]">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="reveal">
@@ -277,7 +277,7 @@ function HomePageContent() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-sage text-white">
+      <footer id="contacts" className="bg-sage text-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             <div>

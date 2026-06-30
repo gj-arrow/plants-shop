@@ -59,17 +59,16 @@ export default function FavoritesPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product, i) => {
-              const isWide = (i + 1) % 3 === 0;
               const images = parseImages(product);
               
               return (
                 <div
                   key={product.id}
-                  className={`group ${isWide ? 'lg:col-span-2' : ''}`}
+                  className="group"
                 >
                   <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)]">
                     {/* Image */}
-                    <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative`}>
+                    <div className="aspect-[4/5] bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative">
                       {images.length > 0 ? (
                         <img
                           src={images[0]}
