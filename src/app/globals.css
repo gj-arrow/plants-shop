@@ -6,6 +6,7 @@
    ============================================ */
 
 @theme {
+  --font-sans: var(--font-instrument);
   --color-sage: #8CA89C;
   --color-sage-dark: #5B7F6B;
   --color-sage-soft: #E8F0EA;

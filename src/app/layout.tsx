@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 
 const playfairDisplay = Playfair_Display({
   subsets: ['cyrillic', 'latin'],
-  weight: ['400', '600', '700', '800'],
+  weight: ['600'],
   variable: '--font-playfair',
 })
 
@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${playfairDisplay.variable} ${instrumentSans.variable} antialiased`}>
-      <body className="bg-white">
+      <body className="bg-white font-sans">
         <FavoritesProvider>
           <Navbar />
           <main>{children}</main>
