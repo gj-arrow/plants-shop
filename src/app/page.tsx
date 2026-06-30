@@ -1,7 +1,8 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -132,56 +133,112 @@ function HomePageContent() {
         </div>
       </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="max-w-7xl mx-auto px-6 pb-8">
           <div style={{ position: 'relative', zIndex: 2 }}>
-          {/* Фильтр по категориям */}
-          <div id="catalog" className="mb-8 flex flex-wrap gap-2 fade-in" style={{ animationDelay: '0.1s' }}>
-            {categories.map((cat) => (
+            {/* Categories */}
+            <div className="flex flex-wrap gap-2 justify-center reveal" id="catalog">
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-[50px] text-sm font-semibold btn-press transition-all duration-300 ${
-                  selectedCategory === cat
-                    ? 'bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white shadow-[0_4px_15px_rgba(76,175,80,0.35)]'
-                    : 'bg-white text-[#4A3267] border-2 border-[rgba(76,175,80,0.2)] shadow-sm hover:border-[#2E7D32] hover:bg-[rgba(76,175,80,0.15)] hover:shadow-md'
+                onClick={() => setSelectedCategory('all')}
+                className={`px-6 py-2 rounded-full text-sm transition-all ${
+                  selectedCategory === 'all'
+                    ? 'bg-sage text-white'
+                    : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
                 }`}
               >
-                {cat === 'all' ? '🌱 Все' : cat}
+                🌿 Все
               </button>
-            ))}
-          </div>
-
-          {/* Каталог товаров */}
-          {loading ? (
-            <div className="text-center py-12 fade-in">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#4CAF50] mb-3"></div>
-              <p className="text-[#4A3267]">Загрузка товаров...</p>
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-12 text-[#8a7a9a] fade-in">
-              <span className="text-5xl block mb-3">🔍</span>
-              <p className="text-lg font-medium">Товары не найдены</p>
-              <p className="text-sm mt-1">{searchQuery ? 'Попробуйте изменить запрос' : 'Попробуйте изменить категорию'}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className="fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
+              {categories.filter(c => c !== 'all').map((cat, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-6 py-2 rounded-full text-sm transition-all reveal reveal-delay-${Math.min(i + 1, 5)} ${
+                    selectedCategory === cat
+                      ? 'bg-sage text-white'
+                      : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                  }`}
                 >
-                  <ProductCard
-                    product={product}
-                    isFavorite={isFavorite(product.id)}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                </div>
+                  {cat}
+                </button>
               ))}
+            </div>
+
+            {/* Products */}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sage mb-3"></div>
+                <p className="text-[#6B7280]">Загрузка товаров...</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-[#6B7280]">Нет товаров в этой категории</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                {filteredProducts.map((product, i) => {
+                  const isWide = (i + 1) % 3 === 0;
+                  const images = parseImages(product);
+                  
+                  return (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className={`group ${isWide ? 'lg:col-span-2' : ''} reveal reveal-delay-${Math.min((i % 6) + 1, 5)}`}
+                    >
+                      <div className="bg-white border border-[#E5E5E0] shadow-sm rounded-sm">
+                        {/* Image */}
+                        <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden img-zoom relative`}>
+                          {images.length > 0 ? (
+                            <img
+                              src={images[0]}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-4xl">🪴</div>
+                          )}
+                          
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.02] transition-colors" />
+                          
+                          {/* Favorite button on hover */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleFavorite(product.id);
+                            }}
+                            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/0 group-hover:bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                          >
+                            <svg className={`w-4 h-4 ${isFavorite(product.id) ? 'text-red-500 fill-red-500' : 'text-[#8CA89C]'}`} viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Info */}
+                        <div className="pt-4 pb-2 px-4">
+                          {product.category && (
+                            <span className="text-sage text-xs tracking-wide uppercase">{product.category}</span>
+                          )}
+                          <h3 className="text-[#1A1A1A] font-display text-base font-medium mt-1 leading-snug">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-sage font-medium">{product.price} ₽</span>
+                            {product.stock > 0 ? (
+                              <span className="text-[11px] text-[#8CA89C]">в наличии</span>
+                            ) : (
+                              <span className="text-[11px] text-[#B0B0A8]">нет в наличии</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
         </div>
-      </div>
 
     {/* Обо мне */}
     <div id="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 fade-in">
@@ -334,90 +391,4 @@ function HomePageContent() {
   );
 }
 
-interface ProductCardProps {
-  product: Product;
-  isFavorite: boolean;
-  onToggleFavorite: (id: number) => void;
-}
 
-function ProductCard({
-  product,
-  isFavorite,
-  onToggleFavorite,
-}: ProductCardProps) {
-  const router = useRouter();
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button')) {
-      return;
-    }
-    router.push(`/products/${product.id}`);
-  };
-
-  return (
-    <div
-      onClick={handleCardClick}
-      className="bg-white rounded-[20px] shadow-md overflow-hidden card-hover flex flex-col h-full cursor-pointer border border-[rgba(76,175,80,0.1)]"
-    >
-      <div className="h-48 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9] flex items-center justify-center relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(76,175,80,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        {(() => {
-          const imgs = parseImages(product);
-          return imgs.length > 0 ? (
-            <img
-              src={imgs[0]}
-              alt={product.name}
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <span className="text-6xl group-hover:scale-110 transition-transform duration-300">🪴</span>
-          );
-        })()}
-      </div>
-
-      <div className="p-4 flex flex-col flex-1">
-        <div className="text-xs text-[#4CAF50] font-medium mb-1 bg-[#E8F5E9] inline-block px-2 py-1 rounded-full self-start">
-          {product.category}
-        </div>
-        <h3 className="font-['Playfair_Display'] font-bold text-lg text-[#2D1B4E] mb-1 mt-2">{product.name}</h3>
-        <p className="text-[#8a7a9a] text-sm mb-3 line-clamp-2 flex-1">{product.description}</p>
-
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-2xl font-bold text-[#2D1B4E]">{product.price} р.</span>
-          <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              product.stock > 0
-                ? 'bg-[#E8F5E9] text-[#2E7D32]'
-                : 'bg-[#FFEBEE] text-[#C62828]'
-            }`}
-          >
-            {product.stock > 0 ? `✓ ${product.stock} шт.` : '✗ Нет в наличии'}
-          </span>
-        </div>
-
-        <div className="flex gap-2">
-          <a
-            href={`/products/${product.id}`}
-            className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Подробнее →
-          </a>
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
-            className={`w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 ${
-              isFavorite
-                ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
-                : 'border-[rgba(76,175,80,0.2)] text-[#8a7a9a] hover:border-red-200 hover:text-red-400 hover:bg-red-50'
-            }`}
-            aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
