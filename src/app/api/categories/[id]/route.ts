@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { queryOne, run } from '@/lib/db';
 
 export async function PUT(
   request: Request,
@@ -13,32 +13,39 @@ export async function PUT(
       return NextResponse.json({ error: 'Название категории обязательно' }, { status: 400 });
     }
 
-    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(id);
+    const category = await queryOne<Record<string, any>>(
+      'SELECT * FROM categories WHERE id = ?',
+      [id]
+    );
     if (!category) {
       return NextResponse.json({ error: 'Категория не найдена' }, { status: 404 });
     }
 
     // Check name uniqueness (exclude current)
-    const existing = db.prepare('SELECT id FROM categories WHERE name = ? AND id != ?').get(name.trim(), id);
+    const existing = await queryOne<{ id: number }>(
+      'SELECT id FROM categories WHERE name = ? AND id != ?',
+      [name.trim(), id]
+    );
     if (existing) {
       return NextResponse.json({ error: 'Категория с таким названием уже существует' }, { status: 409 });
     }
 
-    const oldName = (category as any).name;
+    const oldName = category.name;
 
-    db.prepare('UPDATE categories SET name = ?, description = ? WHERE id = ?').run(
+    await run('UPDATE categories SET name = ?, description = ? WHERE id = ?', [
       name.trim(),
       description?.trim() || '',
-      id
-    );
+      id,
+    ]);
 
     // Update product references if name changed
     if (oldName !== name.trim()) {
-      db.prepare('UPDATE products SET category = ? WHERE category = ?').run(name.trim(), oldName);
+      await run('UPDATE products SET category = ? WHERE category = ?', [name.trim(), oldName]);
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error updating category:', error);
     return NextResponse.json({ error: 'Ошибка при обновлении категории' }, { status: 500 });
   }
 }
@@ -50,20 +57,24 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const category = db.prepare('SELECT * FROM categories WHERE id = ?').get(id);
+    const category = await queryOne<Record<string, any>>(
+      'SELECT * FROM categories WHERE id = ?',
+      [id]
+    );
     if (!category) {
       return NextResponse.json({ error: 'Категория не найдена' }, { status: 404 });
     }
 
-    const catName = (category as any).name;
+    const catName = category.name;
 
     // Unset category on products that use this category
-    db.prepare('UPDATE products SET category = NULL WHERE category = ?').run(catName);
+    await run('UPDATE products SET category = NULL WHERE category = ?', [catName]);
 
-    db.prepare('DELETE FROM categories WHERE id = ?').run(id);
+    await run('DELETE FROM categories WHERE id = ?', [id]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting category:', error);
     return NextResponse.json({ error: 'Ошибка при удалении категории' }, { status: 500 });
   }
 }

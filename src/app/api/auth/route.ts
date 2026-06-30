@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { queryOne } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Логин и пароль обязательны' }, { status: 400 });
       }
 
-      const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(email) as any;
+      const admin = await queryOne<{ id: number; username: string; password_hash: string }>(
+        'SELECT * FROM admins WHERE username = ?',
+        [email]
+      );
       if (!admin) {
         return NextResponse.json({ error: 'Неверный логин или пароль' }, { status: 401 });
       }
@@ -75,7 +78,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
-    const admin = db.prepare('SELECT id, username as email FROM admins WHERE id = ?').get(session.userId) as any;
+    const admin = await queryOne<{ id: number; email: string }>(
+      'SELECT id, username as email FROM admins WHERE id = ?',
+      [session.userId]
+    );
     return NextResponse.json({
       authenticated: true,
       user: admin ? { id: admin.id, email: admin.email, role: 'admin' as const } : null

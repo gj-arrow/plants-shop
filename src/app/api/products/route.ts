@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { queryAll, queryOne, run } from '@/lib/db';
 
 // GET /api/products - получить все товары
 export async function GET() {
   try {
-    const products = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
+    const products = await queryAll('SELECT * FROM products ORDER BY created_at DESC');
     return NextResponse.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -22,12 +22,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Name and price are required' }, { status: 400 });
     }
 
-    const result = db.prepare(`
-      INSERT INTO products (name, description, price, stock, category, image_url)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(name, description || null, price, stock || 0, category || null, image_url || null);
+    const result = await run(
+      `INSERT INTO products (name, description, price, stock, category, image_url)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, description || null, price, stock || 0, category || null, image_url || null]
+    );
 
-    const newProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(result.lastInsertRowid);
+    const newProduct = await queryOne('SELECT * FROM products WHERE id = ?', [result.insertId]);
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 4. SQLite (better-sqlite3). **No test framework, no CI.**
+E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 4. MySQL (mysql2/promise). **No test framework, no CI.**
 
 ## Build & Run
 
@@ -11,10 +11,10 @@ E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 1
 | `npm run dev` | Dev server (Turbopack) on :3000 |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint (flat config) |
-| `npm run init-db` | Seed DB with admin + 8 sample products + categories |
+| `npm run init-db` | Create tables + seed DB with admin + 8 sample products + categories (requires MySQL running + DATABASE_URL in .env.local) |
 | `npm start` | Run production build |
 
-**Fresh setup order:** `npm install && npm run init-db && npm run dev`
+**Fresh setup order:** create MySQL database → `npm install` → set `DATABASE_URL` in `.env.local` → `npm run init-db` → `npm run dev`
 
 ## Auth
 
@@ -30,7 +30,7 @@ E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 1
 
 - `@/*` path alias = `./src/*`
 - **Layout chain**: `<FavoritesProvider>` → `<Navbar>` → `<main>` (no SessionProvider, no CartProvider)
-- **DB**: Synchronous API — `db.prepare('SQL').all()/.get()/.run()` (better-sqlite3)
+- **DB**: Async API — `queryAll(sql, params)`, `queryOne(sql, params)`, `run(sql, params)` via mysql2/promise pool in `src/lib/db.ts`
 - **All UI text**: Russian
 - **TypeScript**: Strict mode
 - **Tailwind CSS 4**: `@import "tailwindcss"` syntax, PostCSS config imports `@tailwindcss/postcss`
@@ -64,7 +64,7 @@ src/
 ├── contexts/FavoritesContext.tsx # localStorage-based favorites (no server)
 ├── hooks/useFavorites.ts        # Re-export from context
 ├── lib/
-│   ├── db.ts                    # better-sqlite3 init + schema (admins, categories, products) + seed
+│   ├── db.ts                    # mysql2/promise pool + schema (admins, categories, products) + seed; exports queryAll, queryOne, run
 │   └── product-utils.ts         # Product type, parseImages()
 └── middleware.ts                # DELETED (was dead code)
 ```
@@ -79,7 +79,7 @@ src/
 - **Uploaded files** go to `public/uploads/products/`, served at `/uploads/products/filename`
 - **No `public/images/` dir** — seed data references `/images/*.svg` (doesn't exist), products fall back to `🪴` emoji
 - **No GitHub Pages / Vercel deploy** — `npm run build` + `npm start` for production
-- **DB file** `plant-shop.db` is gitignored — `npm run init-db` recreates it
+- **DB**: MySQL via `DATABASE_URL` env var in `.env.local`. Create the database first (e.g. `CREATE DATABASE plant_shop`), then `npm run init-db` creates tables and seeds data
 
 <!-- BEGIN:nextjs-agent-rules -->
 This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code. Heed deprecation notices.

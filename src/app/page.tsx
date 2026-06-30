@@ -25,9 +25,9 @@ function HomePageContent() {
 
   useEffect(() => {
     fetch('/api/products')
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : [])
       .then(data => {
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(err => {
