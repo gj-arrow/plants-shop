@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
-import FallingLeaves from '@/components/FallingLeaves';
 
 export default function FavoritesPage() {
   const router = useRouter();
@@ -30,7 +29,6 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <FallingLeaves />
       <div className="bg-gradient-animated min-h-screen" style={{ paddingTop: '5rem' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold text-[#2D1B4E] font-['Playfair_Display'] mb-8">

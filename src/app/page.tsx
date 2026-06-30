@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
-import FallingLeaves from '@/components/FallingLeaves';
 
 export default function HomePage() {
   return (
@@ -47,7 +46,6 @@ function HomePageContent() {
 
   return (
     <>
-      <FallingLeaves />
       <div className="bg-gradient-animated min-h-screen">
         {/* Hero секция — на всю ширину */}
         <div className="relative pt-20 px-10 pb-10 md:pt-20 md:px-14 md:pb-14 mb-0 text-white fade-in"

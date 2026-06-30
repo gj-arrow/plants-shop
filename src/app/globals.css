@@ -1,222 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --green: #4CAF50;
-  --green-light: #81C784;
-  --green-secondary: #66BB6A;
-  --green-very-light: #C8E6C9;
-  --mint: #8ECDA8;
-  --cream: #FDF6F0;
-  --dark: #2D1B4E;
-  --dark-secondary: #4A3267;
-  --background: var(--cream);
-  --foreground: var(--dark);
+/* ============================================
+   Scandinavian Premium — Plant Shop
+   White Cube aesthetic, sage accents
+   ============================================ */
+
+@theme {
+  --color-sage: #8CA89C;
+  --color-sage-dark: #5B7F6B;
+  --color-sage-soft: #E8F0EA;
+  --color-heading: #1A3326;
+  --color-body: #1A1A1A;
+  --color-light-grey: #F5F5F0;
+  --color-border: #E5E5E0;
+  --color-white: #FFFFFF;
 }
 
-body {
-  background: var(--cream);
-  color: var(--dark);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.font-display {
-  font-family: 'Playfair Display', Georgia, serif;
-}
-
-/* Gradient background for main page */
-.bg-gradient-animated {
-  background: linear-gradient(180deg, #a5d6a7 0%, #c8e6c9 25%, #e8f5e9 50%, #f1f8e9 75%, #f9fbe7 100%);
-}
-
-/* Primary gradient button (green) */
-.btn-primary {
-  background: linear-gradient(135deg, var(--green), var(--green-light));
-  color: white;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.35);
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(76, 175, 80, 0.5);
-}
-.btn-primary:active {
-  transform: scale(0.97);
-}
-
-/* Secondary button (outlined) */
-.btn-secondary {
-  background: transparent;
-  border: 2px solid var(--green);
-  color: var(--dark);
-  transition: all 0.3s ease;
-}
-.btn-secondary:hover {
-  background: var(--green);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
-}
-
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, var(--green), var(--green-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Анимации кнопок */
-.btn-press {
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-press:active {
-  transform: scale(0.95);
-}
-
-.btn-press:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Ripple эффект */
-.ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.4) 10%, transparent 10.01%);
-  background-repeat: no-repeat;
-  background-position: 50%;
-  transform: scale(10, 10);
-  opacity: 0;
-  transition: transform 0.5s, opacity 0.8s;
-}
-
-.ripple:active::after {
-  transform: scale(0, 0);
-  opacity: 0.3;
-  transition: 0s;
-}
-
-/* Анимация появления */
-.fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Анимация карточек */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(76, 175, 80, 0.35), 0 8px 25px rgba(102, 187, 106, 0.25);
-}
-
-/* Pulse для уведомлений */
-.pulse-soft {
-  animation: pulseSoft 0.5s ease-out;
-}
-
-@keyframes pulseSoft {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
-/* Slide-in для модалок */
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Логотип вращение */
-@keyframes flowerRotate {
-  0% { transform: rotate(-8deg); }
-  50% { transform: rotate(8deg); }
-  100% { transform: rotate(-8deg); }
-}
-
-/* Утилиты */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ===== Falling Leaves ===== */
-.leaf-container {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  overflow: hidden;
-}
-
-.leaf {
-  position: absolute;
-  top: -40px;
-  animation: leafFall linear forwards;
-}
-
-@keyframes leafFall {
-  0% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: 1;
-  }
-  25% {
-    transform: translateY(25vh) translateX(30px) rotate(90deg);
-    opacity: 0.9;
-  }
-  50% {
-    transform: translateY(50vh) translateX(-20px) rotate(180deg);
-    opacity: 0.8;
-  }
-  75% {
-    transform: translateY(75vh) translateX(25px) rotate(270deg);
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(105vh) translateX(-10px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Подсветка поиска */
-.highlight {
-  box-shadow: 0 0 0 2px var(--green);
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--cream);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--green);
-  border-radius: 10px;
+  background: #D4D4D0;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--green-light);
+  background: #B0B0A8;
+}
+
+/* Selection */
+::selection {
+  background: #8CA89C;
+  color: white;
+}
+
+/* Scroll-reveal base */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* Navbar scroll hide animation */
+.nav-hidden {
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-visible {
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Card hover */
+.card-hover {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(28, 55, 40, 0.08);
+}
+
+/* Image zoom on hover */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.img-zoom:hover img {
+  transform: scale(1.03);
+}
+
+/* Button press */
+.btn-press {
+  transition: transform 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Hero parallax */
+.hero-parallax {
+  will-change: transform;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid #8CA89C;
+  outline-offset: 2px;
 }

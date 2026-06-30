@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Playfair_Display, Instrument_Sans } from 'next/font/google'
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import Navbar from "@/components/Navbar";
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['400', '600', '700', '800'],
+  variable: '--font-playfair',
+})
+
+const instrumentSans = Instrument_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-instrument',
+})
 
 export const metadata: Metadata = {
   title: "Plant Shop — Магазин растений",
@@ -22,15 +35,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="h-full antialiased">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="min-h-full flex flex-col">
+    <html lang="ru" className={`${playfairDisplay.variable} ${instrumentSans.variable} antialiased`}>
+      <body className="bg-white">
         <FavoritesProvider>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main>{children}</main>
         </FavoritesProvider>
       </body>
     </html>
