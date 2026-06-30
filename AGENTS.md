@@ -11,7 +11,8 @@ E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 1
 | `npm run dev` | Dev server (Turbopack) on :3000 |
 | `npm run build` | Production build |
 | `npm run lint` | ESLint (flat config) |
-| `npm run init-db` | Create tables + seed DB with admin + 8 sample products + categories (requires MySQL running + DATABASE_URL in .env.local) |
+| `npm run init-db` | Create tables + seed DB with admin + 10 sample products + categories (requires MySQL running + DATABASE_URL in .env.local) |
+| `npm run seed-products` | Replace all products with 10 real catalog entries (descriptions + images) |
 | `npm start` | Run production build |
 
 **Fresh setup order:** create MySQL database → `npm install` → set `DATABASE_URL` in `.env.local` → `npm run init-db` → `npm run dev`
@@ -77,7 +78,7 @@ src/
 - **Images stored as JSON array** in `products.image_url` column — parsed by `parseImages()` in `product-utils.ts`. Can be a plain path string or `["url1","url2","url3"]` array string
 - **Max 3 images per product**, enforced client-side only
 - **Uploaded files** go to `public/uploads/products/`, served at `/uploads/products/filename`
-- **No `public/images/` dir** — seed data references `/images/*.svg` (doesn't exist), products fall back to `🪴` emoji
+- **Images**: Products use images from `public/uploads/products/` (JPG files). Seed script `scripts/seed-products.ts` assigns real images to all products. `init-db` also uses these images.
 - **No GitHub Pages / Vercel deploy** — `npm run build` + `npm start` for production
 - **DB**: MySQL via `DATABASE_URL` env var in `.env.local`. Create the database first (e.g. `CREATE DATABASE plant_shop`), then `npm run init-db` creates tables and seeds data
 
