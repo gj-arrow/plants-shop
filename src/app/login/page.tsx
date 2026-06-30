@@ -43,7 +43,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-gradient-animated min-h-[calc(100vh-4rem)]">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#F5F5F0]">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         <div className="bg-white rounded-2xl shadow-xl p-8 fade-in">
           <div className="text-center mb-6">
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-transparent transition"
                 placeholder="admin"
                 required
               />
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-transparent transition"
                 placeholder="••••••••"
                 required
               />
@@ -87,7 +87,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-500 text-white py-3 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="w-full bg-[#8CA89C] hover:bg-[#5B7F6B] text-white py-3 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {loading ? 'Вход...' : 'Войти'}
             </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -28,103 +29,102 @@ export default function FavoritesPage() {
   }, [favorites, favoritesLoading]);
 
   return (
-    <>
-      <div className="bg-gradient-animated min-h-screen" style={{ paddingTop: '5rem' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-[#2D1B4E] font-['Playfair_Display'] mb-8">
-            ❤️ Избранное
-          </h1>
+    <div className="bg-white pt-28 min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 pb-16">
+        <h1 className="font-display text-3xl sm:text-4xl text-[#1A3326] mb-10">
+          Избранное
+        </h1>
 
-          {favoritesLoading || loadingProducts ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#4CAF50] mb-3"></div>
-              <p className="text-[#4A3267]">Загрузка...</p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-16 fade-in">
-              <span className="text-7xl block mb-4">💔</span>
-              <h2 className="text-2xl font-bold text-[#2D1B4E] font-['Playfair_Display'] mb-2">
-                В избранном пока пусто
-              </h2>
-              <p className="text-[#8a7a9a] mb-6">
-                Добавляйте товары в избранное, чтобы не потерять их
-              </p>
-              <button
-                onClick={() => router.push('/')}
-                className="bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-6 py-3 rounded-xl font-medium btn-press ripple hover:shadow-lg transition"
-              >
-                ← В каталог
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map(product => {
-                return (
-                  <div
-                    key={product.id}
-                    className="bg-white rounded-[20px] shadow-md overflow-hidden card-hover flex flex-col h-full border border-[rgba(76,175,80,0.1)] fade-in"
-                  >
-                    <div className="h-48 bg-gradient-to-br from-[#E8F5E9] via-[#F1F8E9] to-[#E8F5E9] flex items-center justify-center relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[rgba(76,175,80,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      {(() => {
-                        const imgs = parseImages(product);
-                        return imgs.length > 0 ? (
-                          <img
-                            src={imgs[0]}
-                            alt={product.name}
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <span className="text-6xl group-hover:scale-110 transition-transform duration-300">🪴</span>
-                        );
-                      })()}
+        {favoritesLoading || loadingProducts ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-sage mb-3"></div>
+            <p className="text-[#6B7280]">Загрузка...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20">
+            <span className="text-7xl block mb-4">💔</span>
+            <h2 className="font-display text-2xl text-[#1A3326] mb-2">
+              В избранном пока пусто
+            </h2>
+            <p className="text-[#6B7280] mb-6">
+              Добавляйте товары в избранное, чтобы не потерять их
+            </p>
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors"
+            >
+              ← В каталог
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product, i) => {
+              const isWide = (i + 1) % 3 === 0;
+              const images = parseImages(product);
+              
+              return (
+                <div
+                  key={product.id}
+                  className={`group ${isWide ? 'lg:col-span-2' : ''}`}
+                >
+                  <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)]">
+                    {/* Image */}
+                    <div className={`${isWide ? 'aspect-[3/2]' : 'aspect-[4/5]'} bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative`}>
+                      {images.length > 0 ? (
+                        <img
+                          src={images[0]}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">🪴</div>
+                      )}
+                      
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.02] transition-colors" />
+                      
+                      {/* Favorite button */}
+                      <button
+                        onClick={() => toggleFavorite(product.id)}
+                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                      >
+                        <svg className="w-4 h-4 text-red-500 fill-red-500" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
                     </div>
 
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="text-xs text-[#4CAF50] font-medium mb-1 bg-[#E8F5E9] inline-block px-2 py-1 rounded-full self-start">
-                        {product.category}
-                      </div>
-                      <h3 className="font-['Playfair_Display'] font-bold text-lg text-[#2D1B4E] mb-1 mt-2">{product.name}</h3>
-                      <p className="text-[#8a7a9a] text-sm mb-3 line-clamp-2 flex-1">{product.description}</p>
-
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-2xl font-bold text-[#2D1B4E]">{product.price} р.</span>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full font-medium ${
-                            product.stock > 0
-                              ? 'bg-[#E8F5E9] text-[#2E7D32]'
-                              : 'bg-[#FFEBEE] text-[#C62828]'
-                          }`}
-                        >
-                          {product.stock > 0 ? `✓ ${product.stock} шт.` : '✗ Нет в наличии'}
-                        </span>
+                    {/* Info */}
+                    <div className="pt-4 pb-2 px-4">
+                      {product.category && (
+                        <span className="text-sage text-xs tracking-wide uppercase">{product.category}</span>
+                      )}
+                      <h3 className="text-[#1A1A1A] font-display text-base font-medium mt-1 leading-snug">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sage font-medium">{product.price} ₽</span>
+                        {product.stock > 0 ? (
+                          <span className="text-[11px] text-[#8CA89C]">в наличии</span>
+                        ) : (
+                          <span className="text-[11px] text-[#B0B0A8]">нет в наличии</span>
+                        )}
                       </div>
 
-                      <div className="flex gap-2">
-                        <a
-                          href={`/products/${product.id}`}
-                          className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-4 py-3 rounded-xl font-medium btn-press ripple hover:shadow-[0_8px_25px_rgba(76,175,80,0.4)] transition flex items-center justify-center gap-2"
-                        >
-                          Подробнее
-                        </a>
-                        <button
-                          onClick={() => toggleFavorite(product.id)}
-                          className="w-12 h-12 rounded-xl border-2 btn-press transition flex items-center justify-center shrink-0 border-red-200 bg-red-50 text-red-500 hover:bg-red-100"
-                          aria-label="Убрать из избранного"
-                        >
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                          </svg>
-                        </button>
-                      </div>
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors"
+                      >
+                        Подробнее
+                      </Link>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }

@@ -18,12 +18,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#E8F5E9]">
-      <div className="bg-white border-b border-[rgba(76,175,80,0.1)] backdrop-blur">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#F5F5F0]">
+      <div className="bg-white border-b border-[#E5E5E0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14">
             <div className="flex items-center gap-6">
-              <Link href="/admin" className="font-['Playfair_Display'] font-bold text-[#4CAF50]">
+              <Link href="/admin" className="font-['Playfair_Display'] font-bold text-[#8CA89C]">
                 Admin Panel
               </Link>
               <nav className="flex gap-4">
@@ -33,8 +33,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     href={item.href}
                     className={`text-sm font-medium transition ${
                       pathname === item.href
-                        ? 'text-[#4CAF50]'
-                        : 'text-[#4A3267] hover:text-[#4CAF50]'
+                        ? 'text-[#8CA89C]'
+                        : 'text-[#1A3326] hover:text-[#8CA89C]'
                     }`}
                   >
                     {item.label}
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <button
               onClick={handleLogout}
-              className="text-sm text-[#66BB6A] hover:text-[#d4709a] font-medium"
+              className="text-sm text-[#8CA89C] hover:text-[#5B7F6B] font-medium"
             >
               Выйти
             </button>
