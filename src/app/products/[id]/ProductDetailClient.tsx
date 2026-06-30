@@ -25,7 +25,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 reveal visible">
             <div className="aspect-[4/5] bg-[#F5F5F0] rounded-sm overflow-hidden">
               {images.length > 0 ? (
                 <img
@@ -54,7 +54,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             )}
           </div>
 
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 reveal visible reveal-delay-1">
             {product.category && (
               <span className="text-sage text-xs tracking-[0.15em] uppercase">
                 {product.category}
