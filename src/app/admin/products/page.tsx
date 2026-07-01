@@ -31,7 +31,6 @@ export default function AdminProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
   const [priceInput, setPriceInput] = useState('0');
-  const [stockInput, setStockInput] = useState('0');
   const [uploading, setUploading] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
@@ -65,13 +64,11 @@ export default function AdminProductsPage() {
         image_url: images.length > 0 ? JSON.stringify(images) : '',
       });
       setPriceInput(String(product.price));
-      setStockInput(String(product.stock));
       setPreviewImages(images);
     } else {
       setEditingProduct(null);
       setFormData(emptyProduct);
       setPriceInput('0');
-      setStockInput('0');
       setPreviewImages([]);
     }
     setIsModalOpen(true);
@@ -82,7 +79,6 @@ export default function AdminProductsPage() {
     setEditingProduct(null);
     setFormData(emptyProduct);
     setPriceInput('0');
-    setStockInput('0');
     setPreviewImages([]);
   };
 
@@ -190,14 +186,45 @@ export default function AdminProductsPage() {
             <p className="text-[#1A3326]">Загрузка...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(140,168,156,0.12)] fade-in overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(140,168,156,0.12)] fade-in">
+            {/* Мобильные карточки */}
+            <div className="divide-y divide-[rgba(140,168,156,0.08)] sm:hidden">
+              {products.map(product => (
+                <div key={product.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+                    {(() => {
+                      const imgs = parseImages(product);
+                      return imgs.length > 0 ? (
+                        <img src={imgs[0]} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <span className="text-lg">🪴</span>
+                      );
+                    })()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[#2D1B4E] text-base leading-snug">{product.name}</div>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#E8F0EA] text-[#8CA89C] inline-block mt-1">{product.category || '-'}</span>
+                    <div className="text-base font-bold text-[#2D1B4E] mt-1">{product.price} р.</div>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button onClick={() => openModal(product)} className="text-[#8CA89C] hover:bg-[#E8F0EA] w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Редактировать">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:bg-red-50 w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Удалить">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Десктопная таблица */}
+            <table className="w-full hidden sm:table">
               <thead className="bg-[#E8F0EA]">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Товар</th>
                   <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Категория</th>
                   <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Цена</th>
-                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Остаток</th>
                   <th className="px-4 py-3 text-right text-xs text-[#1A3326] uppercase tracking-wider">Действия</th>
                 </tr>
               </thead>
@@ -206,7 +233,7 @@ export default function AdminProductsPage() {
                   <tr key={product.id} className="hover:bg-[#FDF6F0] transition btn-press">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
                           {(() => {
                             const imgs = parseImages(product);
                             return imgs.length > 0 ? (
@@ -228,14 +255,7 @@ export default function AdminProductsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">{product.price} р.</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-sm px-3 py-1 rounded-full font-medium ${
-                        product.stock > 0 ? 'bg-[#E8F0EA] text-[#1A3326]' : 'bg-[#FFEBEE] text-[#C62828]'
-                      }`}>
-                        {product.stock > 0 ? `✓ ${product.stock}` : '✗ Нет в наличии'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => openModal(product)}
                         className="text-[#8CA89C] hover:bg-[#E8F0EA] px-3 py-1.5 rounded-lg font-medium text-sm btn-press transition mr-2"
@@ -307,34 +327,18 @@ export default function AdminProductsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Остаток</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={stockInput}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/[^0-9]/g, '');
-                          setStockInput(digits);
-                          setFormData({ ...formData, stock: digits === '' ? 0 : parseInt(digits, 10) });
-                        }}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
-                      />
+                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Категория</label>
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+                      >
+                        <option value="">Выберите категорию</option>
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.name}>{cat.name}</option>
+                        ))}
+                      </select>
                     </div>
-                  </div>
-
-                  {/* Категория — на всю ширину */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#1A3326] mb-1">Категория</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
-                    >
-                      <option value="">Выберите категорию</option>
-                      {categories.map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
                   </div>
 
                   {/* Изображения — на всю ширину, крупнее */}

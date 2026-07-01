@@ -10,9 +10,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [customUser, setCustomUser] = useState<{ id: number; email: string; role: string } | null>(null);
   const { favorites } = useFavorites();
-  const [isVisible, setIsVisible] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const lastScrollY = useRef(0);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Read initial search from URL
+  const initialSearch = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('q') || '' : '';
+  const [searchValue, setSearchValue] = useState(initialSearch);
 
   useEffect(() => {
     setCustomUser(null);
@@ -25,20 +28,6 @@ export default function Navbar() {
       })
       .catch(() => {});
   }, [pathname]);
-
-  useEffect(() => {
-    const control = () => {
-      const currentY = window.scrollY;
-      if (currentY < lastScrollY.current || currentY < 60) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-      lastScrollY.current = currentY;
-    };
-    window.addEventListener('scroll', control, { passive: true });
-    return () => window.removeEventListener('scroll', control);
-  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -55,15 +44,31 @@ export default function Navbar() {
     }
   };
 
+  // Debounced search — navigates after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchValue.trim();
+      const currentQ = new URLSearchParams(window.location.search).get('q') || '';
+      if (trimmed !== currentQ) {
+        const url = trimmed ? `/?q=${encodeURIComponent(trimmed)}` : '/';
+        router.push(url, { scroll: false });
+        if (trimmed) {
+          setTimeout(() => {
+            document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+          }, 300);
+        }
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchValue, router]);
+
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 bg-transparent ${
-          isVisible ? 'nav-visible' : 'nav-hidden'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16">
             <button
               onClick={() => {
                 if (window.location.pathname !== '/') {
@@ -74,11 +79,11 @@ export default function Navbar() {
               }}
               className="text-xl font-bold no-underline cursor-pointer"
             >
-              <span className="font-['Playfair_Display'] font-bold text-[#1A3326]">
-                Plant
-              </span>
               <span className="font-['Playfair_Display'] font-bold text-[#8CA89C]">
-                Shop
+                Зелёная
+              </span>{' '}
+              <span className="font-['Playfair_Display'] font-bold text-[#1A3326]">
+                мастерская
               </span>
             </button>
 
@@ -94,7 +99,7 @@ export default function Navbar() {
                   onClick={() => scrollToSection('about')}
                   className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
                 >
-                  О нас
+                  Обо мне
                 </button>
               )}
               {(!customUser || customUser.role !== 'admin') && (
@@ -108,25 +113,25 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push('/')}
-                className="p-2 text-[#8CA89C] hover:text-[#1A3326] transition cursor-pointer"
-                aria-label="Поиск"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.35-4.35" />
-                </svg>
-              </button>
+              <div className="hidden md:flex items-center">
+                <div className="relative">
+                  <svg
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchValue}
+                    onChange={e => setSearchValue(e.target.value)}
+                    placeholder="Поиск растений..."
+                    className="w-48 sm:w-64 pl-9 pr-4 py-1.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
+                  />
+                </div>
+              </div>
 
               {(!customUser || customUser.role !== 'admin') && (
                 <Link
@@ -216,6 +221,22 @@ export default function Navbar() {
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />
           <div className="absolute top-20 left-0 right-0 bg-white shadow-lg rounded-b-2xl mx-4 p-6 flex flex-col gap-4">
+            <div className="relative mb-1">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
+                placeholder="Поиск растений..."
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
+              />
+            </div>
             <button
               onClick={() => {
                 scrollToSection('catalog');
@@ -234,7 +255,7 @@ export default function Navbar() {
                   }}
                   className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
                 >
-                  О нас
+                  Обо мне
                 </button>
                 <button
                   onClick={() => {

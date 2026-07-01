@@ -102,7 +102,7 @@ export default function FavoritesPage() {
                         {product.name}
                       </h3>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-sage font-medium">{product.price} ₽</span>
+                        <span className="text-sage font-medium">{product.price} BYN</span>
                         {product.stock > 0 ? (
                           <span className="text-[11px] text-[#8CA89C]">в наличии</span>
                         ) : (

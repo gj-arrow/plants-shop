@@ -66,7 +66,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </h1>
 
             <div className="text-3xl text-sage font-medium mt-4">
-              {product.price} ₽
+              {product.price} BYN
             </div>
 
             {product.description && (
