@@ -94,22 +94,18 @@ export default function Navbar() {
               >
                 Каталог
               </button>
-              {(!customUser || customUser.role !== 'admin') && (
-                <button
-                  onClick={() => scrollToSection('about')}
-                  className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
-                >
-                  Обо мне
-                </button>
-              )}
-              {(!customUser || customUser.role !== 'admin') && (
-                <button
-                  onClick={() => scrollToSection('contacts')}
-                  className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
-                >
-                  Контакты
-                </button>
-              )}
+              <button
+                onClick={() => scrollToSection('about')}
+                className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
+              >
+                Обо мне
+              </button>
+              <button
+                onClick={() => scrollToSection('contacts')}
+                className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
+              >
+                Контакты
+              </button>
             </div>
 
             <div className="flex items-center gap-2">
@@ -162,13 +158,13 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center gap-2">
                   <Link
                     href="/admin/products"
-                    className="text-xs bg-[#8CA89C] text-white px-3 py-1.5 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
+                    className="text-base bg-[#8CA89C] text-white px-4 py-2 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
                   >
                     Товары
                   </Link>
                   <Link
                     href="/admin/categories"
-                    className="text-xs bg-[#8CA89C] text-white px-3 py-1.5 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
+                    className="text-base bg-[#8CA89C] text-white px-4 py-2 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
                   >
                     Категории
                   </Link>
@@ -177,7 +173,7 @@ export default function Navbar() {
                       await fetch('/api/auth', { method: 'DELETE' });
                       window.location.reload();
                     }}
-                    className="text-xs text-[#8CA89C] hover:text-red-500 font-medium transition cursor-pointer"
+                    className="text-sm text-[#8CA89C] hover:text-red-500 font-medium transition cursor-pointer"
                   >
                     Выйти
                   </button>
@@ -246,52 +242,24 @@ export default function Navbar() {
             >
               Каталог
             </button>
-            {(!customUser || customUser.role !== 'admin') && (
-              <>
-                <button
-                  onClick={() => {
-                    scrollToSection('about');
-                    setMobileOpen(false);
-                  }}
-                  className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
-                >
-                  Обо мне
-                </button>
-                <button
-                  onClick={() => {
-                    scrollToSection('contacts');
-                    setMobileOpen(false);
-                  }}
-                  className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
-                >
-                  Контакты
-                </button>
-                <Link
-                  href="/favorites"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-base text-[#1A3326] font-medium py-2 border-b border-[#E5E5E0] no-underline flex items-center gap-2"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                  </svg>
-                  Избранное
-                  {favorites.length > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                      {favorites.length}
-                    </span>
-                  )}
-                </Link>
-              </>
-            )}
+            <button
+              onClick={() => {
+                scrollToSection('about');
+                setMobileOpen(false);
+              }}
+              className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
+            >
+              Обо мне
+            </button>
+            <button
+              onClick={() => {
+                scrollToSection('contacts');
+                setMobileOpen(false);
+              }}
+              className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
+            >
+              Контакты
+            </button>
             {customUser?.role === 'admin' && (
               <>
                 <Link

@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, description } = await request.json();
+    const { name } = await request.json();
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Название категории обязательно' }, { status: 400 });
     }
@@ -36,13 +36,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Категория с таким названием уже существует' }, { status: 409 });
     }
 
-    const result = await run('INSERT INTO categories (name, description) VALUES (?, ?)', [
+    const result = await run('INSERT INTO categories (name) VALUES (?)', [
       name.trim(),
-      description?.trim() || '',
     ]);
 
     return NextResponse.json(
-      { id: result.insertId, name: name.trim(), description: description?.trim() || '' },
+      { id: result.insertId, name: name.trim() },
       { status: 201 }
     );
   } catch (error) {

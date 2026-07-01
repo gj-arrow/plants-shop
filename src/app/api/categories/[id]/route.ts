@@ -7,7 +7,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const { name, description } = await request.json();
+    const { name } = await request.json();
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Название категории обязательно' }, { status: 400 });
@@ -32,9 +32,8 @@ export async function PUT(
 
     const oldName = category.name;
 
-    await run('UPDATE categories SET name = ?, description = ? WHERE id = ?', [
+    await run('UPDATE categories SET name = ? WHERE id = ?', [
       name.trim(),
-      description?.trim() || '',
       id,
     ]);
 

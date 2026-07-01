@@ -34,6 +34,11 @@ export default function AdminProductsPage() {
   const [uploading, setUploading] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
+  // Скролл вверх при заходе на страницу (чтобы не было авто-восстановления скролла)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const fetchProducts = () => {
     fetch('/api/products')
       .then(res => res.json())

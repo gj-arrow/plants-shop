@@ -52,28 +52,25 @@ export async function initDatabase() {
     CREATE TABLE IF NOT EXISTS categories (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) UNIQUE NOT NULL,
-      description TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Миграция: удаляем колонку description, если она ещё существует
+  try {
+    await pool.execute('ALTER TABLE categories DROP COLUMN description');
+  } catch {
+    // колонки уже нет — ок
+  }
 
   // Seed default categories from existing product categories
   const existingCatCount = await queryOne<{ count: number }>(
     'SELECT COUNT(*) as count FROM categories'
   );
   if (existingCatCount && existingCatCount.count === 0) {
-    const defaultCategories = [
-      { name: 'Комнатные', description: 'Комнатные растения для дома' },
-      { name: 'Деревья', description: 'Декоративные деревья' },
-      { name: 'Суккуленты', description: 'Суккуленты и кактусы' },
-      { name: 'Папоротники', description: 'Папоротники' },
-      { name: 'Цветущие', description: 'Цветущие растения' },
-    ];
-    for (const cat of defaultCategories) {
-      await run('INSERT INTO categories (name, description) VALUES (?, ?)', [
-        cat.name,
-        cat.description,
-      ]);
+    const defaultCategories = ['Комнатные', 'Деревья', 'Цветущие'];
+    for (const name of defaultCategories) {
+      await run('INSERT INTO categories (name) VALUES (?)', [name]);
     }
   }
 
