@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Product, parseImages } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -21,6 +21,15 @@ function HomePageContent() {
   const [categories, setCategories] = useState<string[]>(['all']);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const clickCount = useRef(0);
+  const router = useRouter();
+
+  const handleSecretClick = useCallback(() => {
+    clickCount.current += 1;
+    if (clickCount.current >= 15) {
+      router.push('/login');
+    }
+  }, [router]);
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
@@ -81,11 +90,23 @@ function HomePageContent() {
     <>
       {/* Hero */}
       <section className="relative bg-white pt-16">
-        <div className="max-w-7xl mx-auto px-6 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+        {/* Full-width background image */}
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src="/uploads/products/plant-17.jpg"
+            alt=""
+            className="w-full h-full object-cover hero-parallax"
+          />
+          {/* Overlay: on mobile — solid white/80; on desktop — gradient from white/80 left to transparent right */}
+          <div className="absolute inset-0 bg-white/80 lg:bg-gradient-to-r lg:from-white/50 lg:via-white/50 lg:to-transparent lg:[--tw-gradient-via-position:20%]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[30vh] lg:min-h-[60vh]" onClick={handleSecretClick}>
 
             {/* Left: Text */}
-            <div className="reveal visible">
+            <div className="reveal visible pt-8 pb-12 lg:py-20">
 
               <h1 className="text-[#1A3326] font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
                 Ваш сад начинается с Зелёной мастерской
@@ -126,18 +147,9 @@ function HomePageContent() {
               </div>
             </div>
 
-            {/* Right: Image */}
-            <div className="hidden lg:flex reveal visible reveal-delay-2 h-full items-center justify-center">
-              <div className="relative w-full max-w-lg">
-                <div className="aspect-[4/3] rounded-sm bg-[#F5F5F0] overflow-hidden">
-                  <img
-                    src="/uploads/products/plant-17.jpg"
-                    alt="Monstera"
-                    className="w-full h-full object-cover hero-parallax"
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Right: empty — image is full-width background */}
+            <div className="hidden lg:block" />
+
           </div>
         </div>
 

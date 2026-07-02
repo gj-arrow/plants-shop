@@ -19,6 +19,7 @@
 
 # production
 /build
+/deploy
 
 # database
 plant-shop.db
