@@ -3,9 +3,10 @@ import bcrypt from 'bcryptjs';
 
 function createPool() {
   const url = process.env.DATABASE_URL || 'mysql://root@localhost:3306/plant_shop';
-  // На локальном localhost используем Unix socket (обход проблем с auth_socket)
-  const isLocal = url.includes('@localhost') && !url.includes(':password');
-  const socketPath = isLocal ? '/tmp/mysql.sock' : undefined;
+  // Unix socket (только для локальной разработки, если MySQL без пароля)
+  // На сервере задайте MYSQL_SOCKET_PATH, если нужно принудительно указать сокет
+  const socketPath = process.env.MYSQL_SOCKET_PATH
+    || (url.includes('@localhost') && !url.includes(':password') ? '/tmp/mysql.sock' : undefined);
   return mysql.createPool({
     uri: url,
     socketPath,

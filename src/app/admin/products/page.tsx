@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminAuth from '@/components/AdminAuth';
-import { parseImages } from '@/lib/product-utils';
+import { parseImages, formatPrice } from '@/lib/product-utils';
 
 interface Product {
   id: number;
@@ -157,7 +157,8 @@ export default function AdminProductsPage() {
       fetchProducts();
       closeModal();
     } else {
-      alert('Ошибка при сохранении товара');
+      const data = await response.json().catch(() => ({}));
+      alert(data.error || 'Ошибка при сохранении товара');
     }
   };
 
@@ -209,7 +210,7 @@ export default function AdminProductsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[#2D1B4E] text-base leading-snug">{product.name}</div>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-[#E8F0EA] text-[#8CA89C] inline-block mt-1">{product.category || '-'}</span>
-                    <div className="text-base font-bold text-[#2D1B4E] mt-1">{product.price} р.</div>
+                    <div className="text-base font-bold text-[#2D1B4E] mt-1">{formatPrice(product.price)} р.</div>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button onClick={() => openModal(product)} className="text-[#8CA89C] hover:bg-[#E8F0EA] w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Редактировать">
@@ -259,7 +260,7 @@ export default function AdminProductsPage() {
                         {product.category || '-'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">{product.price} р.</td>
+                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">{formatPrice(product.price)} р.</td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => openModal(product)}
@@ -323,9 +324,10 @@ export default function AdminProductsPage() {
                         inputMode="numeric"
                         value={priceInput}
                         onChange={(e) => {
-                          const digits = e.target.value.replace(/[^0-9]/g, '');
-                          setPriceInput(digits);
-                          setFormData({ ...formData, price: digits === '' ? 0 : parseInt(digits, 10) });
+                          const val = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                          setPriceInput(val);
+                          const num = parseFloat(val);
+                          setFormData({ ...formData, price: isNaN(num) ? 0 : num });
                         }}
                         className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
                         required

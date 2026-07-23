@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const { name, description, price, stock, category, image_url } = body;
 
     if (!name || !price) {
-      return NextResponse.json({ error: 'Name and price are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Название и цена обязательны' }, { status: 400 });
     }
 
     const result = await run(

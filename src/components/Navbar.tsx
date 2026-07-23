@@ -95,12 +95,6 @@ export default function Navbar() {
                 Каталог
               </button>
               <button
-                onClick={() => scrollToSection('about')}
-                className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
-              >
-                Обо мне
-              </button>
-              <button
                 onClick={() => scrollToSection('contacts')}
                 className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
               >
@@ -241,15 +235,6 @@ export default function Navbar() {
               className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
             >
               Каталог
-            </button>
-            <button
-              onClick={() => {
-                scrollToSection('about');
-                setMobileOpen(false);
-              }}
-              className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
-            >
-              Обо мне
             </button>
             <button
               onClick={() => {

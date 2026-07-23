@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { parseImages, type Product } from '@/lib/product-utils';
+import { parseImages, formatPrice, type Product } from '@/lib/product-utils';
 import { useFavorites } from '@/contexts/FavoritesContext';
 
 export default function ProductDetailClient({ product }: { product: Product }) {
@@ -66,26 +66,25 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </h1>
 
             <div className="text-3xl text-sage font-medium mt-4">
-              {product.price} BYN
+              от {formatPrice(product.price)} BYN
             </div>
 
             {product.description && (
               <div className="mt-6">
-                <p className="text-[#6B7280] leading-relaxed">{product.description}</p>
+                <p className="text-[#6B7280] leading-relaxed whitespace-pre-line">{product.description}</p>
               </div>
             )}
 
             <div className="mt-6 flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-sage' : 'bg-[#D4D4D0]'}`} />
+              <span className="w-2 h-2 rounded-full bg-sage" />
               <span className="text-sm text-[#6B7280]">
-                {product.stock > 0 ? 'В наличии' : 'Нет в наличии'}
+                В наличии
               </span>
             </div>
 
             <button
               onClick={() => toggleFavorite(product.id)}
-              disabled={product.stock === 0}
-              className="w-full mt-8 px-8 py-4 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed btn-press inline-flex items-center justify-center gap-2"
+              className="w-full mt-8 px-8 py-4 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors btn-press inline-flex items-center justify-center gap-2"
             >
               <svg
                 width="18"
@@ -102,25 +101,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               {fav ? 'В избранном' : 'Добавить в избранное'}
             </button>
 
-            <div className="mt-10 pt-8 border-t border-[#E5E5E0]">
-              <div className="grid grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-xl mb-1">🌱</div>
-                  <div className="text-xs text-[#6B7280] uppercase tracking-wide">Уход</div>
-                  <div className="text-sm text-[#1A1A1A] mt-0.5">Умеренный</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl mb-1">💧</div>
-                  <div className="text-xs text-[#6B7280] uppercase tracking-wide">Полив</div>
-                  <div className="text-sm text-[#1A1A1A] mt-0.5">1 раз в неделю</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl mb-1">☀️</div>
-                  <div className="text-xs text-[#6B7280] uppercase tracking-wide">Свет</div>
-                  <div className="text-sm text-[#1A1A1A] mt-0.5">Рассеянный</div>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>

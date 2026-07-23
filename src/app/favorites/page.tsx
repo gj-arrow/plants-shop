@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Product, parseImages } from '@/lib/product-utils';
+import { Product, parseImages, formatPrice } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 
 export default function FavoritesPage() {
@@ -62,11 +62,12 @@ export default function FavoritesPage() {
               const images = parseImages(product);
               
               return (
-                <div
+                <Link
                   key={product.id}
-                  className="group"
+                  href={`/products/${product.id}`}
+                  className="group card-enter h-full"
                 >
-                  <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)]">
+                  <div className="bg-white rounded-sm shadow-[0_2px_20px_rgba(28,55,40,0.06)] flex flex-col h-full">
                     {/* Image */}
                     <div className="aspect-[4/5] bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative">
                       {images.length > 0 ? (
@@ -84,8 +85,11 @@ export default function FavoritesPage() {
                       
                       {/* Favorite button */}
                       <button
-                        onClick={() => toggleFavorite(product.id)}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleFavorite(product.id);
+                        }}
+                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center transition-all shadow-sm"
                       >
                         <svg className="w-4 h-4 text-red-500 fill-red-500" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -94,31 +98,20 @@ export default function FavoritesPage() {
                     </div>
 
                     {/* Info */}
-                    <div className="pt-4 pb-2 px-4">
+                    <div className="pt-4 pb-2 px-4 flex-1 flex flex-col">
                       {product.category && (
                         <span className="text-sage text-xs tracking-wide uppercase">{product.category}</span>
                       )}
                       <h3 className="text-[#1A1A1A] font-display text-base font-medium mt-1 leading-snug">
                         {product.name}
                       </h3>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-sage font-medium">{product.price} BYN</span>
-                        {product.stock > 0 ? (
-                          <span className="text-[11px] text-[#8CA89C]">в наличии</span>
-                        ) : (
-                          <span className="text-[11px] text-[#B0B0A8]">нет в наличии</span>
-                        )}
+                      <div className="flex items-center justify-between mt-auto pt-2">
+                        <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                        <span className="text-[11px] text-[#8CA89C] whitespace-nowrap">В наличии</span>
                       </div>
-
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="mt-4 w-full inline-flex items-center justify-center px-4 py-2.5 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors"
-                      >
-                        Подробнее
-                      </Link>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
