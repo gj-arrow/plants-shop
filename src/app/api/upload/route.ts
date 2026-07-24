@@ -33,6 +33,16 @@ export async function POST(request: NextRequest) {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'products');
     await mkdir(uploadsDir, { recursive: true });
 
+    // Проверяем, что директория существует и доступна для записи
+    const { access } = await import('fs/promises');
+    try {
+      await access(uploadsDir, 2); // W_OK = 2
+    } catch {
+      return NextResponse.json({
+        error: `Директория недоступна для записи: ${uploadsDir}`
+      }, { status: 500 });
+    }
+
     // Генерируем уникальное имя файла
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
@@ -44,8 +54,10 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
 
-    // Возвращаем URL к файлу
-    const url = `/uploads/products/${filename}`;
+    // Возвращаем URL к файлу (через API, чтобы обойти кеширование хостинга)
+    const url = `/api/uploads/${filename}`;
+
+    console.log(`[upload] Файл сохранён: ${filepath} (${file.size} байт)`);
 
     return NextResponse.json({ 
       success: true, 

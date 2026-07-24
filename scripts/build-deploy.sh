@@ -135,9 +135,23 @@ mkdir -p "$DEPLOY_DIR"
 echo "[4/5] Копирование файлов..."
 # Используем . (dot) чтобы захватить скрытые папки вроде .next
 cp -r .next/standalone/. "$DEPLOY_DIR/"
-# Копируем статику (chunks, и т.д.) в .next внутри deploy
+# Копируем статику (chunks, и т.д.) в .next внутри deploy — её нет в standalone
 mkdir -p "$DEPLOY_DIR/.next/static"
 cp -r .next/static/. "$DEPLOY_DIR/.next/static/"
+# Копируем package-lock для npm ci (если понадобится)
+cp package-lock.json "$DEPLOY_DIR/"
+# Копируем runtime-зависимости, которые standalone не захватил (mysql2, bcryptjs, uuid)
+for pkg in mysql2 bcryptjs uuid tsx; do
+  if [ ! -d "$DEPLOY_DIR/node_modules/$pkg" ]; then
+    cp -r "node_modules/$pkg" "$DEPLOY_DIR/node_modules/$pkg"
+  fi
+done
+# mysql2 имеет транзитивные зависимости — копируем их
+for dep in aws-ssl-profiles denque generate-function iconv-lite long lru.min named-placeholders sql-escaper; do
+  if [ ! -d "$DEPLOY_DIR/node_modules/$dep" ]; then
+    cp -r "node_modules/$dep" "$DEPLOY_DIR/node_modules/$dep"
+  fi
+done
 # Копируем public/ (изображения uploads, svg и т.д.)
 cp -r public/. "$DEPLOY_DIR/public/"
 
