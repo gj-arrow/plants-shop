@@ -24,6 +24,7 @@ interface ProductSeed {
   price: number;
   stock: number;
   category: string;
+  subcategory?: string;
   image_url: string;
 }
 
@@ -130,8 +131,8 @@ async function main() {
   console.log(`📦 Добавление ${products.length} товаров...`);
   for (const p of products) {
     await pool.execute(
-      'INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)',
-      [p.name, p.description, p.price, p.stock, p.category, p.image_url]
+      'INSERT INTO products (name, description, price, stock, category, subcategory, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [p.name, p.description, p.price, p.stock, p.category, p.subcategory || null, p.image_url]
     );
     console.log(`  ✅ ${p.name} — ${p.price} ₽`);
   }

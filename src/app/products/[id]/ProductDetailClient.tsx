@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { parseImages, formatPrice, type Product } from '@/lib/product-utils';
 import { useFavorites } from '@/contexts/FavoritesContext';
@@ -8,11 +8,71 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 export default function ProductDetailClient({ product }: { product: Product }) {
   const images = parseImages(product);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [fullscreen, setFullscreen] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
   const fav = isFavorite(product.id);
 
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreen(false);
+      if (e.key === 'ArrowLeft') setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+      if (e.key === 'ArrowRight') setSelectedImage((prev) => (prev + 1) % images.length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullscreen, images.length]);
+
   return (
     <section className="min-h-screen bg-white pt-24 pb-16">
+      {fullscreen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setFullscreen(false)}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
+            aria-label="Предыдущее фото"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {images.length > 0 ? (
+            <img
+              src={images[selectedImage]}
+              alt={product.name}
+              className="max-w-full max-h-full object-contain cursor-zoom-out"
+              onClick={() => setFullscreen(false)}
+            />
+          ) : (
+            <div className="text-8xl">🪴</div>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage((prev) => (prev + 1) % images.length);
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
+            aria-label="Следующее фото"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+            {selectedImage + 1} / {images.length}
+          </span>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-6">
         <Link
           href="/#catalog"
@@ -26,12 +86,13 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-6 reveal visible">
-            <div className="aspect-[4/3] bg-[#F5F5F0] rounded-sm overflow-hidden">
+            <div className="aspect-[4/3] bg-[#F5F5F0] rounded-sm overflow-hidden cursor-zoom-in">
               {images.length > 0 ? (
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onClick={() => setFullscreen(true)}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-6xl">🪴</div>
@@ -75,12 +136,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               </div>
             )}
 
-            <div className="mt-6 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-sage" />
-              <span className="text-sm text-[#6B7280]">
-                В наличии
-              </span>
-            </div>
+
 
             <button
               onClick={() => toggleFavorite(product.id)}
@@ -100,6 +156,11 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               </svg>
               {fav ? 'В избранном' : 'Добавить в избранное'}
             </button>
+
+            <p className="mt-4 text-sm text-[#6B7280] leading-relaxed text-center">
+              Получить консультацию и уточнить наличие товара можно по телефону{' '}
+              <a href="tel:+375298425952" className="text-sage hover:underline whitespace-nowrap">+375 (29) 842-59-52</a>
+            </p>
 
 
           </div>

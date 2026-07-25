@@ -76,9 +76,13 @@ async function init() {
       stock INT DEFAULT 0,
       image_url TEXT,
       category VARCHAR(255),
+      subcategory VARCHAR(255),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Миграции
+  try { await pool.execute("ALTER TABLE products ADD COLUMN subcategory VARCHAR(255) AFTER category"); } catch {}
 
   // Seed категорий
   const catCount = await queryOne('SELECT COUNT(*) as count FROM categories');
@@ -112,8 +116,8 @@ async function init() {
   for (const p of products) {
     const exists = await queryOne('SELECT id FROM products WHERE name = ?', [p.name]);
     if (!exists) {
-      await run('INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)',
-        [p.name, p.desc, p.price, p.stock, p.cat, p.img]);
+      await run('INSERT INTO products (name, description, price, stock, category, subcategory, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [p.name, p.desc, p.price, p.stock, p.cat, null, p.img]);
     }
   }
   console.log('  + Товары добавлены');

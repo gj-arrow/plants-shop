@@ -13,9 +13,13 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Read initial search from URL
-  const initialSearch = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('q') || '' : '';
-  const [searchValue, setSearchValue] = useState(initialSearch);
+  // Read initial search from URL (on client only — useEffect to avoid hydration mismatch)
+  const [searchValue, setSearchValue] = useState('');
+
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('q') || '';
+    setSearchValue(fromUrl);
+  }, []);
 
   useEffect(() => {
     setCustomUser(null);
@@ -118,8 +122,23 @@ export default function Navbar() {
                     value={searchValue}
                     onChange={e => setSearchValue(e.target.value)}
                     placeholder="Поиск растений..."
-                    className="w-48 sm:w-64 pl-9 pr-4 py-1.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
+                    className="w-48 sm:w-64 pl-9 pr-8 py-1.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
                   />
+                  {searchValue && (
+                    <button
+                      onClick={() => {
+                        setSearchValue('');
+                        router.push('/', { scroll: false });
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition cursor-pointer"
+                      aria-label="Очистить поиск"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -211,22 +230,6 @@ export default function Navbar() {
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />
           <div className="absolute top-20 left-0 right-0 bg-white shadow-lg rounded-b-2xl mx-4 p-6 flex flex-col gap-4">
-            <div className="relative mb-1">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
-                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                value={searchValue}
-                onChange={e => setSearchValue(e.target.value)}
-                placeholder="Поиск растений..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
-              />
-            </div>
             <button
               onClick={() => {
                 scrollToSection('catalog');

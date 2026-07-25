@@ -85,9 +85,17 @@ export async function initDatabase() {
       stock INT DEFAULT 0,
       image_url TEXT,
       category VARCHAR(255),
+      subcategory VARCHAR(255),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Миграция: добавляем колонку subcategory, если её нет
+  try {
+    await pool.execute('ALTER TABLE products ADD COLUMN subcategory VARCHAR(255) AFTER category');
+  } catch {
+    // колонка уже существует — ок
+  }
 
   // Создаём админа по умолчанию (admin/admin123)
   const defaultPasswordHash = bcrypt.hashSync('admin123', 10);
@@ -177,13 +185,14 @@ export async function initDatabase() {
     );
     if (!exists) {
       await run(
-        'INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO products (name, description, price, stock, category, subcategory, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [
           product.name,
           product.description,
           product.price,
           product.stock,
           product.category,
+          null,
           product.image_url,
         ]
       );

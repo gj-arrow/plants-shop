@@ -107,7 +107,6 @@ export default function FavoritesPage() {
                       </h3>
                       <div className="flex items-center justify-between mt-auto pt-2">
                         <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
-                        <span className="text-[11px] text-[#8CA89C] whitespace-nowrap">В наличии</span>
                       </div>
                     </div>
                   </div>

@@ -11,6 +11,7 @@ interface Product {
   price: number;
   stock: number;
   category: string;
+  subcategory?: string;
   image_url: string;
 }
 
@@ -20,6 +21,7 @@ const emptyProduct: Omit<Product, 'id'> = {
   price: 0,
   stock: 0,
   category: '',
+  subcategory: undefined,
   image_url: '',
 };
 
@@ -66,6 +68,7 @@ export default function AdminProductsPage() {
         price: product.price,
         stock: product.stock,
         category: product.category || '',
+        subcategory: product.subcategory || undefined,
         image_url: images.length > 0 ? JSON.stringify(images) : '',
       });
       setPriceInput(String(product.price));
@@ -300,7 +303,6 @@ export default function AdminProductsPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
-                      placeholder="Например: Монстера деликатесная"
                       required
                     />
                   </div>
@@ -312,7 +314,6 @@ export default function AdminProductsPage() {
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       rows={3}
                       className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition resize-none"
-                      placeholder="Описание растения..."
                     />
                   </div>
 
@@ -344,6 +345,19 @@ export default function AdminProductsPage() {
                         {categories.map(cat => (
                           <option key={cat.id} value={cat.name}>{cat.name}</option>
                         ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Подкатегория</label>
+                      <select
+                        value={formData.subcategory || ''}
+                        onChange={(e) => setFormData({ ...formData, subcategory: e.target.value || undefined })}
+                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        disabled={formData.category !== 'Гортензии'}
+                      >
+                        <option value="">Без подкатегории</option>
+                        <option value="Метельчатые">Метельчатые</option>
+                        <option value="Крупнолистные">Крупнолистные</option>
                       </select>
                     </div>
                   </div>
@@ -405,7 +419,7 @@ export default function AdminProductsPage() {
                             {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
                           </span>
                           <span className="text-sm text-[#8a7a9a]">
-                            PNG, JPG, WebP до 5MB
+                            PNG, JPG, WebP до 10MB
                           </span>
                           <input
                             type="file"

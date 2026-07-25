@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { existsSync } from 'fs';
+import sharp from 'sharp';
 
 // GET /api/uploads/[filename] — отдаёт загруженное изображение
 export async function GET(
@@ -23,18 +24,30 @@ export async function GET(
   }
 
   try {
+    const ext = path.extname(filename).toLowerCase();
+    const isHeic = ext === '.heic' || ext === '.heif';
+
+    if (isHeic) {
+      // HEIC не поддерживается браузерами — конвертируем в JPEG на лету
+      const buffer = await readFile(filepath);
+      const jpegBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+      return new NextResponse(new Uint8Array(jpegBuffer), {
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    }
+
     const buffer = await readFile(filepath);
 
     // Определяем Content-Type по расширению
-    const ext = path.extname(filename).toLowerCase();
     const mimeTypes: Record<string, string> = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
       '.png': 'image/png',
       '.webp': 'image/webp',
       '.gif': 'image/gif',
-      '.heic': 'image/heic',
-      '.heif': 'image/heif',
     };
     const contentType = mimeTypes[ext] || 'application/octet-stream';
 

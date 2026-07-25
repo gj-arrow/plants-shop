@@ -21,6 +21,19 @@ function HomePageContent() {
   const [categories, setCategories] = useState<string[]>(['all']);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const PAGE_SIZE = isDesktop ? 9 : 10;
   const clickCount = useRef(0);
   const router = useRouter();
 
@@ -30,6 +43,24 @@ function HomePageContent() {
       router.push('/login');
     }
   }, [router]);
+
+  // Mobile search — writes to URL, debounced
+  const [mobileSearchValue, setMobileSearchValue] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = mobileSearchValue.trim();
+      const currentQ = new URLSearchParams(window.location.search).get('q') || '';
+      if (trimmed !== currentQ) {
+        const url = trimmed ? `/?q=${encodeURIComponent(trimmed)}` : '/';
+        router.push(url, { scroll: false });
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [mobileSearchValue, router]);
+  // Sync mobile search when URL changes externally (e.g. desktop search)
+  useEffect(() => {
+    setMobileSearchValue(searchQuery);
+  }, [searchQuery]);
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
 
@@ -67,9 +98,35 @@ function HomePageContent() {
 
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesSubcategory = !selectedSubcategory || p.subcategory === selectedSubcategory;
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSubcategory && matchesSearch;
   });
+
+  // Подкатегории для выбранной категории
+  const subcategories = selectedCategory !== 'all'
+    ? [...new Set(products.filter(p => p.category === selectedCategory && p.subcategory).map(p => p.subcategory!))]
+    : [];
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Сброс подкатегории и страницы при смене категории или поиска
+  useEffect(() => {
+    setSelectedSubcategory('');
+    setPage(1);
+  }, [selectedCategory, searchQuery]);
+
+  // Скролл к каталогу при переключении страницы
+  useEffect(() => {
+    if (!loading) {
+      const el = document.getElementById('catalog');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [page, loading]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -111,9 +168,6 @@ function HomePageContent() {
               <h1 className="text-[#1A3326] font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
                 Хвойные, ниваки, гортензии и другое
               </h1>
-              <p className="text-[#6B7280] text-lg mt-3 max-w-md leading-relaxed">
-                г. Горки, Могилёвская область
-              </p>
 
               {/* Social — mobile */}
               <div className="flex lg:hidden gap-4 mt-8">
@@ -161,6 +215,41 @@ function HomePageContent() {
 
       </section>
 
+      {/* Mobile search — под хедером, только на мобильных */}
+      <div className="max-w-7xl mx-auto px-6 md:hidden pt-4 pb-2">
+        <div className="relative">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            value={mobileSearchValue}
+            onChange={e => setMobileSearchValue(e.target.value)}
+            placeholder="Поиск растений..."
+            className="w-full pl-9 pr-8 py-2.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
+          />
+          {mobileSearchValue && (
+            <button
+              onClick={() => {
+                setMobileSearchValue('');
+                router.push('/', { scroll: false });
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition cursor-pointer"
+              aria-label="Очистить поиск"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
         <div className="max-w-7xl mx-auto px-6 pb-8">
           <div style={{ position: 'relative', zIndex: 2 }}>
             {/* Categories */}
@@ -190,6 +279,35 @@ function HomePageContent() {
               ))}
             </div>
 
+            {/* Subcategories */}
+            {subcategories.length > 0 && (
+              <div className="flex flex-wrap gap-2 justify-center mt-3">
+                <button
+                  onClick={() => setSelectedSubcategory('')}
+                  className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                    !selectedSubcategory
+                      ? 'bg-sage/10 text-sage font-medium'
+                      : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                  }`}
+                >
+                  Все
+                </button>
+                {subcategories.map(sub => (
+                  <button
+                    key={sub}
+                    onClick={() => setSelectedSubcategory(sub)}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      selectedSubcategory === sub
+                        ? 'bg-sage/10 text-sage font-medium'
+                        : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Products */}
             {loading ? (
               <div className="text-center py-12">
@@ -201,8 +319,9 @@ function HomePageContent() {
                 <p className="text-[#6B7280]">Нет товаров в этой категории</p>
               </div>
             ) : (
+              <>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-10">
-                {filteredProducts.map((product, i) => {
+                {paginatedProducts.map((product, i) => {
                   const images = parseImages(product);
                   
                   return (
@@ -238,7 +357,7 @@ function HomePageContent() {
                             className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-sm ${
                               isFavorite(product.id)
                                 ? 'bg-white/90 opacity-100'
-                                : 'bg-white/0 group-hover:bg-white/90 opacity-0 group-hover:opacity-100'
+                                : 'bg-white/80 opacity-100'
                             }`}
                           >
                             <svg className={`w-4 h-4 ${isFavorite(product.id) ? 'text-red-500 fill-red-500' : 'text-[#8CA89C]'}`} viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
@@ -257,7 +376,6 @@ function HomePageContent() {
                           </h3>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
-                            <span className="text-[11px] text-[#8CA89C] whitespace-nowrap">В наличии</span>
                           </div>
                         </div>
                       </div>
@@ -265,6 +383,40 @@ function HomePageContent() {
                   );
                 })}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-10">
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg text-sm border border-[#E5E5E0] disabled:opacity-30 disabled:cursor-not-allowed hover:border-sage transition-colors text-[#6B7280]"
+                  >
+                    ←
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
+                        p === currentPage
+                          ? 'bg-sage text-white'
+                          : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 rounded-lg text-sm border border-[#E5E5E0] disabled:opacity-30 disabled:cursor-not-allowed hover:border-sage transition-colors text-[#6B7280]"
+                  >
+                    →
+                  </button>
+                </div>
+              )}
+              </>
             )}
           </div>
         </div>
@@ -273,7 +425,7 @@ function HomePageContent() {
 
 
       {/* Contacts */}
-      <section id="contacts" className="pt-8 pb-24 bg-white scroll-mt-20">
+      <section id="contacts" className="pt-8 pb-12 bg-white scroll-mt-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl sm:text-4xl text-[#1A3326] mt-3 leading-tight">
@@ -287,7 +439,7 @@ function HomePageContent() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {/* Телефон */}
             <a
               href="tel:+375298425952"
@@ -350,37 +502,23 @@ function HomePageContent() {
               <span className="text-xs text-[#6B7280]">@tereshko3584</span>
             </a>
 
-            {/* MAX */}
-            <a
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-3 bg-[#F5F5F0] rounded-2xl px-4 py-6 border border-[#E8F0EA] group"
-            >
-              <div className="w-14 h-14 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 43 43"><g filter="url(#a)"><g clipPath="url(#b)"><foreignObject width="2764.31" height="2764.31" x="-1382.15" y="-1382.15" transform="matrix(-.0126698 .018634 -.017121 -.0117992 20.42 23.37)"><div style={{background: 'conic-gradient(from 90deg,#06affb 0deg,#00b8ff 5.4deg,#001cf1 109.8deg,#8900ac 252deg,#06affb 360deg)', height: '100%', width: '100%', opacity: 1}}></div></foreignObject></g><path d="M22.39 41.89c-3.93 0-5.75-.58-8.9-2.9-2.02 2.61-8.34 4.63-8.62 1.17 0-2.6-.58-4.8-1.22-7.2C2.87 30 2 26.72 2 21.94 2 10.56 11.28 2 22.28 2c11 0 19.63 8.98 19.63 20.06 0 11.07-8.9 19.83-19.52 19.83Zm.2-30.02c-5.22-.27-9.3 3.37-10.2 9.08-.74 4.72.58 10.48 1.7 10.77.54.13 1.9-.98 2.74-1.82 1.39.9 2.97 1.6 4.73 1.7a9.96 9.96 0 0 0 10.4-9.34 10 10 0 0 0-9.37-10.39Z" clipRule="evenodd"></path></g><g filter="url(#c)"><ellipse cx="21.95" cy="22.09" fill="url(#d)" rx="19.05" ry="19.18"></ellipse></g><g filter="url(#e)"><ellipse cx="21.78" cy="21.4" fill="url(#f)" rx="17.91" ry="18.03"></ellipse></g><g filter="url(#g)"><ellipse cx="14" cy="14.1" fill="url(#h)" rx="14" ry="14.1" transform="matrix(-.998415 -.0562829 .0555313 -.998457 35.55 36.84)"></ellipse></g><g filter="url(#i)"><ellipse cx="1.14" cy="6.87" fill="#000" fillOpacity=".38" rx="1.14" ry="6.87" transform="matrix(.988028 -.154275 .152257 .988341 3.25 21.78)"></ellipse></g><g filter="url(#j)"><path stroke="#fff" strokeOpacity=".3" strokeWidth=".36" d="M21.47 7.36a2.43 2.43 0 0 1 2.8 0c.6.43 1.4.56 2.11.33.98-.3 2.06.05 2.66.87.45.6 1.17.97 1.92.97 1.01.01 1.93.68 2.26 1.65.24.7.8 1.28 1.52 1.51a2.43 2.43 0 0 1 1.64 2.27c0 .74.37 1.46.97 1.9.82.62 1.17 1.7.87 2.67-.23.71-.1 1.5.33 2.12.6.83.6 1.96 0 2.8-.43.6-.56 1.4-.33 2.11.3.97-.05 2.06-.87 2.66-.6.45-.96 1.17-.97 1.91a2.43 2.43 0 0 1-1.64 2.27c-.71.24-1.28.8-1.52 1.51a2.43 2.43 0 0 1-2.26 1.65c-.75 0-1.47.37-1.92.97a2.43 2.43 0 0 1-2.66.87 2.43 2.43 0 0 0-2.12.33c-.83.6-1.96.6-2.8 0a2.43 2.43 0 0 0-2.11-.33c-.97.3-2.05-.05-2.66-.87a2.43 2.43 0 0 0-1.91-.97 2.43 2.43 0 0 1-2.27-1.65c-.23-.7-.8-1.27-1.51-1.51a2.43 2.43 0 0 1-1.65-2.27c0-.74-.37-1.46-.97-1.9a2.43 2.43 0 0 1-.86-2.67c.22-.71.1-1.5-.34-2.12a2.43 2.43 0 0 1 0-2.8c.43-.6.56-1.4.34-2.11-.3-.97.04-2.05.86-2.66.6-.45.97-1.17.97-1.91A2.43 2.43 0 0 1 11 12.69c.7-.23 1.28-.8 1.51-1.51a2.43 2.43 0 0 1 2.27-1.65c.74 0 1.46-.37 1.9-.97a2.43 2.43 0 0 1 2.67-.87c.71.23 1.5.1 2.12-.33Z"></path></g><defs><filter id="a" width="39.91" height="40" x="2" y="2" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"></feColorMatrix><feOffset></feOffset><feGaussianBlur stdDeviation="2.25"></feGaussianBlur><feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic"></feComposite><feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0"></feColorMatrix><feBlend in2="shape" result="effect1_innerShadow_338_8816"></feBlend></filter><filter id="c" width="40.49" height="40.74" x="1.71" y="1.72" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur result="effect1_foregroundBlur_338_8816" stdDeviation=".6"></feGaussianBlur></filter><filter id="e" width="40.61" height="40.85" x="1.48" y=".98" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur result="effect1_foregroundBlur_338_8816" stdDeviation="1.2"></feGaussianBlur></filter><filter id="g" width="31.59" height="31.78" x="6.56" y="6.08" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur result="effect1_foregroundBlur_338_8816" stdDeviation=".9"></feGaussianBlur></filter><filter id="i" width="10.26" height="20.76" x=".3" y="18.02" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur result="effect1_foregroundBlur_338_8816" stdDeviation="1.79"></feGaussianBlur></filter><filter id="j" width="37.4" height="37.4" x="4.17" y="4.35" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur result="effect1_foregroundBlur_338_8816" stdDeviation="1.2"></feGaussianBlur></filter><linearGradient id="d" x1="29.96" x2="37.74" y1="33.06" y2="48.3" gradientUnits="userSpaceOnUse"><stop stopColor="#fff" stopOpacity="0"></stop><stop offset="1" stopColor="#fff" stopOpacity=".37"></stop></linearGradient><linearGradient id="f" x1="11.72" x2="14.13" y1="6" y2="9.55" gradientUnits="userSpaceOnUse"><stop stopColor="#fff"></stop><stop offset="1" stopColor="#fff" stopOpacity="0"></stop></linearGradient><linearGradient id="h" x1="5.34" x2="8.27" y1="1.47" y2="5.69" gradientUnits="userSpaceOnUse"><stop stopColor="#fff" stopOpacity=".69"></stop><stop offset="1" stopColor="#fff" stopOpacity="0"></stop></linearGradient><clipPath id="b"><path fillRule="evenodd" d="M22.39 41.89c-3.93 0-5.75-.58-8.9-2.9-2.02 2.61-8.34 4.63-8.62 1.17 0-2.6-.58-4.8-1.22-7.2C2.87 30 2 26.72 2 21.94 2 10.56 11.28 2 22.28 2c11 0 19.63 8.98 19.63 20.06 0 11.07-8.9 19.83-19.52 19.83Zm.2-30.02c-5.22-.27-9.3 3.37-10.2 9.08-.74 4.72.58 10.48 1.7 10.77.54.13 1.9-.98 2.74-1.82 1.39.9 2.97 1.6 4.73 1.7a9.96 9.96 0 0 0 10.4-9.34 10 10 0 0 0-9.37-10.39Z" clipRule="evenodd"></path></clipPath></defs></svg>
-              </div>
-              <span className="font-semibold text-[#1A3326] text-sm">MAX</span>
-              <span className="text-xs text-[#6B7280]">+375 (29) 842-59-52</span>
-            </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer id="contacts" className="bg-sage text-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="max-w-2xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-display text-lg tracking-wide">Зелёная мастерская</h3>
-              <p className="text-white/70 text-sm mt-3 leading-relaxed">Доставка: Европочта, Белпочта. Самовывоз.</p>
+              <p className="text-white/70 text-sm mt-3 leading-relaxed whitespace-nowrap">Доставка: Европочта, Белпочта.</p>
+              <p className="text-white/70 text-sm mt-1 leading-relaxed">Самовывоз: г. Горки, Могилёвская область.</p>
             </div>
-            <div>
+            <div className="md:text-right">
               <h4 className="text-xs tracking-[0.15em] uppercase mb-4 font-medium">Контакты</h4>
               <ul className="space-y-2 text-sm text-white/70">
-                <li>Telegram: +375298425952</li>
-                <li>Viber: +375 (29) 842-59-52</li>
-                <li>Email: tereshkoluidmila@mail.ru</li>
+                <li>+375 (29) 842-59-52</li>
               </ul>
             </div>
           </div>
