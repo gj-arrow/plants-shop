@@ -17,7 +17,7 @@ const instrumentSans = Instrument_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Зелёная мастерская — Магазин растений",
+  title: "Зелёная мастерская",
   description: "Магазин растений",
   icons: {
     icon: [

@@ -82,7 +82,6 @@ export async function initDatabase() {
       name VARCHAR(255) NOT NULL,
       description TEXT,
       price DECIMAL(10, 2) NOT NULL,
-      stock INT DEFAULT 0,
       image_url TEXT,
       category VARCHAR(255),
       subcategory VARCHAR(255),
@@ -93,6 +92,13 @@ export async function initDatabase() {
   // Миграция: добавляем колонку subcategory, если её нет
   try {
     await pool.execute('ALTER TABLE products ADD COLUMN subcategory VARCHAR(255) AFTER category');
+  } catch {
+    // колонка уже существует — ок
+  }
+
+  // Миграция: добавляем колонку out_of_stock, если её нет
+  try {
+    await pool.execute('ALTER TABLE products ADD COLUMN out_of_stock TINYINT(1) NOT NULL DEFAULT 0 AFTER subcategory');
   } catch {
     // колонка уже существует — ок
   }
@@ -108,95 +114,6 @@ export async function initDatabase() {
       'admin',
       defaultPasswordHash,
     ]);
-  }
-
-  // Добавляем тестовые товары (используем реальные изображения из uploads/)
-  const testProducts = [
-    {
-      name: 'Монстера деликатесная',
-      description: 'Крупное тропическое растение с эффектными резными листьями. Любит яркий рассеянный свет и регулярное опрыскивание.',
-      price: 3500,
-      stock: 15,
-      category: 'Комнатные',
-      image_url: '/uploads/products/plant-17.jpg',
-    },
-    {
-      name: 'Фикус лирата',
-      description: 'Эффектное вечнозелёное дерево с крупными волнистыми листьями. Предпочитает хорошее освещение и умеренный полив.',
-      price: 5200,
-      stock: 8,
-      category: 'Деревья',
-      image_url: '/uploads/products/plant-28.jpg',
-    },
-    {
-      name: 'Сансевиерия цилиндрическая',
-      description: 'Неприхотливый суккулент с необычными трубчатыми листьями. Прощает пропуски полива, растёт при любом освещении.',
-      price: 1800,
-      stock: 25,
-      category: 'Суккуленты',
-      image_url: '/uploads/products/1782836700125-pp051k.jpg',
-    },
-    {
-      name: 'Папоротник Нефролепис',
-      description: 'Пышный ампельный папоротник с ажурными вайями. Любит повышенную влажность и полутень.',
-      price: 2200,
-      stock: 12,
-      category: 'Папоротники',
-      image_url: '/uploads/products/1782836815587-uipyl4.jpg',
-    },
-    {
-      name: 'Орхидея Фаленопсис',
-      description: 'Элегантная орхидея с крупными цветами. Цветёт до 3–4 месяцев дважды в год. Любит рассеянный свет.',
-      price: 3800,
-      stock: 10,
-      category: 'Цветущие',
-      image_url: '/uploads/products/1782836856906-jn32rh.jpg',
-    },
-    {
-      name: 'Эхинокактус Грусона',
-      description: 'Крупный шаровидный кактус, известный как «тещин стул». Очень неприхотлив — любит яркое солнце и редкий полив.',
-      price: 2000,
-      stock: 20,
-      category: 'Суккуленты',
-      image_url: '/uploads/products/1782836889573-e3rdnf.jpg',
-    },
-    {
-      name: 'Спатифиллум Шопен',
-      description: '«Женское счастье» с изящными белыми цветами. Цветёт несколько раз в год, теневынослив.',
-      price: 2100,
-      stock: 18,
-      category: 'Цветущие',
-      image_url: '/uploads/products/plant-17.jpg',
-    },
-    {
-      name: 'Драцена Маргината',
-      description: 'Эффектное древовидное растение с узкими изогнутыми листьями и красной каймой. Растёт медленно, до 2 м.',
-      price: 3400,
-      stock: 14,
-      category: 'Деревья',
-      image_url: '/uploads/products/plant-28.jpg',
-    },
-  ];
-
-  for (const product of testProducts) {
-    const exists = await queryOne<{ id: number }>(
-      'SELECT id FROM products WHERE name = ?',
-      [product.name]
-    );
-    if (!exists) {
-      await run(
-        'INSERT INTO products (name, description, price, stock, category, subcategory, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [
-          product.name,
-          product.description,
-          product.price,
-          product.stock,
-          product.category,
-          null,
-          product.image_url,
-        ]
-      );
-    }
   }
 }
 

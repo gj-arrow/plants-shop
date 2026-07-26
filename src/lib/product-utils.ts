@@ -3,10 +3,10 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
-  stock: number;
   image_url?: string;
   category?: string;
   subcategory?: string;
+  out_of_stock?: boolean | number;
   created_at?: string;
 }
 

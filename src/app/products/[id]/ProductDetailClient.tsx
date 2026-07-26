@@ -47,7 +47,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             <img
               src={images[selectedImage]}
               alt={product.name}
-              className="max-w-full max-h-full object-contain cursor-zoom-out"
+                className={`max-w-full max-h-full object-contain cursor-zoom-out ${product.out_of_stock ? 'opacity-60' : ''}`}
               onClick={() => setFullscreen(false)}
             />
           ) : (
@@ -91,7 +91,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`}
                   onClick={() => setFullscreen(true)}
                 />
               ) : (
@@ -108,7 +108,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                       selectedImage === i ? 'border-sage' : 'border-[#E5E5E0] hover:border-sage'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`} />
                   </button>
                 ))}
               </div>
@@ -119,6 +119,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             {product.category && (
               <span className="text-sage text-xs tracking-[0.15em] uppercase">
                 {product.category}
+                {product.subcategory && <span className="text-[#9CA3AF]"> / {product.subcategory}</span>}
               </span>
             )}
 
@@ -127,7 +128,11 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </h1>
 
             <div className="text-3xl text-sage font-medium mt-4">
-              от {formatPrice(product.price)} BYN
+              {product.out_of_stock ? (
+                <span className="text-red-400 text-2xl font-medium">Нет в наличии</span>
+              ) : (
+                <>от {formatPrice(product.price)} BYN</>
+              )}
             </div>
 
             {product.description && (

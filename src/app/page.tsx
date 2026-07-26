@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Product, parseImages, formatPrice } from '@/lib/product-utils';
@@ -24,6 +24,25 @@ function HomePageContent() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
+
+  // Восстановление категории/страницы при возврате из карточки товара
+  useEffect(() => {
+    const savedCategory = sessionStorage.getItem('catalogCategory');
+    const savedSubcategory = sessionStorage.getItem('catalogSubcategory');
+    const savedPage = sessionStorage.getItem('catalogPage');
+    const hasSaved = savedCategory || savedSubcategory || savedPage;
+    if (hasSaved) {
+      if (savedCategory) {
+        sessionStorage.setItem('_restoredCategory', savedCategory);
+        setSelectedCategory(savedCategory);
+      }
+      if (savedSubcategory) setSelectedSubcategory(savedSubcategory);
+      if (savedPage) setPage(parseInt(savedPage, 10));
+    }
+    sessionStorage.removeItem('catalogCategory');
+    sessionStorage.removeItem('catalogSubcategory');
+    sessionStorage.removeItem('catalogPage');
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
@@ -94,6 +113,9 @@ function HomePageContent() {
 
   const saveScroll = () => {
     sessionStorage.setItem('catalogScrollY', String(window.scrollY));
+    sessionStorage.setItem('catalogPage', String(page));
+    sessionStorage.setItem('catalogCategory', selectedCategory);
+    sessionStorage.setItem('catalogSubcategory', selectedSubcategory);
   };
 
   const filteredProducts = products.filter(p => {
@@ -110,10 +132,28 @@ function HomePageContent() {
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const paginatedProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (a.out_of_stock && !b.out_of_stock) return 1;
+    if (!a.out_of_stock && b.out_of_stock) return -1;
+    return 0;
+  });
+  const paginatedProducts = sortedProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  const prevCategory = useRef(selectedCategory);
+  const prevQuery = useRef(searchQuery);
   // Сброс подкатегории и страницы при смене категории или поиска
+  // Пропускаем если это восстановление после возврата из карточки товара
   useEffect(() => {
+    if (prevCategory.current === selectedCategory && prevQuery.current === searchQuery) return;
+    const restoredCategory = sessionStorage.getItem('_restoredCategory');
+    if (restoredCategory) {
+      sessionStorage.removeItem('_restoredCategory');
+      prevCategory.current = selectedCategory;
+      prevQuery.current = searchQuery;
+      return;
+    }
+    prevCategory.current = selectedCategory;
+    prevQuery.current = searchQuery;
     setSelectedSubcategory('');
     setPage(1);
   }, [selectedCategory, searchQuery]);
@@ -215,9 +255,9 @@ function HomePageContent() {
 
       </section>
 
-      {/* Mobile search — под хедером, только на мобильных */}
-      <div className="max-w-7xl mx-auto px-6 md:hidden pt-4 pb-2">
-        <div className="relative">
+      {/* Search — над категориями */}
+      <div className="max-w-7xl mx-auto px-6 pt-4 pb-2" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="relative md:max-w-lg md:mx-auto">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -229,7 +269,7 @@ function HomePageContent() {
             type="text"
             value={mobileSearchValue}
             onChange={e => setMobileSearchValue(e.target.value)}
-            placeholder="Поиск растений..."
+            placeholder="Поиск по названию"
             className="w-full pl-9 pr-8 py-2.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
           />
           {mobileSearchValue && (
@@ -265,48 +305,47 @@ function HomePageContent() {
                 🌿 Все
               </button>
               {categories.filter(c => c !== 'all').map((cat, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-6 py-2 rounded-full text-sm transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-sage text-white'
-                      : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Subcategories */}
-            {subcategories.length > 0 && (
-              <div className="flex flex-wrap gap-2 justify-center mt-3">
-                <button
-                  onClick={() => setSelectedSubcategory('')}
-                  className={`px-4 py-1.5 rounded-full text-xs transition-all ${
-                    !selectedSubcategory
-                      ? 'bg-sage/10 text-sage font-medium'
-                      : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
-                  }`}
-                >
-                  Все
-                </button>
-                {subcategories.map(sub => (
+                <Fragment key={i}>
                   <button
-                    key={sub}
-                    onClick={() => setSelectedSubcategory(sub)}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
-                      selectedSubcategory === sub
-                        ? 'bg-sage/10 text-sage font-medium'
-                        : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-6 py-2 rounded-full text-sm transition-all ${
+                      selectedCategory === cat
+                        ? 'bg-sage text-white'
+                        : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
                     }`}
                   >
-                    {sub}
+                    {cat}
                   </button>
-                ))}
-              </div>
-            )}
+                  {selectedCategory === cat && subcategories.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      <button
+                        onClick={() => setSelectedSubcategory('')}
+                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                          !selectedSubcategory
+                            ? 'bg-sage/10 text-sage font-medium'
+                            : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                        }`}
+                      >
+                        Все
+                      </button>
+                      {subcategories.map(sub => (
+                        <button
+                          key={sub}
+                          onClick={() => setSelectedSubcategory(sub)}
+                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                            selectedSubcategory === sub
+                              ? 'bg-sage/10 text-sage font-medium'
+                              : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                          }`}
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </Fragment>
+              ))}
+            </div>
 
             {/* Products */}
             {loading ? (
@@ -339,7 +378,7 @@ function HomePageContent() {
                             <img
                               src={images[0]}
                               alt={product.name}
-                              className="w-full h-full object-cover"
+                              className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl">🪴</div>
@@ -374,9 +413,13 @@ function HomePageContent() {
                           <h3 className="text-[#1A1A1A] font-display text-base font-medium mt-1 leading-snug">
                             {product.name}
                           </h3>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
-                          </div>
+                            <div className="flex items-center justify-between mt-2">
+                              {product.out_of_stock ? (
+                                <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
+                              ) : (
+                                <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                              )}
+                            </div>
                         </div>
                       </div>
                     </Link>
@@ -414,8 +457,11 @@ function HomePageContent() {
                   >
                     →
                   </button>
+                  </div>
+                )}
+                <div className="text-center text-sm text-[#8a7a9a] mt-3">
+                  Показано {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredProducts.length)} из {filteredProducts.length}
                 </div>
-              )}
               </>
             )}
           </div>

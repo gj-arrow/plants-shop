@@ -16,16 +16,19 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, price, stock, category, subcategory, image_url } = body;
+    const { name, description, price, category, subcategory, image_url, out_of_stock } = body;
 
-    if (!name || !price) {
-      return NextResponse.json({ error: 'Название и цена обязательны' }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: 'Название товара обязательно' }, { status: 400 });
+    }
+    if (!out_of_stock && !price) {
+      return NextResponse.json({ error: 'Цена обязательна' }, { status: 400 });
     }
 
     const result = await run(
-      `INSERT INTO products (name, description, price, stock, category, subcategory, image_url)
+      `INSERT INTO products (name, description, price, category, subcategory, image_url, out_of_stock)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, description || null, price, stock || 0, category || null, subcategory || null, image_url || null]
+      [name, description || null, price || 0, category || null, subcategory || null, image_url || null, out_of_stock ? 1 : 0]
     );
 
     const newProduct = await queryOne('SELECT * FROM products WHERE id = ?', [result.insertId]);

@@ -58,7 +58,11 @@ export default function FavoritesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product, i) => {
+            {[...products].sort((a, b) => {
+              if (a.out_of_stock && !b.out_of_stock) return 1;
+              if (!a.out_of_stock && b.out_of_stock) return -1;
+              return 0;
+            }).map((product, i) => {
               const images = parseImages(product);
               
               return (
@@ -74,7 +78,7 @@ export default function FavoritesPage() {
                         <img
                           src={images[0]}
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl">🪴</div>
@@ -106,7 +110,11 @@ export default function FavoritesPage() {
                         {product.name}
                       </h3>
                       <div className="flex items-center justify-between mt-auto pt-2">
-                        <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                        {product.out_of_stock ? (
+                          <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
+                        ) : (
+                          <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                        )}
                       </div>
                     </div>
                   </div>

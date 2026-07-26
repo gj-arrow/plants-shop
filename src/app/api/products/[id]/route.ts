@@ -29,7 +29,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, price, stock, category, subcategory, image_url } = body;
+    const { name, description, price, category, subcategory, image_url, out_of_stock } = body;
 
     const existing = await queryOne<Record<string, any>>(
       'SELECT * FROM products WHERE id = ?',
@@ -41,16 +41,16 @@ export async function PUT(
 
     await run(
       `UPDATE products
-       SET name = ?, description = ?, price = ?, stock = ?, category = ?, subcategory = ?, image_url = ?
+       SET name = ?, description = ?, price = ?, category = ?, subcategory = ?, image_url = ?, out_of_stock = ?
        WHERE id = ?`,
       [
         name || existing.name,
         description !== undefined ? description : existing.description,
         price !== undefined ? price : existing.price,
-        stock !== undefined ? stock : existing.stock,
         category !== undefined ? category : existing.category,
         subcategory !== undefined ? subcategory : existing.subcategory,
         image_url !== undefined ? image_url : existing.image_url,
+        out_of_stock !== undefined ? (out_of_stock ? 1 : 0) : existing.out_of_stock,
         id,
       ]
     );

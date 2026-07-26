@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useFavorites } from '@/contexts/FavoritesContext';
 
 export default function Navbar() {
@@ -11,15 +11,6 @@ export default function Navbar() {
   const [customUser, setCustomUser] = useState<{ id: number; email: string; role: string } | null>(null);
   const { favorites } = useFavorites();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Read initial search from URL (on client only — useEffect to avoid hydration mismatch)
-  const [searchValue, setSearchValue] = useState('');
-
-  useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('q') || '';
-    setSearchValue(fromUrl);
-  }, []);
 
   useEffect(() => {
     setCustomUser(null);
@@ -47,24 +38,6 @@ export default function Navbar() {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
-  // Debounced search — navigates after user stops typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const trimmed = searchValue.trim();
-      const currentQ = new URLSearchParams(window.location.search).get('q') || '';
-      if (trimmed !== currentQ) {
-        const url = trimmed ? `/?q=${encodeURIComponent(trimmed)}` : '/';
-        router.push(url, { scroll: false });
-        if (trimmed) {
-          setTimeout(() => {
-            document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
-          }, 300);
-        }
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [searchValue, router]);
 
   return (
     <>
@@ -107,41 +80,6 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center">
-                <div className="relative">
-                  <svg
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
-                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" />
-                  </svg>
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchValue}
-                    onChange={e => setSearchValue(e.target.value)}
-                    placeholder="Поиск растений..."
-                    className="w-48 sm:w-64 pl-9 pr-8 py-1.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
-                  />
-                  {searchValue && (
-                    <button
-                      onClick={() => {
-                        setSearchValue('');
-                        router.push('/', { scroll: false });
-                      }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition cursor-pointer"
-                      aria-label="Очистить поиск"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-
               {(!customUser || customUser.role !== 'admin') && (
                 <Link
                   href="/favorites"

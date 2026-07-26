@@ -9,20 +9,20 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  stock: number;
   category: string;
   subcategory?: string;
   image_url: string;
+  out_of_stock: boolean | number;
 }
 
 const emptyProduct: Omit<Product, 'id'> = {
   name: '',
   description: '',
   price: 0,
-  stock: 0,
   category: '',
   subcategory: undefined,
   image_url: '',
+  out_of_stock: false,
 };
 
 export default function AdminProductsPage() {
@@ -32,9 +32,22 @@ export default function AdminProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
-  const [priceInput, setPriceInput] = useState('0');
+  const [priceInput, setPriceInput] = useState('');
   const [uploading, setUploading] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterSubcategory, setFilterSubcategory] = useState('');
+  const [sortField, setSortField] = useState<'name' | 'price'>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const toggleSort = (field: 'name' | 'price') => {
+    if (sortField === field) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
 
   // Скролл вверх при заходе на страницу (чтобы не было авто-восстановления скролла)
   useEffect(() => {
@@ -66,17 +79,17 @@ export default function AdminProductsPage() {
         name: product.name,
         description: product.description || '',
         price: product.price,
-        stock: product.stock,
         category: product.category || '',
         subcategory: product.subcategory || undefined,
         image_url: images.length > 0 ? JSON.stringify(images) : '',
+        out_of_stock: Boolean(product.out_of_stock),
       });
-      setPriceInput(String(product.price));
+      setPriceInput(product.out_of_stock ? '' : String(product.price));
       setPreviewImages(images);
     } else {
       setEditingProduct(null);
       setFormData(emptyProduct);
-      setPriceInput('0');
+      setPriceInput('');
       setPreviewImages([]);
     }
     setIsModalOpen(true);
@@ -86,7 +99,7 @@ export default function AdminProductsPage() {
     setIsModalOpen(false);
     setEditingProduct(null);
     setFormData(emptyProduct);
-    setPriceInput('0');
+    setPriceInput('');
     setPreviewImages([]);
   };
 
@@ -176,10 +189,41 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Доступные подкатегории — из товаров отфильтрованной категории
+  const availableSubcategories = [...new Set(
+    (filterCategory
+      ? products.filter(p => p.category === filterCategory)
+      : products
+    )
+      .map(p => p.subcategory)
+      .filter(Boolean)
+  )];
+
+  // Сбрасываем подкатегорию при смене категории
+  useEffect(() => {
+    setFilterSubcategory('');
+  }, [filterCategory]);
+
+  const filteredProducts = (filterCategory
+    ? products.filter(p => p.category === filterCategory)
+    : products
+  ).filter(p => !filterSubcategory || p.subcategory === filterSubcategory);
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    if (sortField === 'name') return a.name.localeCompare(b.name) * dir;
+    return (a.price - b.price) * dir;
+  });
+
+  const sortArrow = (field: 'name' | 'price') => {
+    if (sortField !== field) return ' ↕';
+    return sortDir === 'asc' ? ' ↑' : ' ↓';
+  };
+
   return (
     <AdminAuth>
       <div className="min-h-[calc(100vh-4rem)]">
-        <div className="flex justify-between items-center mb-6 fade-in">
+        <div className="flex justify-between items-center mb-4 fade-in">
           <h1 className="text-2xl font-['Playfair_Display'] text-[#2D1B4E] font-bold">🌿 Управление товарами</h1>
           <button
             onClick={() => openModal()}
@@ -187,6 +231,59 @@ export default function AdminProductsPage() {
           >
             + Добавить товар
           </button>
+        </div>
+
+        {/* Фильтры */}
+        <div className="mb-4 fade-in flex flex-wrap items-center gap-3">
+          <label className="text-sm text-[#1A3326] font-medium">Фильтр:</label>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+          >
+            <option value="">Все категории</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
+
+          {filterCategory && availableSubcategories.length > 0 && (
+            <select
+              value={filterSubcategory}
+              onChange={(e) => setFilterSubcategory(e.target.value)}
+              className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+            >
+              <option value="">Все подкатегории</option>
+              {availableSubcategories.map(sub => (
+                <option key={sub} value={sub}>{sub}</option>
+              ))}
+            </select>
+          )}
+
+          {(filterCategory || filterSubcategory) && (
+            <span className="text-sm text-[#8a7a9a]">
+              {filteredProducts.length} товар{filteredProducts.length !== 1 ? 'ов' : ''}
+            </span>
+          )}
+
+          {/* Сортировка */}
+          <div className="ml-auto flex items-center gap-2">
+            <label className="text-sm text-[#1A3326] font-medium hidden sm:inline">Сортировка:</label>
+            <select
+              value={`${sortField}-${sortDir}`}
+              onChange={(e) => {
+                const [field, dir] = e.target.value.split('-') as ['name' | 'price', 'asc' | 'desc'];
+                setSortField(field);
+                setSortDir(dir);
+              }}
+              className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+            >
+              <option value="name-asc">Название А→Я</option>
+              <option value="name-desc">Название Я→А</option>
+              <option value="price-asc">Цена ↑</option>
+              <option value="price-desc">Цена ↓</option>
+            </select>
+          </div>
         </div>
 
         {loading ? (
@@ -198,7 +295,7 @@ export default function AdminProductsPage() {
           <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(140,168,156,0.12)] fade-in">
             {/* Мобильные карточки */}
             <div className="divide-y divide-[rgba(140,168,156,0.08)] sm:hidden">
-              {products.map(product => (
+              {sortedProducts.map(product => (
                 <div key={product.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
                     {(() => {
@@ -213,7 +310,13 @@ export default function AdminProductsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[#2D1B4E] text-base leading-snug">{product.name}</div>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-[#E8F0EA] text-[#8CA89C] inline-block mt-1">{product.category || '-'}</span>
-                    <div className="text-base font-bold text-[#2D1B4E] mt-1">{formatPrice(product.price)} р.</div>
+                    <div className="text-base font-bold text-[#2D1B4E] mt-1">
+                      {product.out_of_stock ? (
+                        <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
+                      ) : (
+                        <>{formatPrice(product.price)} р.</>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button onClick={() => openModal(product)} className="text-[#8CA89C] hover:bg-[#E8F0EA] w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Редактировать">
@@ -231,14 +334,18 @@ export default function AdminProductsPage() {
             <table className="w-full hidden sm:table">
               <thead className="bg-[#E8F0EA]">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Товар</th>
+                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider cursor-pointer select-none hover:text-[#8CA89C] transition" onClick={() => toggleSort('name')}>
+                    Товар{sortArrow('name')}
+                  </th>
                   <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Категория</th>
-                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Цена</th>
+                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider cursor-pointer select-none hover:text-[#8CA89C] transition" onClick={() => toggleSort('price')}>
+                    Цена{sortArrow('price')}
+                  </th>
                   <th className="px-4 py-3 text-right text-xs text-[#1A3326] uppercase tracking-wider">Действия</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[rgba(140,168,156,0.08)]">
-                {products.map(product => (
+                {sortedProducts.map(product => (
                   <tr key={product.id} className="hover:bg-[#FDF6F0] transition btn-press">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -263,7 +370,13 @@ export default function AdminProductsPage() {
                         {product.category || '-'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">{formatPrice(product.price)} р.</td>
+                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">
+                      {product.out_of_stock ? (
+                        <span className="text-red-400 font-medium">Нет в наличии</span>
+                      ) : (
+                        <>{formatPrice(product.price)} р.</>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => openModal(product)}
@@ -317,6 +430,24 @@ export default function AdminProductsPage() {
                     />
                   </div>
 
+                  {/* Чекбокс "Нет в наличии" */}
+                  <label className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={formData.out_of_stock as boolean}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setFormData({ ...formData, out_of_stock: checked });
+                        if (checked) {
+                          setPriceInput('');
+                          setFormData(prev => ({ ...prev, price: 0 }));
+                        }
+                      }}
+                      className="w-5 h-5 rounded border-2 border-[rgba(140,168,156,0.3)] accent-[#8CA89C] cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-[#1A3326]">Нет в наличии</span>
+                  </label>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-[#1A3326] mb-1">Цена (р.)</label>
@@ -330,8 +461,11 @@ export default function AdminProductsPage() {
                           const num = parseFloat(val);
                           setFormData({ ...formData, price: isNaN(num) ? 0 : num });
                         }}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
-                        required
+                        className={`w-full px-4 py-2.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition ${
+                          formData.out_of_stock ? 'border-gray-200 bg-gray-100 text-gray-400' : 'border-[rgba(140,168,156,0.15)]'
+                        }`}
+                        required={!formData.out_of_stock}
+                        disabled={formData.out_of_stock as boolean}
                       />
                     </div>
                     <div>
