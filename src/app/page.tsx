@@ -203,7 +203,7 @@ function HomePageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[30vh] lg:min-h-[60vh]" onClick={handleSecretClick}>
 
             {/* Left: Text */}
-            <div className="reveal visible pt-8 pb-12 lg:py-20">
+            <div className="reveal visible pt-8 pb-6 lg:pb-12 lg:py-20">
 
               <h1 className="text-[#1A3326] font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
                 Хвойные, ниваки, гортензии и другое
@@ -293,7 +293,7 @@ function HomePageContent() {
         <div className="max-w-7xl mx-auto px-6 pb-8">
           <div style={{ position: 'relative', zIndex: 2 }}>
             {/* Categories */}
-            <div className="flex flex-wrap gap-2 justify-center pt-8" id="catalog">
+            <div className="flex flex-wrap gap-2 justify-center pt-3 lg:pt-8" id="catalog">
               <button
                 onClick={() => setSelectedCategory('all')}
                 className={`px-6 py-2 rounded-full text-sm transition-all ${

@@ -4,13 +4,32 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { parseImages, formatPrice, type Product } from '@/lib/product-utils';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import ProductEditModal from '@/components/ProductEditModal';
 
 export default function ProductDetailClient({ product }: { product: Product }) {
   const images = parseImages(product);
   const [selectedImage, setSelectedImage] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const { toggleFavorite, isFavorite } = useFavorites();
   const fav = isFavorite(product.id);
+
+  useEffect(() => {
+    fetch('/api/auth')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data.user?.role === 'admin') {
+          setIsAdmin(true);
+        }
+      })
+      .catch(() => {});
+    fetch('/api/categories')
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!fullscreen) return;
@@ -24,7 +43,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   }, [fullscreen, images.length]);
 
   return (
-    <section className="min-h-screen bg-white pt-24 pb-16">
+    <section className="min-h-screen bg-white pt-20 pb-16">
       {fullscreen && (
         <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
@@ -76,7 +95,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       <div className="max-w-7xl mx-auto px-6">
         <Link
           href="/#catalog"
-          className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-sage transition-colors mb-8"
+          className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-sage transition-colors mb-4"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7l-7 7 7 7" />
@@ -84,7 +103,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           Назад в каталог
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
           <div className="lg:col-span-6 reveal visible">
             <div className="aspect-[4/3] bg-[#F5F5F0] rounded-sm overflow-hidden cursor-zoom-in">
               {images.length > 0 ? (
@@ -162,6 +181,15 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               {fav ? 'В избранном' : 'Добавить в избранное'}
             </button>
 
+            {isAdmin && (
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full mt-3 px-8 py-4 border-2 border-sage text-sage rounded-full text-sm tracking-wide hover:bg-sage hover:text-white transition-colors btn-press inline-flex items-center justify-center gap-2"
+              >
+                ✏️ Редактировать
+              </button>
+            )}
+
             <p className="mt-4 text-sm text-[#6B7280] leading-relaxed text-center">
               Получить консультацию и уточнить наличие товара можно по телефону{' '}
               <a href="tel:+375298425952" className="text-sage hover:underline whitespace-nowrap">+375 (29) 842-59-52</a>
@@ -171,6 +199,15 @@ export default function ProductDetailClient({ product }: { product: Product }) {
           </div>
         </div>
       </div>
+
+      {showEditModal && (
+        <ProductEditModal
+          product={product}
+          categories={categories}
+          onClose={() => setShowEditModal(false)}
+          onSaved={() => window.location.reload()}
+        />
+      )}
     </section>
   );
 }

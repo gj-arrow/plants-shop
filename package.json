@@ -9,6 +9,7 @@
     "lint": "eslint",
     "init-db": "tsx scripts/init-db.ts",
     "seed-products": "tsx scripts/seed-products.ts",
+    "change-admin": "tsx scripts/change-admin.ts",
     "deploy": "./scripts/build-deploy.sh"
   },
   "dependencies": {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import AdminAuth from '@/components/AdminAuth';
 import { parseImages, formatPrice } from '@/lib/product-utils';
+import ProductEditModal from '@/components/ProductEditModal';
 
 interface Product {
   id: number;
@@ -13,17 +14,8 @@ interface Product {
   subcategory?: string;
   image_url: string;
   out_of_stock: boolean | number;
+  created_at?: string;
 }
-
-const emptyProduct: Omit<Product, 'id'> = {
-  name: '',
-  description: '',
-  price: 0,
-  category: '',
-  subcategory: undefined,
-  image_url: '',
-  out_of_stock: false,
-};
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,14 +23,10 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
-  const [priceInput, setPriceInput] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [filterCategory, setFilterCategory] = useState('');
   const [filterSubcategory, setFilterSubcategory] = useState('');
-  const [sortField, setSortField] = useState<'name' | 'price'>('name');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [sortField, setSortField] = useState<'name' | 'price' | 'created_at'>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const toggleSort = (field: 'name' | 'price') => {
     if (sortField === field) {
@@ -72,110 +60,13 @@ export default function AdminProductsPage() {
   }, []);
 
   const openModal = (product?: Product) => {
-    if (product) {
-      setEditingProduct(product);
-      const images = parseImages(product);
-      setFormData({
-        name: product.name,
-        description: product.description || '',
-        price: product.price,
-        category: product.category || '',
-        subcategory: product.subcategory || undefined,
-        image_url: images.length > 0 ? JSON.stringify(images) : '',
-        out_of_stock: Boolean(product.out_of_stock),
-      });
-      setPriceInput(product.out_of_stock ? '' : String(product.price));
-      setPreviewImages(images);
-    } else {
-      setEditingProduct(null);
-      setFormData(emptyProduct);
-      setPriceInput('');
-      setPreviewImages([]);
-    }
+    setEditingProduct(product || null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
-    setFormData(emptyProduct);
-    setPriceInput('');
-    setPreviewImages([]);
-  };
-
-  const uploadFile = async (file: File): Promise<string> => {
-    const formDataObj = new FormData();
-    formDataObj.append('file', file);
-    const response = await fetch('/api/upload', { method: 'POST', body: formDataObj });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
-    return data.url;
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    try {
-      const newUrls: string[] = [];
-      for (const file of Array.from(files)) {
-        const url = await uploadFile(file);
-        newUrls.push(url);
-      }
-
-      const allUrls = [...previewImages, ...newUrls].slice(0, 3);
-      setPreviewImages(allUrls);
-      setFormData(prev => ({
-        ...prev,
-        image_url: allUrls.length > 0 ? JSON.stringify(allUrls) : '',
-      }));
-    } catch (error: any) {
-      alert(error.message || 'Ошибка при загрузке изображения');
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const remaining = previewImages.filter((_, i) => i !== index);
-    setPreviewImages(remaining);
-    setFormData(prev => ({
-      ...prev,
-      image_url: remaining.length > 0 ? JSON.stringify(remaining) : '',
-    }));
-  };
-
-  const setMainImage = (index: number) => {
-    if (index === 0) return;
-    const reordered = [previewImages[index], ...previewImages.filter((_, i) => i !== index)];
-    setPreviewImages(reordered);
-    setFormData(prev => ({
-      ...prev,
-      image_url: JSON.stringify(reordered),
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
-    const method = editingProduct ? 'PUT' : 'POST';
-
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      fetchProducts();
-      closeModal();
-    } else {
-      const data = await response.json().catch(() => ({}));
-      alert(data.error || 'Ошибка при сохранении товара');
-    }
   };
 
   const handleDelete = async (id: number) => {
@@ -212,10 +103,13 @@ export default function AdminProductsPage() {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     const dir = sortDir === 'asc' ? 1 : -1;
     if (sortField === 'name') return a.name.localeCompare(b.name) * dir;
+    if (sortField === 'created_at') {
+      return (new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()) * dir;
+    }
     return (a.price - b.price) * dir;
   });
 
-  const sortArrow = (field: 'name' | 'price') => {
+  const sortArrow = (field: 'name' | 'price' | 'created_at') => {
     if (sortField !== field) return ' ↕';
     return sortDir === 'asc' ? ' ↑' : ' ↓';
   };
@@ -272,12 +166,14 @@ export default function AdminProductsPage() {
             <select
               value={`${sortField}-${sortDir}`}
               onChange={(e) => {
-                const [field, dir] = e.target.value.split('-') as ['name' | 'price', 'asc' | 'desc'];
+                const [field, dir] = e.target.value.split('-') as ['name' | 'price' | 'created_at', 'asc' | 'desc'];
                 setSortField(field);
                 setSortDir(dir);
               }}
               className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
             >
+              <option value="created_at-desc">Новые сначала</option>
+              <option value="created_at-asc">Старые сначала</option>
               <option value="name-asc">Название А→Я</option>
               <option value="name-desc">Название Я→А</option>
               <option value="price-asc">Цена ↑</option>
@@ -398,198 +294,13 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* Модальное окно */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto slide-in">
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-[#2D1B4E] mb-4 flex items-center gap-2">
-                  <span>{editingProduct ? '✏️' : '➕'}</span>
-                  {editingProduct ? 'Редактирование товара' : 'Новый товар'}
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#1A3326] mb-1">Название</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#1A3326] mb-1">Описание</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition resize-none"
-                    />
-                  </div>
-
-                  {/* Чекбокс "Нет в наличии" */}
-                  <label className="flex items-center gap-3 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={formData.out_of_stock as boolean}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setFormData({ ...formData, out_of_stock: checked });
-                        if (checked) {
-                          setPriceInput('');
-                          setFormData(prev => ({ ...prev, price: 0 }));
-                        }
-                      }}
-                      className="w-5 h-5 rounded border-2 border-[rgba(140,168,156,0.3)] accent-[#8CA89C] cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-[#1A3326]">Нет в наличии</span>
-                  </label>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Цена (р.)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={priceInput}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-                          setPriceInput(val);
-                          const num = parseFloat(val);
-                          setFormData({ ...formData, price: isNaN(num) ? 0 : num });
-                        }}
-                        className={`w-full px-4 py-2.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition ${
-                          formData.out_of_stock ? 'border-gray-200 bg-gray-100 text-gray-400' : 'border-[rgba(140,168,156,0.15)]'
-                        }`}
-                        required={!formData.out_of_stock}
-                        disabled={formData.out_of_stock as boolean}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Категория</label>
-                      <select
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
-                      >
-                        <option value="">Выберите категорию</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.name}>{cat.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#1A3326] mb-1">Подкатегория</label>
-                      <select
-                        value={formData.subcategory || ''}
-                        onChange={(e) => setFormData({ ...formData, subcategory: e.target.value || undefined })}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                        disabled={formData.category !== 'Гортензии'}
-                      >
-                        <option value="">Без подкатегории</option>
-                        <option value="Метельчатые">Метельчатые</option>
-                        <option value="Крупнолистные">Крупнолистные</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Изображения — на всю ширину, крупнее */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#1A3326] mb-2">
-                      Изображения (до 3 шт.)
-                    </label>
-
-                    {/* Сетка превью */}
-                    {previewImages.length > 0 && (
-                      <div className="grid grid-cols-3 gap-3 mb-3">
-                        {previewImages.map((url, index) => (
-                          <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#E8F0EA] group shadow-sm">
-                            <img
-                              src={url}
-                              alt={`Фото ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute top-1.5 right-1.5 bg-[#8CA89C] text-white p-1.5 rounded-full btn-press hover:bg-[#5B7F6B] transition opacity-0 group-hover:opacity-100"
-                              title="Удалить"
-                            >
-                              ✕
-                            </button>
-                            {index === 0 ? (
-                              <div className="absolute bottom-1.5 left-1.5 bg-yellow-500 text-white text-xs px-2.5 py-1 rounded-full shadow font-medium">
-                                ⭐ Главная
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => setMainImage(index)}
-                                className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-yellow-600 font-medium"
-                                title="Сделать главной"
-                              >
-                                ⭐ Сделать главной
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        {/* Пустые слоты */}
-                        {Array.from({ length: 3 - previewImages.length }).map((_, i) => (
-                          <div key={`empty-${i}`} className="aspect-[4/3] rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                            <span className="text-gray-300 text-3xl">+</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Кнопка загрузки */}
-                    {previewImages.length < 3 && (
-                      <div>
-                        <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(140,168,156,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDF6F0] transition">
-                          <span className="inline-block bg-[#8CA89C] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
-                            {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
-                          </span>
-                          <span className="text-sm text-[#8a7a9a]">
-                            PNG, JPG, WebP до 10MB
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageUpload}
-                            disabled={uploading}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                    )}
-                    {previewImages.length === 0 && (
-                      <p className="text-xs text-gray-400 mt-1">Загрузите до 3 изображений товара. Первое будет главным.</p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="flex-1 px-4 py-2.5 border-2 border-[rgba(140,168,156,0.2)] rounded-xl font-medium text-[#1A3326] btn-press hover:bg-[#FDF6F0] transition"
-                    >
-                      Отмена
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-2.5 bg-[#8CA89C] text-white rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
-                    >
-                      {editingProduct ? '💾 Сохранить' : '✨ Создать'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <ProductEditModal
+            product={editingProduct}
+            categories={categories}
+            onClose={closeModal}
+            onSaved={fetchProducts}
+          />
         )}
       </div>
     </AdminAuth>
