@@ -25,3 +25,10 @@ export function parseImages(product: Product): string[] {
     return [product.image_url];
   }
 }
+
+// Категории, где перед ценой не выводится «от» (цена фиксированная)
+const NO_PRICE_PREFIX_CATEGORIES: string[] = ['Гортензии'];
+
+export function showPriceFrom(product: Pick<Product, 'category'>): boolean {
+  return !product.category || !NO_PRICE_PREFIX_CATEGORIES.includes(product.category);
+}

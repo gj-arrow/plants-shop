@@ -3,7 +3,7 @@
 import { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Product, parseImages, formatPrice } from '@/lib/product-utils';
+import { Product, parseImages, formatPrice, showPriceFrom } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 
 export default function HomePage() {
@@ -20,10 +20,12 @@ function HomePageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['all']);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Гортензии');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
+  // Индекс показанного фото в карточке по каждому товару
+  const [cardImageIdx, setCardImageIdx] = useState<Record<number, number>>({});
 
   // Восстановление категории/страницы при возврате из карточки товара
   useEffect(() => {
@@ -294,57 +296,92 @@ function HomePageContent() {
           <div style={{ position: 'relative', zIndex: 2 }}>
             {/* Categories */}
             <div className="flex flex-wrap gap-2 justify-center pt-3 lg:pt-8" id="catalog">
-              <button
-                onClick={() => setSelectedCategory('all')}
-                className={`px-6 py-2 rounded-full text-sm transition-all ${
-                  selectedCategory === 'all'
-                    ? 'bg-sage text-white'
-                    : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
-                }`}
-              >
-                🌿 Все
-              </button>
-              {categories.filter(c => c !== 'all').map((cat, i) => (
+              {categories.filter(c => c === 'Гортензии').map((cat, i) => (
                 <Fragment key={i}>
-                  <button
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-6 py-2 rounded-full text-sm transition-all ${
-                      selectedCategory === cat
-                        ? 'bg-sage text-white'
-                        : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                  {selectedCategory === cat && subcategories.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 items-center">
-                      <button
-                        onClick={() => setSelectedSubcategory('')}
-                        className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                          !selectedSubcategory
-                            ? 'bg-sage/10 text-sage font-medium'
-                            : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
-                        }`}
-                      >
-                        Все
-                      </button>
-                      {subcategories.map(sub => (
+                  <div className="flex flex-wrap gap-2 justify-center items-center w-full">
+                    <button
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-6 py-2 rounded-full text-sm transition-all ${
+                        selectedCategory === cat
+                          ? 'bg-sage text-white'
+                          : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                    {selectedCategory === cat && subcategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 items-center">
                         <button
-                          key={sub}
-                          onClick={() => setSelectedSubcategory(sub)}
+                          onClick={() => setSelectedSubcategory('')}
                           className={`px-3 py-1.5 rounded-full text-xs transition-all ${
-                            selectedSubcategory === sub
+                            !selectedSubcategory
                               ? 'bg-sage/10 text-sage font-medium'
                               : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
                           }`}
                         >
-                          {sub}
+                          Все
                         </button>
-                      ))}
-                    </div>
-                  )}
+                        {subcategories.map(sub => (
+                          <button
+                            key={sub}
+                            onClick={() => setSelectedSubcategory(sub)}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                              selectedSubcategory === sub
+                                ? 'bg-sage/10 text-sage font-medium'
+                                : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                            }`}
+                          >
+                            {sub}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </Fragment>
               ))}
+              <div className="flex flex-wrap gap-2 justify-center items-center w-full">
+                {categories.filter(c => c !== 'all' && c !== 'Гортензии').map((cat, i) => (
+                  <Fragment key={i}>
+                    <button
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-6 py-2 rounded-full text-sm transition-all ${
+                        selectedCategory === cat
+                          ? 'bg-sage text-white'
+                          : 'bg-white text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                    {selectedCategory === cat && subcategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        <button
+                          onClick={() => setSelectedSubcategory('')}
+                          className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                            !selectedSubcategory
+                              ? 'bg-sage/10 text-sage font-medium'
+                              : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                          }`}
+                        >
+                          Все
+                        </button>
+                        {subcategories.map(sub => (
+                          <button
+                            key={sub}
+                            onClick={() => setSelectedSubcategory(sub)}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                              selectedSubcategory === sub
+                                ? 'bg-sage/10 text-sage font-medium'
+                                : 'text-[#6B7280] border border-[#E5E5E0] hover:border-sage'
+                            }`}
+                          >
+                            {sub}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </Fragment>
+                ))}
+              </div>
             </div>
 
             {/* Products */}
@@ -362,7 +399,10 @@ function HomePageContent() {
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-10">
                 {paginatedProducts.map((product, i) => {
                   const images = parseImages(product);
-                  
+                  const imgIdx = Math.min(cardImageIdx[product.id] ?? 0, Math.max(images.length - 1, 0));
+                  const nextImage = () => setCardImageIdx(prev => ({ ...prev, [product.id]: (imgIdx + 1) % images.length }));
+                  const prevImage = () => setCardImageIdx(prev => ({ ...prev, [product.id]: (imgIdx - 1 + images.length) % images.length }));
+
                   return (
                     <Link
                       key={product.id}
@@ -376,17 +416,57 @@ function HomePageContent() {
                         <div className="aspect-[4/5] bg-[#F5F5F0] overflow-hidden rounded-sm img-zoom relative">
                           {images.length > 0 ? (
                             <img
-                              src={images[0]}
+                              src={images[imgIdx]}
                               alt={product.name}
                               className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl">🪴</div>
                           )}
-                          
+
+                          {/* Gallery arrows */}
+                          {images.length > 1 && (
+                            <>
+                              <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); prevImage(); }}
+                                className="absolute left-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-[#1A3326] flex items-center justify-center shadow-sm transition-all opacity-80 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 z-10"
+                                aria-label="Предыдущее фото"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); nextImage(); }}
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white text-[#1A3326] flex items-center justify-center shadow-sm transition-all opacity-80 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 z-10"
+                                aria-label="Следующее фото"
+                              >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                              </button>
+                            </>
+                          )}
+
+                          {/* Dots */}
+                          {images.length > 1 && (
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                              {images.map((_, di) => (
+                                <button
+                                  key={di}
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCardImageIdx(prev => ({ ...prev, [product.id]: di })); }}
+                                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                                    di === imgIdx ? 'bg-sage scale-125' : 'bg-white/70 hover:bg-white'
+                                  }`}
+                                  aria-label={`Фото ${di + 1}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+
                           {/* Hover overlay */}
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.02] transition-colors" />
-                          
+
                           {/* Favorite button */}
                           <button
                             onClick={(e) => {
@@ -395,8 +475,8 @@ function HomePageContent() {
                             }}
                             className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-sm ${
                               isFavorite(product.id)
-                                ? 'bg-white/90 opacity-100'
-                                : 'bg-white/80 opacity-100'
+                                ? 'bg-white/90 opacity-70 md:opacity-100'
+                                : 'bg-white/80 opacity-70 md:opacity-100'
                             }`}
                           >
                             <svg className={`w-4 h-4 ${isFavorite(product.id) ? 'text-red-500 fill-red-500' : 'text-[#8CA89C]'}`} viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
@@ -417,7 +497,7 @@ function HomePageContent() {
                               {product.out_of_stock ? (
                                 <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
                               ) : (
-                                <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                                <span className="text-sage font-medium">{showPriceFrom(product) ? 'от ' : ''}{formatPrice(product.price)} BYN</span>
                               )}
                             </div>
                         </div>

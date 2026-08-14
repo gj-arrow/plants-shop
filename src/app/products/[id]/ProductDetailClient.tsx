@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { parseImages, formatPrice, type Product } from '@/lib/product-utils';
+import { parseImages, formatPrice, showPriceFrom, type Product } from '@/lib/product-utils';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import ProductEditModal from '@/components/ProductEditModal';
 
@@ -150,7 +150,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               {product.out_of_stock ? (
                 <span className="text-red-400 text-2xl font-medium">Нет в наличии</span>
               ) : (
-                <>от {formatPrice(product.price)} BYN</>
+                <>{showPriceFrom(product) ? 'от ' : ''}{formatPrice(product.price)} BYN</>
               )}
             </div>
 

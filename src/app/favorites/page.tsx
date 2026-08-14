@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Product, parseImages, formatPrice } from '@/lib/product-utils';
+import { Product, parseImages, formatPrice, showPriceFrom } from '@/lib/product-utils';
 import { useFavorites } from '@/hooks/useFavorites';
 
 export default function FavoritesPage() {
@@ -113,7 +113,7 @@ export default function FavoritesPage() {
                         {product.out_of_stock ? (
                           <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
                         ) : (
-                          <span className="text-sage font-medium">от {formatPrice(product.price)} BYN</span>
+                          <span className="text-sage font-medium">{showPriceFrom(product) ? 'от ' : ''}{formatPrice(product.price)} BYN</span>
                         )}
                       </div>
                     </div>
