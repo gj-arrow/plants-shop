@@ -105,16 +105,16 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
           <div className="lg:col-span-6 reveal visible">
-            <div className="aspect-[4/3] bg-[#F5F5F0] rounded-sm overflow-hidden cursor-zoom-in">
+            <div className="bg-[#F5F5F0] rounded-sm overflow-hidden cursor-zoom-in w-fit mx-auto">
               {images.length > 0 ? (
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
-                  className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`}
+                  className={`w-auto h-auto max-h-[50vh] sm:max-h-[75vh] max-w-full object-contain ${product.out_of_stock ? 'opacity-60' : ''}`}
                   onClick={() => setFullscreen(true)}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-6xl">🪴</div>
+                <div className="w-full min-w-[280px] aspect-[4/3] flex items-center justify-center text-6xl">🪴</div>
               )}
             </div>
             {images.length > 1 && (
@@ -127,7 +127,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                       selectedImage === i ? 'border-sage' : 'border-[#E5E5E0] hover:border-sage'
                     }`}
                   >
-                    <img src={img} alt="" className={`w-full h-full object-cover ${product.out_of_stock ? 'opacity-60' : ''}`} />
+                    <img src={img} alt="" className={`w-full h-full object-contain ${product.out_of_stock ? 'opacity-60' : ''}`} />
                   </button>
                 ))}
               </div>
