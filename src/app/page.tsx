@@ -338,7 +338,7 @@ function HomePageContent() {
             value={mobileSearchValue}
             onChange={e => setMobileSearchValue(e.target.value)}
             placeholder="Поиск по названию"
-            className="w-full pl-9 pr-8 py-2.5 text-sm border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
+            className="w-full pl-9 pr-8 py-2.5 text-[16px] border border-[#E5E5E0] rounded-full bg-white text-[#1A3326] placeholder-[#9CA3AF] focus:outline-none focus:border-sage"
           />
           {mobileSearchValue && (
             <button
