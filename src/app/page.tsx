@@ -27,6 +27,43 @@ function HomePageContent() {
   // Индекс показанного фото в карточке по каждому товару
   const [cardImageIdx, setCardImageIdx] = useState<Record<number, number>>({});
 
+  // Админ ли пользователь (для кнопки "Изменить главное фото")
+  const [isAdmin, setIsAdmin] = useState(false);
+  // Версия hero-фото для сброса кеша после загрузки
+  const [heroVersion, setHeroVersion] = useState(0);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch('/api/auth')
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (data?.authenticated && data.user?.role === 'admin') {
+          setIsAdmin(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setHeroUploading(true);
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append('file', file);
+      const response = await fetch('/api/upload/hero', { method: 'POST', body: formDataObj });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
+      setHeroVersion(Date.now()); // сброс кеша картинки
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Ошибка при загрузке изображения');
+    } finally {
+      setHeroUploading(false);
+      e.target.value = '';
+    }
+  };
+
   // Восстановление категории/страницы при возврате из карточки товара
   useEffect(() => {
     const savedCategory = sessionStorage.getItem('catalogCategory');
@@ -193,12 +230,45 @@ function HomePageContent() {
         {/* Full-width background image */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="/uploads/products/main2.jpeg"
+            src={`/uploads/products/hero.jpg?v=${heroVersion}`}
             alt=""
             className="w-full h-full object-cover hero-parallax"
           />
-          {/* Overlay: on mobile — solid white/60; on desktop — gradient from white/30 left to transparent right */}
-          <div className="absolute inset-0 bg-white/60 lg:bg-gradient-to-r lg:from-white/30 lg:via-white/30 lg:to-transparent lg:[--tw-gradient-via-position:20%]" />
+          {/* Кнопка смены главного фото — только для админа */}
+          {isAdmin && (
+            <div className="absolute top-20 right-4 z-20">
+              <input
+                ref={heroFileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleHeroUpload}
+                disabled={heroUploading}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => heroFileInputRef.current?.click()}
+                disabled={heroUploading}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 text-white text-sm font-medium backdrop-blur-sm hover:bg-black/70 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {heroUploading ? (
+                  <>
+                    <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Изменить главное фото
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
@@ -207,14 +277,15 @@ function HomePageContent() {
             {/* Left: Text */}
             <div className="reveal visible pt-8 pb-6 lg:pb-12 lg:py-20 flex flex-col">
 
-              <h1 className="text-[#1A3326] font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
+              <h1 className="text-white font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
                 Хвойные, ниваки, гортензии и другое
               </h1>
 
               {/* Social — mobile */}
-              <div className="flex lg:hidden gap-4 mt-auto pt-8">
-                <a href="https://t.me/+375298425952" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-sage text-white flex items-center justify-center hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Telegram">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+              <div className="flex lg:hidden gap-4 mt-auto pt-8 flex-wrap">
+                <a href="tel:+375298425952" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage text-white hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Позвонить">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011-.24 11.36 11.36 0 003.59.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.59 1 1 0 01-.25 1l-2.2 2.2z"/></svg>
+                  <span className="text-sm font-medium whitespace-nowrap">+375 (29) 842-59-52</span>
                 </a>
                 <a href="https://viber.click/375298425952" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-sage text-white flex items-center justify-center hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Viber">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 0C9.473.028 5.333.344 3.02 2.467 1.302 4.187.696 6.7.633 9.817.57 12.933.488 18.776 6.12 20.36h.003l-.004 2.416s-.037.977.61 1.177c.777.242 1.234-.5 1.98-1.302.407-.44.972-1.084 1.397-1.58 3.85.326 6.812-.416 7.15-.525.776-.252 5.176-.816 5.892-6.657.74-6.02-.36-9.83-2.34-11.546-.596-.55-3.006-2.3-8.375-2.323 0 0-.395-.025-1.037-.017zm.058 1.693c.545-.004.88.017.88.017 4.542.02 6.717 1.388 7.222 1.846 1.675 1.435 2.53 4.868 1.906 9.897v.002c-.604 4.878-4.174 5.184-4.832 5.395-.28.09-2.882.737-6.153.524 0 0-2.436 2.94-3.197 3.704-.12.12-.26.167-.352.144-.13-.033-.166-.188-.165-.414l.02-4.018c-4.762-1.32-4.485-6.292-4.43-8.895.054-2.604.543-4.738 1.996-6.173 1.96-1.773 5.474-2.018 7.11-2.03zm.38 2.602c-.167 0-.303.135-.304.302 0 .167.133.303.3.305 1.624.01 2.946.537 4.028 1.592 1.073 1.046 1.62 2.468 1.633 4.334.002.167.14.3.307.3.166-.002.3-.138.3-.304-.014-1.984-.618-3.596-1.816-4.764-1.19-1.16-2.692-1.753-4.447-1.765zm-3.96.695c-.19-.032-.4.005-.616.117l-.01.002c-.43.247-.816.562-1.146.932-.002.004-.006.004-.008.008-.267.323-.42.638-.46.948-.008.046-.01.093-.007.14 0 .136.022.27.065.4l.013.01c.135.48.473 1.276 1.205 2.604.42.768.903 1.5 1.446 2.186.27.344.56.673.87.984l.132.132c.31.308.64.6.984.87.686.543 1.418 1.027 2.186 1.447 1.328.733 2.126 1.07 2.604 1.206l.01.014c.13.042.265.064.402.063.046.002.092 0 .138-.008.31-.036.627-.19.948-.46.004 0 .003-.002.008-.005.37-.33.683-.72.93-1.148l.003-.01c.225-.432.15-.842-.18-1.12-.004 0-.698-.58-1.037-.83-.36-.255-.73-.492-1.113-.71-.51-.285-1.032-.106-1.248.174l-.447.564c-.23.283-.657.246-.657.246-3.12-.796-3.955-3.955-3.955-3.955s-.037-.426.248-.656l.563-.448c.277-.215.456-.737.17-1.248-.217-.383-.454-.756-.71-1.115-.25-.34-.826-1.033-.83-1.035-.137-.165-.31-.265-.502-.297z"/></svg>
@@ -225,9 +296,10 @@ function HomePageContent() {
               </div>
 
               {/* Social */}
-              <div className="hidden lg:flex gap-4 mt-auto pt-12">
-                <a href="https://t.me/+375298425952" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-sage text-white flex items-center justify-center hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Telegram">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+              <div className="hidden lg:flex gap-4 mt-auto pt-12 flex-wrap">
+                <a href="tel:+375298425952" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage text-white hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Позвонить">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011-.24 11.36 11.36 0 003.59.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.59 1 1 0 01-.25 1l-2.2 2.2z"/></svg>
+                  <span className="text-sm font-medium whitespace-nowrap">+375 (29) 842-59-52</span>
                 </a>
                 <a href="https://viber.click/375298425952" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-sage text-white flex items-center justify-center hover:bg-sage-dark hover:scale-105 transition-all shadow-md" aria-label="Viber">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 0C9.473.028 5.333.344 3.02 2.467 1.302 4.187.696 6.7.633 9.817.57 12.933.488 18.776 6.12 20.36h.003l-.004 2.416s-.037.977.61 1.177c.777.242 1.234-.5 1.98-1.302.407-.44.972-1.084 1.397-1.58 3.85.326 6.812-.416 7.15-.525.776-.252 5.176-.816 5.892-6.657.74-6.02-.36-9.83-2.34-11.546-.596-.55-3.006-2.3-8.375-2.323 0 0-.395-.025-1.037-.017zm.058 1.693c.545-.004.88.017.88.017 4.542.02 6.717 1.388 7.222 1.846 1.675 1.435 2.53 4.868 1.906 9.897v.002c-.604 4.878-4.174 5.184-4.832 5.395-.28.09-2.882.737-6.153.524 0 0-2.436 2.94-3.197 3.704-.12.12-.26.167-.352.144-.13-.033-.166-.188-.165-.414l.02-4.018c-4.762-1.32-4.485-6.292-4.43-8.895.054-2.604.543-4.738 1.996-6.173 1.96-1.773 5.474-2.018 7.11-2.03zm.38 2.602c-.167 0-.303.135-.304.302 0 .167.133.303.3.305 1.624.01 2.946.537 4.028 1.592 1.073 1.046 1.62 2.468 1.633 4.334.002.167.14.3.307.3.166-.002.3-.138.3-.304-.014-1.984-.618-3.596-1.816-4.764-1.19-1.16-2.692-1.753-4.447-1.765zm-3.96.695c-.19-.032-.4.005-.616.117l-.01.002c-.43.247-.816.562-1.146.932-.002.004-.006.004-.008.008-.267.323-.42.638-.46.948-.008.046-.01.093-.007.14 0 .136.022.27.065.4l.013.01c.135.48.473 1.276 1.205 2.604.42.768.903 1.5 1.446 2.186.27.344.56.673.87.984l.132.132c.31.308.64.6.984.87.686.543 1.418 1.027 2.186 1.447 1.328.733 2.126 1.07 2.604 1.206l.01.014c.13.042.265.064.402.063.046.002.092 0 .138-.008.31-.036.627-.19.948-.46.004 0 .003-.002.008-.005.37-.33.683-.72.93-1.148l.003-.01c.225-.432.15-.842-.18-1.12-.004 0-.698-.58-1.037-.83-.36-.255-.73-.492-1.113-.71-.51-.285-1.032-.106-1.248.174l-.447.564c-.23.283-.657.246-.657.246-3.12-.796-3.955-3.955-3.955-3.955s-.037-.426.248-.656l.563-.448c.277-.215.456-.737.17-1.248-.217-.383-.454-.756-.71-1.115-.25-.34-.826-1.033-.83-1.035-.137-.165-.31-.265-.502-.297z"/></svg>
