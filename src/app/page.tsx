@@ -197,9 +197,14 @@ function HomePageContent() {
     setPage(1);
   }, [selectedCategory, searchQuery]);
 
-  // Скролл к каталогу при переключении страницы
+  // Скролл к каталогу при переключении страницы (не при первичной загрузке)
+  const catalogScrolledOnce = useRef(false);
   useEffect(() => {
     if (!loading) {
+      if (!catalogScrolledOnce.current) {
+        catalogScrolledOnce.current = true;
+        return;
+      }
       const el = document.getElementById('catalog');
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
