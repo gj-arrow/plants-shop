@@ -25,6 +25,8 @@ E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 1
 - **Standalone is incomplete after build:** `.next/static` is missing, and `node_modules` lacks `mysql2`, `bcryptjs`, `uuid` + transitive deps. The deploy script copies them
 - **Standalone server does NOT read `.env.local`** — `DATABASE_URL` must be set in ISPmanager Node.js app environment variables. The `.env.local` in deploy/ is just for reference
 - In ISPmanager: WWW → Node.js-приложения → создать → стартовый файл: `server.js`, рабочая директория: путь к папке, переменные окружения: `DATABASE_URL=...` (с реальными данными хостинга)
+- **`public/uploads` is EXCLUDED from the deploy package** (since Aug 2026) — photos uploaded via the admin UI directly on the hosting live ONLY in `public/uploads/products` on the server. If the package contained that folder, an FTP upload would overwrite it and delete server-only photos → broken images (DB keeps the references). `build-deploy.sh` removes it after copying `public/` and zips the local uploads into `deploy/uploads.zip` (**first-install only**). On FTP upload: overwrite mode, NEVER delete server files that aren't in the package
+- **`sharp` native binaries in the package are macOS-only** (`@img/sharp-darwin-arm64`, since builds happen on a Mac). `build-deploy.sh` best-effort installs `@img/sharp-linux-{x64,arm64}` + libvips into `deploy/node_modules`; if that fails, HEIC photos will 500 on the hosting. Note: `sharp` is NOT in `package.json` (installed with `--no-save`)
 
 ## Auth
 
@@ -94,8 +96,9 @@ src/
 ### Images
 - **Images stored as JSON array** in `products.image_url` column — parsed by `parseImages()` in `product-utils.ts`. Can be a plain path string or `["url1","url2","url3"]` array string
 - **Max 3 images per product**, enforced client-side only
-- **Uploaded files** go to `public/uploads/products/`, served at `/uploads/products/filename`
+- **Uploaded files** go to `public/uploads/products/`. The upload API returns `/api/uploads/<filename>` (route `src/app/api/uploads/[filename]/route.ts` reads from `public/uploads/products/` — added to bypass hosting static caching). The direct `/uploads/products/<filename>` static path also works
 - **Images exist as files but may not be linked in DB** — the `image_url` column can be empty even when image files are present in `public/uploads/products/`. Check both when troubleshooting missing product images
+- **Hosting-only photos are fragile**: a photo uploaded through the admin UI on the hosting exists ONLY in the server's `public/uploads/products/` and is NOT in the local repo. Never delete that folder during FTP deploys (see Deployment). A DB `image_url` referencing a missing file returns 404 — check the file first, then the DB
 
 ### Deployment
 - **`.env.local.example` is stale** — references removed NextAuth/Google OAuth/SMTP. Only real env var needed is `DATABASE_URL`

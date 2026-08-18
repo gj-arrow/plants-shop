@@ -5,7 +5,9 @@
 # Использование:
 #   ./scripts/build-deploy.sh
 #
-# Результат: папка deploy/ — копируйте её содержимое на хостинг
+# Результат: папка deploy/ — копируйте её содержимое на хостинг.
+# Папка public/uploads НЕ входит в пакет (загруженные фото живут только на сервере).
+# Локальные фото лежат в deploy/uploads.zip — распаковывать только при первом запуске.
 # ==========================================================
 
 set -euo pipefail
@@ -156,8 +158,42 @@ for dep in aws-ssl-profiles denque generate-function iconv-lite long lru.min nam
     cp -r "node_modules/$dep" "$DEPLOY_DIR/node_modules/$dep"
   fi
 done
-# Копируем public/ (изображения uploads, svg и т.д.)
+# Linux-бинарники sharp для хостинга: сборка на macOS кладёт в пакет только
+# macOS-бинарники (@img/sharp-darwin-*), из-за чего HEIC-фото на Linux-хостинге
+# не конвертируются (ошибка 500). Дополняем пакет Linux-бинарниками best-effort.
+# ВАЖНО: версии должны точно совпадать с версией sharp (0.34.5 -> @img/sharp-* 0.34.5,
+# libvips 1.2.4), иначе sharp упадёт на хостинге. Версии берём из локальной установки.
+# Устанавливаем во временную папку, а НЕ в deploy/ — иначе npm пересоберёт весь
+# node_modules standalone-сборки (+400M). npm блокирует пакеты чужой платформы -> --force.
+if [ -d "$DEPLOY_DIR/node_modules/sharp" ]; then
+  SHARP_VERSION=$(node -p "require('$ROOT_DIR/node_modules/sharp/package.json').version" 2>/dev/null || echo "")
+  LIBVIPS_VERSION=$(node -p "require('$ROOT_DIR/node_modules/sharp/package.json').optionalDependencies['@img/sharp-libvips-linux-x64']" 2>/dev/null || echo "")
+  if [ -n "$SHARP_VERSION" ] && [ -n "$LIBVIPS_VERSION" ]; then
+    TMP_NPM=""
+    if TMP_NPM=$(mktemp -d) && \
+       ( cd "$TMP_NPM" && npm install --no-save --force --ignore-scripts \
+         "@img/sharp-linux-x64@$SHARP_VERSION" "@img/sharp-libvips-linux-x64@$LIBVIPS_VERSION" \
+         "@img/sharp-linux-arm64@$SHARP_VERSION" "@img/sharp-libvips-linux-arm64@$LIBVIPS_VERSION" >/dev/null 2>&1 ) && \
+       cp -r "$TMP_NPM/node_modules/@img/." "$DEPLOY_DIR/node_modules/@img/" ; then
+      echo "  + Linux-бинарники sharp $SHARP_VERSION добавлены (HEIC на хостинге будет работать)"
+    else
+      echo "  ! Не удалось добавить Linux-бинарники sharp — HEIC-фото на хостинге работать не будут"
+    fi
+    [ -n "$TMP_NPM" ] && rm -rf "$TMP_NPM"
+  fi
+fi
+# Копируем public/ — НО БЕЗ папки uploads/!
+# Фото, загруженные через админку прямо на хостинге, живут только в
+# public/uploads/products на сервере. Если пакет содержит эту папку, FTP-заливка
+# перезапишет её и удалит серверные фото (БД продолжит на них ссылаться -> битые картинки).
 cp -r public/. "$DEPLOY_DIR/public/"
+rm -rf "$DEPLOY_DIR/public/uploads"
+
+# Архив uploads/ — ТОЛЬКО для первого запуска на новом сервере (фото seed-товаров)
+if [ -d "$ROOT_DIR/public/uploads" ]; then
+  ( cd "$ROOT_DIR/public" && zip -r "$DEPLOY_DIR/uploads.zip" uploads -x "*.DS_Store" >/dev/null )
+  echo "  + uploads.zip создан (распаковывать только при первом запуске на новом сервере)"
+fi
 
 # Копируем init-db.js
 cp "$ROOT_DIR/.temp-init-db.mjs" "$DEPLOY_DIR/init-db.mjs"
@@ -188,23 +224,29 @@ echo "=== Инструкция по деплою ==="
 echo ""
 echo "1. База данных gjarrown_plant_shop уже создана. Ничего делать не нужно."
 echo ""
-echo "2. Загрузите папку deploy/ на хостинг через FTP (всё содержимое)"
+echo "2. Загрузите папку deploy/ на хостинг через FTP (всё содержимое)."
+echo "   ВАЖНО: НЕ удаляйте на сервере папку public/uploads — в ней хранятся"
+echo "   фото товаров, загруженные через админку прямо на хостинге. При заливке"
+echo "   выбирайте «перезаписать существующие» и НЕ удаляйте файлы, которых нет в пакете."
 echo ""
-echo "3. Данные БД уже настроены в .env.local:"
+echo "3. ТОЛЬКО при первом запуске на НОВОМ сервере: распакуйте uploads.zip"
+echo "   в папку приложения (появится папка public/uploads с фото seed-товаров)."
+echo ""
+echo "4. Данные БД уже настроены в .env.local:"
 echo "   DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop"
 echo "   Если хостинг использует другой хост MySQL (не localhost), поправьте вручную."
 echo ""
-echo "4. Инициализируйте БД (однократно, через SSH):"
+echo "5. Инициализируйте БД (однократно, через SSH):"
 echo "   cd ПУТЬ_К_ПАПКЕ_НА_СЕРВЕРЕ"
 echo "   DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop node init-db.mjs"
 echo ""
-echo "5. В ISPmanager настройте Node.js приложение:"
+echo "6. В ISPmanager настройте Node.js приложение:"
 echo "   WWW → Node.js-приложения → Создать"
 echo "   - Рабочая директория: путь к папке на сервере"
 echo "   - Стартовый файл: server.js"
 echo "   - Переменные окружения: DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop"
 echo ""
-echo "6. Готово! Магазин работает по вашему домену."
+echo "7. Готово! Магазин работает по вашему домену."
 echo ""
 echo "=== Данные для входа в админку ==="
 echo "   Адрес: /admin"
