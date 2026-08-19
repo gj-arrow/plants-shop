@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryOne, run } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth-guard';
+import { parseImages, type Product } from '@/lib/product-utils';
+import { unlink } from 'fs/promises';
+import path from 'path';
 
 // GET /api/products/[id] - получить товар по ID
 export async function GET(
@@ -78,12 +81,27 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const existing = await queryOne('SELECT * FROM products WHERE id = ?', [id]);
+    const existing = await queryOne<Product>('SELECT * FROM products WHERE id = ?', [id]);
     if (!existing) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     await run('DELETE FROM products WHERE id = ?', [id]);
+
+    // Удаляем файлы изображений товара (сироты не оставляем).
+    // Файлы лежат в public/uploads/products/, ссылки вида /api/uploads/<file> или /uploads/products/<file>.
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+    for (const imageUrl of parseImages(existing)) {
+      // basename отрезает любые пути/`..` — защита от path traversal в image_url
+      const filename = path.basename(imageUrl);
+      if (!filename) continue;
+      try {
+        await unlink(path.join(uploadsDir, filename));
+      } catch {
+        // Файла нет (уже удалён или ссылка внешняя) — не считаем ошибкой
+      }
+    }
+
     return NextResponse.json({ message: 'Product deleted' });
   } catch (error) {
     console.error('Error deleting product:', error);
