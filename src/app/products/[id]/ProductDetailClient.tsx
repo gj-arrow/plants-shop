@@ -162,32 +162,50 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
 
 
-            <button
-              onClick={() => toggleFavorite(product.id)}
-              className="w-full mt-8 px-8 py-4 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors btn-press inline-flex items-center justify-center gap-2"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill={fav ? 'currentColor' : 'none'}
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            {!isAdmin && (
+              <button
+                onClick={() => toggleFavorite(product.id)}
+                className="w-full mt-8 px-8 py-4 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors btn-press inline-flex items-center justify-center gap-2"
               >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              {fav ? 'В избранном' : 'Добавить в избранное'}
-            </button>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill={fav ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                {fav ? 'В избранном' : 'Добавить в избранное'}
+              </button>
+            )}
 
             {isAdmin && (
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="w-full mt-3 px-8 py-4 border-2 border-sage text-sage rounded-full text-sm tracking-wide hover:bg-sage hover:text-white transition-colors btn-press inline-flex items-center justify-center gap-2"
-              >
-                ✏️ Редактировать
-              </button>
+              <>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="w-full mt-8 px-8 py-4 border-2 border-sage text-sage rounded-full text-sm tracking-wide hover:bg-sage hover:text-white transition-colors btn-press inline-flex items-center justify-center gap-2"
+                >
+                  ✏️ Редактировать
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
+                    const response = await fetch(`/api/products/${product.id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                      window.location.href = '/admin/products';
+                    } else {
+                      alert('Ошибка при удалении товара');
+                    }
+                  }}
+                  className="w-full mt-3 px-8 py-4 border-2 border-red-500 text-red-500 rounded-full text-sm tracking-wide hover:bg-red-500 hover:text-white transition-colors btn-press inline-flex items-center justify-center gap-2"
+                >
+                  🗑️ Удалить
+                </button>
+              </>
             )}
 
             <p className="mt-4 text-sm text-[#6B7280] leading-relaxed text-center">
