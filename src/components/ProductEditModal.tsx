@@ -367,6 +367,27 @@ export default function ProductEditModal({
                   Изображения (до 3 шт.)
                 </label>
 
+                {previewImages.length < 3 && (
+                  <div className="mb-3">
+                    <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(140,168,156,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDF6F0] transition">
+                      <span className="inline-block bg-[#8CA89C] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
+                        {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
+                      </span>
+                      <span className="text-sm text-[#8a7a9a]">
+                        PNG, JPG, WebP до 10MB
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                )}
+
                 {previewImages.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                     {previewImages.map((url, index) => (
@@ -416,26 +437,6 @@ export default function ProductEditModal({
                   </div>
                 )}
 
-                {previewImages.length < 3 && (
-                  <div>
-                    <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(140,168,156,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDF6F0] transition">
-                      <span className="inline-block bg-[#8CA89C] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
-                        {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
-                      </span>
-                      <span className="text-sm text-[#8a7a9a]">
-                        PNG, JPG, WebP до 10MB
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                )}
                 {previewImages.length === 0 && (
                   <p className="text-xs text-gray-400 mt-1">
                     Загрузите до 3 изображений товара. Первое будет главным.
