@@ -23,6 +23,10 @@
 
 # database
 plant-shop.db
+*.sql
+
+# deploy artifacts with credentials
+/deploy.zip
 
 # server logs
 /tmp/

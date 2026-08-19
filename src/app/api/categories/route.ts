@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { queryAll, queryOne, run } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-guard';
 
 export async function GET() {
   try {
@@ -21,7 +22,10 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const unauthorized = requireAdmin(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const { name } = await request.json();
     if (!name || !name.trim()) {

@@ -15,6 +15,20 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DEPLOY_DIR="$ROOT_DIR/deploy"
 
+# === Креды НЕ хардкодим: DATABASE_URL обязательна, ADMIN_PASSWORD — опциональна ===
+if [ -z "${DATABASE_URL:-}" ]; then
+  read -rp "DATABASE_URL (например mysql://user:pass@localhost:3306/plant_shop): " DATABASE_URL
+fi
+if [ -z "$DATABASE_URL" ]; then
+  echo "Ошибка: переменная DATABASE_URL обязательна (строка подключения к MySQL)." >&2
+  exit 1
+fi
+
+if [ -z "${ADMIN_PASSWORD:-}" ]; then
+  read -rsp "ADMIN_PASSWORD (пароль админа для init-db, Enter — сгенерировать случайный): " ADMIN_PASSWORD
+  echo
+fi
+
 echo "=== Plant Shop — сборка деплой-пакета ==="
 echo ""
 
@@ -29,7 +43,11 @@ cat > "$ROOT_DIR/.temp-init-db.mjs" << 'INITEOF'
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 
-const url = process.env.DATABASE_URL || 'mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop';
+const url = process.env.DATABASE_URL;
+if (!url) {
+  console.error('DATABASE_URL не задана — укажите строку подключения к MySQL.');
+  process.exit(1);
+}
 const pool = mysql.createPool({ uri: url, waitForConnections: true, connectionLimit: 5, queueLimit: 0 });
 
 async function run(sql, params) {
@@ -95,12 +113,14 @@ async function init() {
     console.log('  + Категории созданы');
   }
 
-  // Seed админа
-  const hash = bcrypt.hashSync('admin123', 10);
+  // Seed админа: пароль из ADMIN_PASSWORD, иначе — случайный (выводится один раз)
+  const crypto = await import('crypto');
   const existing = await queryOne('SELECT id FROM admins WHERE username = ?', ['admin']);
   if (!existing) {
+    const seedPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(9).toString('base64url');
+    const hash = bcrypt.hashSync(seedPassword, 10);
     await run('INSERT INTO admins (username, password_hash) VALUES (?, ?)', ['admin', hash]);
-    console.log('  + Админ создан (admin/admin123)');
+    console.log(`  + Админ создан. Логин: admin, пароль: ${seedPassword}`);
   }
 
   // Seed товаров (10 штук)
@@ -201,8 +221,9 @@ rm "$ROOT_DIR/.temp-init-db.mjs"
 
 # Создаём .env.local
 cat > "$DEPLOY_DIR/.env.local" << ENVEOF
-# MySQL — БД для plant-shop
-DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop
+# MySQL — БД для plant-shop (заполните своими данными; standalone-сервер НЕ читает .env.local,
+# DATABASE_URL обязательно задаётся в ISPmanager в переменных окружения Node.js-приложения)
+DATABASE_URL=$DATABASE_URL
 ENVEOF
 
 # Скрипт быстрого запуска
@@ -222,7 +243,8 @@ echo "Размер пакета: $DEPLOY_SIZE"
 echo ""
 echo "=== Инструкция по деплою ==="
 echo ""
-echo "1. База данных gjarrown_plant_shop уже создана. Ничего делать не нужно."
+echo "1. База данных: укажите вашу БД в переменной DATABASE_URL при сборке"
+echo "   и при настройке приложения в ISPmanager (см. п.6)."
 echo ""
 echo "2. Загрузите папку deploy/ на хостинг через FTP (всё содержимое)."
 echo "   ВАЖНО: НЕ удаляйте на сервере папку public/uploads — в ней хранятся"
@@ -232,24 +254,28 @@ echo ""
 echo "3. ТОЛЬКО при первом запуске на НОВОМ сервере: распакуйте uploads.zip"
 echo "   в папку приложения (появится папка public/uploads с фото seed-товаров)."
 echo ""
-echo "4. Данные БД уже настроены в .env.local:"
-echo "   DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop"
+echo "4. Данные БД прописаны в .env.local (переменная DATABASE_URL из текущей сборки)."
 echo "   Если хостинг использует другой хост MySQL (не localhost), поправьте вручную."
 echo ""
 echo "5. Инициализируйте БД (однократно, через SSH):"
 echo "   cd ПУТЬ_К_ПАПКЕ_НА_СЕРВЕРЕ"
-echo "   DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop node init-db.mjs"
+echo "   DATABASE_URL=\"$DATABASE_URL\" ADMIN_PASSWORD=\"$ADMIN_PASSWORD\" node init-db.mjs"
+echo "   (если ADMIN_PASSWORD не задана, init-db создаст админа со случайным паролем и выведет его один раз)"
 echo ""
 echo "6. В ISPmanager настройте Node.js приложение:"
 echo "   WWW → Node.js-приложения → Создать"
 echo "   - Рабочая директория: путь к папке на сервере"
 echo "   - Стартовый файл: server.js"
-echo "   - Переменные окружения: DATABASE_URL=mysql://gjarrown_user:Qwerty_123!@localhost:3306/gjarrown_plant_shop"
+echo "   - Переменные окружения: DATABASE_URL=\"$DATABASE_URL\""
 echo ""
 echo "7. Готово! Магазин работает по вашему домену."
 echo ""
 echo "=== Данные для входа в админку ==="
 echo "   Адрес: /admin"
 echo "   Логин: admin"
-echo "   Пароль: admin123"
+if [ -n "$ADMIN_PASSWORD" ]; then
+  echo "   Пароль: задан через ADMIN_PASSWORD (см. вывод init-db при первом запуске)"
+else
+  echo "   Пароль: случайный, будет выведен init-db при первом запуске на сервере"
+fi
 echo ""

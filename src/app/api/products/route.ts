@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAll, queryOne, run } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-guard';
 
 // GET /api/products - получить все товары
 export async function GET() {
@@ -14,6 +15,9 @@ export async function GET() {
 
 // POST /api/products - создать товар (admin only)
 export async function POST(request: NextRequest) {
+  const unauthorized = requireAdmin(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const body = await request.json();
     const { name, description, price, category, subcategory, image_url, out_of_stock } = body;

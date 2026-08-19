@@ -98,7 +98,7 @@ npm run init-db
 ```
 
 This creates the SQLite database with:
-- Default admin user (`admin` / `admin123`)
+- Default admin user (`admin`, password from `ADMIN_PASSWORD` env var, dev fallback `admin123`)
 - 8 sample products
 
 ### Development Server
@@ -162,7 +162,7 @@ NEXTAUTH_URL=http://localhost:3000
 
 ### Default Admin Credentials
 - **Username:** `admin`
-- **Password:** `admin123`
+- **Password:** from `ADMIN_PASSWORD` env var (dev fallback `admin123`)
 
 ## Database Schema
 

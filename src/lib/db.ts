@@ -103,8 +103,10 @@ export async function initDatabase() {
     // колонка уже существует — ок
   }
 
-  // Создаём админа по умолчанию (admin/admin123)
-  const defaultPasswordHash = bcrypt.hashSync('admin123', 10);
+  // Создаём админа по умолчанию.
+  // Пароль берётся из ADMIN_PASSWORD; для локальной разработки — fallback 'admin123'.
+  // Админ создаётся только если его ещё нет (существующий пароль не перезаписывается).
+  const defaultPasswordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin123', 10);
   const existingAdmin = await queryOne<{ id: number }>(
     'SELECT id FROM admins WHERE username = ?',
     ['admin']

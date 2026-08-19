@@ -30,11 +30,12 @@ E-commerce for indoor plants. Simple catalog + admin panel. Next.js 16 + React 1
 
 ## Auth
 
-- **Single auth system**: admin-only bcrypt + in-memory `Map<string, session>` in `src/app/api/auth/route.ts`
+- **Single auth system**: admin-only bcrypt + in-memory `Map<string, session>` in `src/lib/sessions.ts`
 - **Sessions lost on server restart** — in-memory Map, not production-grade
-- **No API auth guards** — product/category/upload routes have no server-side session check. Auth is entirely client-side via `<AdminAuth>` component
-- **Admin credentials** (seeded by `init-db`): `admin` / `admin123`
-- **Login flow**: `POST /api/auth` with `{action:"login", email, password}` → `bcrypt.compareSync` → sets `session` cookie. `GET /api/auth` checks cookie. `DELETE /api/auth` clears it
+- **Server-side auth guard**: `requireAdmin(request)` in `src/lib/auth-guard.ts` — all mutating API routes (product/category create-update-delete, uploads) return 401 without a valid session cookie. Only `GET` routes are public
+- **Login rate limit**: in-memory per-IP limiter (`src/lib/rate-limit.ts`), max 10 attempts / 15 min → 429
+- **Admin credentials**: NOT `admin123`. Local dev: seeded only if admin row absent, password = `ADMIN_PASSWORD` env var or fallback `admin123` (`src/lib/db.ts`). Hosting: admin already exists; deploy script (`build-deploy.sh`) seeds new installs from `ADMIN_PASSWORD` env var or generates a random password printed once — never re-seeds an existing admin
+- **Login flow**: `POST /api/auth` with `{action:"login", email, password}` → `await bcrypt.compare` → sets `session` cookie. `GET /api/auth` checks cookie. `DELETE /api/auth` clears it
 - **Login page**: `src/app/login/page.tsx` — sends `action:"login"` with `email` field (maps to DB `username` column)
 
 ## Architecture

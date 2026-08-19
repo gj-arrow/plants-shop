@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { queryOne } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { sessions } from '@/lib/sessions';
+import { checkRateLimit } from '@/lib/rate-limit';
 
-const sessions = new Map<string, {
-  userId: number;
-  email: string;
-  role: 'admin';
-  expiresAt: number
-}>();
+// Определяем IP клиента (за прокси/балансировщиком хостинга)
+function clientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +24,18 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Логин и пароль обязательны' }, { status: 400 });
       }
 
+      // Защита от перебора пароля: не более 10 попыток за 15 минут с одного IP
+      const limit = checkRateLimit(`login:${clientIp(request)}`);
+      if (!limit.allowed) {
+        return NextResponse.json(
+          { error: 'Слишком много попыток входа. Попробуйте позже.' },
+          {
+            status: 429,
+            headers: limit.retryAfterSeconds ? { 'Retry-After': String(limit.retryAfterSeconds) } : {},
+          }
+        );
+      }
+
       const admin = await queryOne<{ id: number; username: string; password_hash: string }>(
         'SELECT * FROM admins WHERE username = ?',
         [email]
@@ -28,7 +44,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Неверный логин или пароль' }, { status: 401 });
       }
 
-      const isValid = bcrypt.compareSync(password, admin.password_hash);
+      const isValid = await bcrypt.compare(password, admin.password_hash);
       if (!isValid) {
         return NextResponse.json({ error: 'Неверный логин или пароль' }, { status: 401 });
       }
