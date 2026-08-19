@@ -10,6 +10,36 @@ export interface Product {
   created_at?: string;
 }
 
+// Punycode-форма домена цветы-людмилы.бел
+export const SITE_URL = 'https://xn----ctbhcrqcg4cxb8cg8a.xn--90ais';
+
+// Собирает SEO description для страницы товара:
+// «Категория / Подкатегория. Описание без блоков «Цена: …», переносы строк → «, ». Доставка по Беларуси…»
+export function buildSeoDescription(
+  product: Pick<Product, 'category' | 'subcategory' | 'description'>
+): string {
+  const categoryPart = [product.category, product.subcategory].filter(Boolean).join(' / ');
+  const rawDescription = (product.description || '')
+    // Убрать блоки «| Цена: N р.» вместе с пробелом перед пайпом
+    .replace(/\s*\|\s*Цена:[^|\n]*/gi, '')
+    // Переносы строк → «, »
+    .replace(/\n+/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+,/g, ',')
+    .trim();
+
+  const pieces = [categoryPart, rawDescription, 'Доставка по Беларуси: Европочта, Белпочта.'].filter(Boolean);
+  let description = pieces.join('. ').replace(/\.\s*\./g, '.').trim();
+
+  // Обрезать до ~160 символов, не разрывая слово
+  if (description.length > 160) {
+    const cut = description.slice(0, 157);
+    const lastSpace = cut.lastIndexOf(' ');
+    description = (lastSpace > 100 ? cut.slice(0, lastSpace) : cut).trimEnd() + '…';
+  }
+  return description;
+}
+
 export function formatPrice(price: number | string): string {
   const num = typeof price === 'string' ? parseFloat(price) : price;
   if (isNaN(num)) return String(price);

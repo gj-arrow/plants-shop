@@ -1,8 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { queryAll } from '@/lib/db';
-
-// Punycode-форма домена цветы-людмилы.бел
-const SITE_URL = 'https://xn----ctbhcrqcg4cxb8cg8a.xn--90ais';
+import { SITE_URL } from '@/lib/product-utils';
 
 // Не генерировать статически при сборке — запрашивать БД хостинга в рантайме
 export const dynamic = 'force-dynamic';

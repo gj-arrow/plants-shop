@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { parseImages, formatPrice, showPriceFrom, type Product } from '@/lib/product-utils';
+import { parseImages, formatPrice, showPriceFrom, SITE_URL, type Product } from '@/lib/product-utils';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import ProductEditModal from '@/components/ProductEditModal';
 
@@ -44,6 +44,31 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
   return (
     <section className="min-h-screen bg-white pt-20 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            category: product.category,
+            description: product.description || undefined,
+            image:
+              images.length > 0
+                ? images.map((img) => new URL(img, SITE_URL).toString())
+                : undefined,
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'BYN',
+              price: String(product.price),
+              availability: product.out_of_stock
+                ? 'https://schema.org/OutOfStock'
+                : 'https://schema.org/InStock',
+              url: `${SITE_URL}/products/${product.id}`,
+            },
+          }).replace(/</g, '\\u003c'),
+        }}
+      />
       {fullscreen && (
         <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
