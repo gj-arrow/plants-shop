@@ -368,11 +368,11 @@ export default function ProductEditModal({
                 </label>
 
                 {previewImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                     {previewImages.map((url, index) => (
                       <div
                         key={index}
-                        className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#E8F0EA] group shadow-sm"
+                        className="relative aspect-[3/2] rounded-xl overflow-hidden bg-[#E8F0EA] group shadow-sm"
                       >
                         <img
                           src={url}
@@ -383,7 +383,7 @@ export default function ProductEditModal({
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute top-1.5 right-1.5 bg-[#8CA89C] text-white p-1.5 rounded-full btn-press hover:bg-[#5B7F6B] transition opacity-0 group-hover:opacity-100"
+                          className="absolute top-1.5 right-1.5 bg-red-600 text-white p-1.5 rounded-full btn-press hover:bg-red-700 transition shadow-sm"
                           title="Удалить"
                         >
                           ✕
@@ -396,7 +396,7 @@ export default function ProductEditModal({
                           <button
                             type="button"
                             onClick={() => setMainImage(index)}
-                            className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-yellow-600 font-medium"
+                            className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full transition hover:bg-yellow-600 font-medium"
                             title="Сделать главной"
                           >
                             ⭐ Сделать главной
@@ -408,7 +408,7 @@ export default function ProductEditModal({
                     {Array.from({ length: 3 - previewImages.length }).map((_, i) => (
                       <div
                         key={`empty-${i}`}
-                        className="aspect-[4/3] rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300"
+                        className="aspect-[3/2] rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300"
                       >
                         <span className="text-gray-300 text-3xl">+</span>
                       </div>
