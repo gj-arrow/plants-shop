@@ -158,8 +158,10 @@ function HomePageContent() {
   };
 
   const filteredProducts = products.filter(p => {
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    const matchesSubcategory = !selectedSubcategory || p.subcategory === selectedSubcategory;
+    // При активном поиске категория и подкатегория игнорируются — ищем по всем категориям
+    const isSearching = searchQuery.trim().length > 0;
+    const matchesCategory = isSearching || selectedCategory === 'all' || p.category === selectedCategory;
+    const matchesSubcategory = isSearching || !selectedSubcategory || p.subcategory === selectedSubcategory;
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSubcategory && matchesSearch;
   });
