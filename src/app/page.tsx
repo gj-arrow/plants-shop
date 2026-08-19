@@ -91,7 +91,7 @@ function HomePageContent() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const PAGE_SIZE = isDesktop ? 9 : 10;
+  const PAGE_SIZE = isDesktop ? 12 : 10;
   const clickCount = useRef(0);
   const router = useRouter();
 
