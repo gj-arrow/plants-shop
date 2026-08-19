@@ -1,12 +1,26 @@
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 
+// Определяет, использовать ли Unix-сокет для подключения к MySQL.
+// Сокет берётся ТОЛЬКО для локального MySQL без пароля (например, mysql://root@localhost:3306/plant_shop).
+// Любой URL с паролем (mysql://user:pass@localhost:...) подключается по TCP — иначе
+// на хостинге падает с ошибкой соединения через /tmp/mysql.sock.
+function resolveSocketPath(url: string): string | undefined {
+  if (process.env.MYSQL_SOCKET_PATH) {
+    return process.env.MYSQL_SOCKET_PATH;
+  }
+  try {
+    const parsed = new URL(url);
+    const isLocalHost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+    return isLocalHost && parsed.password === '' ? '/tmp/mysql.sock' : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function createPool() {
   const url = process.env.DATABASE_URL || 'mysql://root@localhost:3306/plant_shop';
-  // Unix socket (только для локальной разработки, если MySQL без пароля)
-  // На сервере задайте MYSQL_SOCKET_PATH, если нужно принудительно указать сокет
-  const socketPath = process.env.MYSQL_SOCKET_PATH
-    || (url.includes('@localhost') && !url.includes(':password') ? '/tmp/mysql.sock' : undefined);
+  const socketPath = resolveSocketPath(url);
   return mysql.createPool({
     uri: url,
     socketPath,

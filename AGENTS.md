@@ -92,7 +92,7 @@ src/
 ### Database
 - **Category delete cascades**: sets `products.category = NULL` on affected products (`src/app/api/categories/[id]/route.ts:61`)
 - **Category rename cascades**: updates `products.category` to new name (`src/app/api/categories/[id]/route.ts:37`)
-- **db.ts socketPath detection is fragile** (`src/lib/db.ts:8-9`): it checks `url.includes(':password')` (literal string) rather than checking if a password is present. Any URL containing `@localhost` without the literal substring `:password` will attempt Unix socket at `/tmp/mysql.sock`, which fails on hosting where MySQL uses TCP. Workaround: set `MYSQL_SOCKET_PATH` env var to empty string, or ensure URL contains `:password` literally
+- **db.ts socketPath** (`src/lib/db.ts:8-21`): Unix socket `/tmp/mysql.sock` is used ONLY for local MySQL without a password (`mysql://root@localhost:...`, parsed via `new URL().password === ''`). Any URL with a password or a remote host connects via TCP — hosting works out of the box. Override with `MYSQL_SOCKET_PATH` env var if needed
 
 ### Images
 - **Images stored as JSON array** in `products.image_url` column — parsed by `parseImages()` in `product-utils.ts`. Can be a plain path string or `["url1","url2","url3"]` array string
