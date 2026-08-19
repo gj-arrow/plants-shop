@@ -14,7 +14,9 @@ export interface Product {
 export const SITE_URL = 'https://xn----ctbhcrqcg4cxb8cg8a.xn--90ais';
 
 // Собирает SEO description для страницы товара:
-// «Категория / Подкатегория. Описание без блоков «Цена: …», переносы строк → «, ». Доставка по Беларуси…»
+// «Категория / Подкатегория. Цветы Людмилы в Горках. Описание без блоков «Цена: …»,
+// переносы строк → «, ». Доставка по Беларуси…» (ключевые слова стоят до описания,
+// чтобы не потеряться при обрезке до ~160 символов)
 export function buildSeoDescription(
   product: Pick<Product, 'category' | 'subcategory' | 'description'>
 ): string {
@@ -28,7 +30,12 @@ export function buildSeoDescription(
     .replace(/\s+,/g, ',')
     .trim();
 
-  const pieces = [categoryPart, rawDescription, 'Доставка по Беларуси: Европочта, Белпочта.'].filter(Boolean);
+  const pieces = [
+    categoryPart,
+    'Цветы Людмилы в Горках',
+    rawDescription,
+    'Доставка по Беларуси: Европочта, Белпочта.',
+  ].filter(Boolean);
   let description = pieces.join('. ').replace(/\.\s*\./g, '.').trim();
 
   // Обрезать до ~160 символов, не разрывая слово

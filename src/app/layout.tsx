@@ -17,8 +17,8 @@ const instrumentSans = Instrument_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Зелёная мастерская",
-  description: "Магазин растений",
+  title: "Зелёная мастерская - растения в Горках",
+  description: "Цветы Людмилы — магазин комнатных растений в Горках. Доставка по Беларуси: Европочта, Белпочта.",
   icons: {
     icon: [
       {
