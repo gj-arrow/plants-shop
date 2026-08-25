@@ -91,7 +91,7 @@ function HomePageContent() {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const PAGE_SIZE = isDesktop ? 12 : 10;
+  const PAGE_SIZE = isDesktop ? 12 : 14;
   const clickCount = useRef(0);
   const router = useRouter();
 
@@ -285,6 +285,9 @@ function HomePageContent() {
             <div className="reveal visible pt-8 pb-6 lg:pb-12 lg:py-20 flex flex-col">
 
               <h1 className="text-white font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6">
+                <span className="block text-2xl sm:text-3xl lg:text-4xl tracking-[0.2em] uppercase mb-3 drop-shadow-md">
+                  Цветы Людмилы
+                </span>
                 Хвойные, ниваки, гортензии и другое
               </h1>
 
@@ -702,18 +705,23 @@ function HomePageContent() {
 
       {/* Footer */}
       <footer id="contacts" className="bg-sage text-white">
-        <div className="max-w-2xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-12">
             <div>
               <h3 className="font-display text-lg tracking-wide">Зелёная мастерская</h3>
               <p className="text-white/70 text-sm mt-3 leading-relaxed whitespace-nowrap">Доставка: Европочта, Белпочта.</p>
               <p className="text-white/70 text-sm mt-1 leading-relaxed">Самовывоз: г. Горки, Могилёвская область.</p>
             </div>
-            <div className="md:text-right">
+            <div>
               <h4 className="text-xs tracking-[0.15em] uppercase mb-4 font-medium">Контакты</h4>
               <ul className="space-y-2 text-sm text-white/70">
-                <li>+375 (29) 842-59-52</li>
+                <li className="whitespace-nowrap">Людмила Леонидовна</li>
+                <li className="whitespace-nowrap">+375 (29) 842-59-52</li>
               </ul>
+            </div>
+            <div className="text-sm text-white/70 pt-4 border-t border-white/20 md:pt-0 md:border-t-0 md:ml-auto">
+              <p className="md:whitespace-nowrap">Терешко Людмила Леонидовна. УНП МА1500564</p>
+              <p className="mt-1 md:whitespace-nowrap">Самозанятая (плательщик налога на профессиональный доход)</p>
             </div>
           </div>
 
