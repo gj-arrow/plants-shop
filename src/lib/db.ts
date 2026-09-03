@@ -25,7 +25,10 @@ function createPool() {
     uri: url,
     socketPath,
     waitForConnections: true,
-    connectionLimit: 10,
+    // xS тариф: лимит 50 процессов/потоков (NPROC). Каждая MySQL-конн. + sharp/libvips + libuv треды жрут лимит.
+    // Держим пул минимальным: 3 достаточно для магазина с низкой нагрузкой.
+    // Можно переопределить через DB_POOL_LIMIT env.
+    connectionLimit: parseInt(process.env.DB_POOL_LIMIT || '3', 10),
     queueLimit: 0,
   });
 }

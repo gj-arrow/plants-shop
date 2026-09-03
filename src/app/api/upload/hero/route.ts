@@ -4,6 +4,11 @@ import path from 'path';
 import sharp from 'sharp';
 import { requireAdmin } from '@/lib/auth-guard';
 
+try {
+  sharp.concurrency(1);
+  sharp.cache({ files: 0 });
+} catch {}
+
 // POST /api/upload/hero — загрузка верхнего (hero) фото на главной.
 // Файл сохраняется под фиксированным именем hero.jpg (перезапись).
 // Допустимые форматы конвертируются в JPEG для единообразия.

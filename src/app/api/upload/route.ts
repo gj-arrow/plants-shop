@@ -4,6 +4,14 @@ import path from 'path';
 import sharp from 'sharp';
 import { requireAdmin } from '@/lib/auth-guard';
 
+// Ограничиваем sharp: лимит NPROC 50 (xS тариф). По умолчанию sharp/libvips
+// создаёт потоки = числу CPU (4–8). Ставим 1 поток и отключаем кеш файлов,
+// чтобы один Node-процесс занимал ~7-8 тредов вместо ~15.
+try {
+  sharp.concurrency(1);
+  sharp.cache({ files: 0 });
+} catch {}
+
 export async function POST(request: NextRequest) {
   const unauthorized = requireAdmin(request);
   if (unauthorized) return unauthorized;
