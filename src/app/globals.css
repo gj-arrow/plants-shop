@@ -1,54 +1,96 @@
 @import "tailwindcss";
 
 /* ============================================
-   Scandinavian Premium — Зелёная мастерская
-   White Cube aesthetic, sage accents
+   LUXE BOTANICAL — Зелёная мастерская
+   Quiet Luxury: deep emerald, warm cream, brass gold
+   Editorial, expensive, modern
    ============================================ */
 
 @theme {
   --font-sans: var(--font-instrument);
   --font-display: var(--font-playfair);
-  --color-sage: #8CA89C;
-  --color-sage-dark: #5B7F6B;
-  --color-sage-soft: #E8F0EA;
-  --color-heading: #1A3326;
+  --font-serif: var(--font-cormorant);
+  --color-sage: #C9A86A;
+  --color-sage-dark: #8C704A;
+  --color-sage-soft: #F5F1E8;
+  --color-heading: #122620;
   --color-body: #1A1A1A;
-  --color-light-grey: #F5F5F0;
-  --color-border: #E5E5E0;
+  --color-light-grey: #FDFBF7;
+  --color-border: #E8D5B7;
   --color-white: #FFFFFF;
+  --color-cream: #FDFBF7;
+  --color-cream-dark: #F5F1E8;
+  --color-emerald: #122620;
+  --color-emerald-light: #1B3A2E;
+  --color-gold: #C9A86A;
+  --color-gold-light: #E8D5B7;
+  --color-gold-dark: #8C704A;
+  --color-charcoal: #1A1A1A;
 }
 
-/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #D4D4D0;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #B0B0A8;
+body {
+  background: #FDFBF7;
+  color: #1A1A1A;
 }
 
-/* Selection */
+/* Scrollbar — thin gold */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F1E8;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A86A;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8C704A;
+}
+
 ::selection {
-  background: #8CA89C;
+  background: #C9A86A;
   color: white;
 }
 
-/* Card entrance animation (for async-loaded products) */
+/* Luxury utilities */
+.gold-gradient {
+  background: linear-gradient(135deg, #C9A86A 0%, #E8D5B7 50%, #C9A86A 100%);
+}
+.gold-text {
+  background: linear-gradient(135deg, #8C704A 0%, #C9A86A 50%, #E8D5B7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.glass-luxury {
+  background: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(201, 168, 106, 0.15);
+}
+.cream-noise {
+  position: relative;
+}
+.cream-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Card entrance — slower, more elegant */
 @keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -56,15 +98,28 @@ html {
   }
 }
 .card-enter {
-  animation: cardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cardEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Scroll-reveal base */
+@keyframes fadeInLuxury {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes goldShine {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Scroll-reveal */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.visible {
   opacity: 1;
@@ -74,45 +129,37 @@ html {
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
-.reveal-delay-5 { transition-delay: 0.5s; }
 
-/* Navbar scroll hide animation */
-.nav-hidden {
-  transform: translateY(-100%);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+/* Luxury card hover */
+.card-luxe {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.4s ease;
+  border: 1px solid rgba(201, 168, 106, 0.12);
 }
-.nav-visible {
-  transform: translateY(0);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Card hover */
-.card-hover {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(28, 55, 40, 0.08);
+.card-luxe:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(18, 38, 32, 0.08), 0 8px 16px rgba(201, 168, 106, 0.08);
+  border-color: rgba(201, 168, 106, 0.25);
 }
 
-/* Image zoom on hover */
+/* Image zoom — subtle, luxurious */
 .img-zoom {
   overflow: hidden;
 }
 .img-zoom img {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .img-zoom:hover img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 /* Button press */
 .btn-press {
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 .btn-press:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 /* Hero parallax */
@@ -120,8 +167,39 @@ html {
   will-change: transform;
 }
 
-/* Focus ring */
+/* Focus ring — gold */
 *:focus-visible {
-  outline: 2px solid #8CA89C;
+  outline: 2px solid #C9A86A;
   outline-offset: 2px;
+}
+
+/* Thin gold divider */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,106,0.3), transparent);
+}
+
+/* Luxury pill active shine */
+.pill-gold {
+  background: linear-gradient(135deg, #C9A86A 0%, #D4B98A 50%, #C9A86A 100%);
+  background-size: 200% 100%;
+  transition: all 0.4s ease;
+}
+.pill-gold:hover {
+  background-position: 100% center;
+  box-shadow: 0 4px 16px rgba(201, 168, 106, 0.3);
+}
+
+/* Price gold */
+.price-gold {
+  color: #8C704A;
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Editorial serif italic */
+.serif-italic {
+  font-family: var(--font-playfair);
+  font-style: italic;
+  font-weight: 400;
 }
