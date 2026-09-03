@@ -244,39 +244,39 @@ export default function ProductEditModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full text-[#8a7a9a] hover:text-[#2D1B4E] hover:bg-[#E8F0EA] transition z-10 text-xl"
+            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full text-[#8A8178] hover:text-[#122620] hover:bg-[#F5F1E8] transition z-10 text-xl"
           >
             ✕
           </button>
           <div className="p-6">
-            <h2 className="text-xl font-bold text-[#2D1B4E] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#122620] mb-4 flex items-center gap-2">
               <span>{product ? '✏️' : '➕'}</span>
               {product ? 'Редактирование товара' : 'Новый товар'}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1A3326] mb-1">
+                <label className="block text-sm font-medium text-[#122620] mb-1">
                   Название
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition"
+                  className="w-full px-4 py-2.5 border-2 border-[rgba(201,168,106,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C9A86A] focus:border-[#C9A86A] transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#1A3326] mb-1">
+                <label className="block text-sm font-medium text-[#122620] mb-1">
                   Описание
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition resize-none"
+                  className="w-full px-4 py-2.5 border-2 border-[rgba(201,168,106,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C9A86A] focus:border-[#C9A86A] transition resize-none"
                 />
               </div>
 
@@ -293,14 +293,14 @@ export default function ProductEditModal({
                       setFormData((prev) => ({ ...prev, price: 0 }));
                     }
                   }}
-                  className="w-5 h-5 rounded border-2 border-[rgba(140,168,156,0.3)] accent-[#8CA89C] cursor-pointer"
+                  className="w-5 h-5 rounded border-2 border-[rgba(201,168,106,0.3)] accent-[#C9A86A] cursor-pointer"
                 />
-                <span className="text-sm font-medium text-[#1A3326]">Нет в наличии</span>
+                <span className="text-sm font-medium text-[#122620]">Нет в наличии</span>
               </label>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3326] mb-1">
+                  <label className="block text-sm font-medium text-[#122620] mb-1">
                     Цена (р.)
                   </label>
                   <input
@@ -313,23 +313,23 @@ export default function ProductEditModal({
                       const num = parseFloat(val);
                       setFormData({ ...formData, price: isNaN(num) ? 0 : num });
                     }}
-                    className={`w-full px-4 py-2.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition ${
+                    className={`w-full px-4 py-2.5 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C9A86A] focus:border-[#C9A86A] transition ${
                       formData.out_of_stock
                         ? 'border-gray-200 bg-gray-100 text-gray-400'
-                        : 'border-[rgba(140,168,156,0.15)]'
+                        : 'border-[rgba(201,168,106,0.15)]'
                     }`}
                     required={!formData.out_of_stock}
                     disabled={formData.out_of_stock as boolean}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3326] mb-1">
+                  <label className="block text-sm font-medium text-[#122620] mb-1">
                     Категория
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 border-2 border-[rgba(201,168,106,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C9A86A] focus:border-[#C9A86A] transition bg-white appearance-none cursor-pointer"
                   >
                     <option value="">Выберите категорию</option>
                     {categories.map((cat) => (
@@ -340,7 +340,7 @@ export default function ProductEditModal({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3326] mb-1">
+                  <label className="block text-sm font-medium text-[#122620] mb-1">
                     Подкатегория
                   </label>
                   <select
@@ -351,7 +351,7 @@ export default function ProductEditModal({
                         subcategory: e.target.value || undefined,
                       })
                     }
-                    className="w-full px-4 py-2.5 border-2 border-[rgba(140,168,156,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2.5 border-2 border-[rgba(201,168,106,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C9A86A] focus:border-[#C9A86A] transition bg-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                     disabled={formData.category !== 'Гортензии'}
                   >
                     <option value="">Без подкатегории</option>
@@ -363,17 +363,17 @@ export default function ProductEditModal({
 
               {/* Изображения */}
               <div>
-                <label className="block text-sm font-medium text-[#1A3326] mb-2">
+                <label className="block text-sm font-medium text-[#122620] mb-2">
                   Изображения (до 3 шт.)
                 </label>
 
                 {previewImages.length < 3 && (
                   <div className="mb-3">
-                    <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(140,168,156,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDF6F0] transition">
-                      <span className="inline-block bg-[#8CA89C] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
+                    <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-[rgba(201,168,106,0.25)] rounded-xl bg-white cursor-pointer hover:bg-[#FDFBF7] transition">
+                      <span className="inline-block bg-[#C9A86A] text-white px-4 py-1.5 rounded-lg text-sm font-medium btn-press">
                         {uploading ? '🔄 Загрузка...' : 'Выбрать файлы'}
                       </span>
-                      <span className="text-sm text-[#8a7a9a]">
+                      <span className="text-sm text-[#8A8178]">
                         PNG, JPG, WebP до 10MB
                       </span>
                       <input
@@ -393,7 +393,7 @@ export default function ProductEditModal({
                     {previewImages.map((url, index) => (
                       <div
                         key={index}
-                        className="relative aspect-[3/2] rounded-xl overflow-hidden bg-[#E8F0EA] group shadow-sm"
+                        className="relative aspect-[3/2] rounded-xl overflow-hidden bg-[#F5F1E8] group shadow-sm"
                       >
                         <img
                           src={url}
@@ -448,13 +448,13 @@ export default function ProductEditModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 border-2 border-[rgba(140,168,156,0.2)] rounded-xl font-medium text-[#1A3326] btn-press hover:bg-[#FDF6F0] transition"
+                  className="flex-1 px-4 py-2.5 border-2 border-[rgba(201,168,106,0.2)] rounded-xl font-medium text-[#122620] btn-press hover:bg-[#FDFBF7] transition"
                 >
                   Отмена
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-[#8CA89C] text-white rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
+                  className="flex-1 px-4 py-2.5 bg-[#C9A86A] text-white rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
                 >
                   {product ? '💾 Сохранить' : '✨ Создать'}
                 </button>

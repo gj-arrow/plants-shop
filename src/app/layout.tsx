@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Playfair_Display, Instrument_Sans } from 'next/font/google'
+import { Playfair_Display, Instrument_Sans, Cormorant_Garamond } from 'next/font/google'
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import Navbar from "@/components/Navbar";
 
 const playfairDisplay = Playfair_Display({
   subsets: ['cyrillic', 'latin'],
-  weight: ['600'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-playfair',
+})
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
 })
 
 const instrumentSans = Instrument_Sans({
@@ -38,8 +45,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${playfairDisplay.variable} ${instrumentSans.variable} antialiased`}>
-      <body className="bg-white font-sans">
+    <html lang="ru" className={`${playfairDisplay.variable} ${cormorant.variable} ${instrumentSans.variable} antialiased`}>
+      <body className="bg-[#FDFBF7] font-sans text-[#1A1A1A]">
         <FavoritesProvider>
           <Navbar />
           <main>{children}</main>
