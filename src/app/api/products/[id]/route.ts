@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { queryOne, run } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth-guard';
+import { parseImages, type Product } from '@/lib/product-utils';
+import { unlink } from 'fs/promises';
+import path from 'path';
 
 // GET /api/products/[id] - получить товар по ID
 export async function GET(
@@ -8,12 +12,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
-    
+    const product = await queryOne('SELECT * FROM products WHERE id = ?', [id]);
+
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-    
+
     return NextResponse.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -26,31 +30,39 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = requireAdmin(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, price, stock, category, image_url } = body;
+    const { name, description, price, category, subcategory, image_url, out_of_stock } = body;
 
-    const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const existing = await queryOne<Record<string, any>>(
+      'SELECT * FROM products WHERE id = ?',
+      [id]
+    );
     if (!existing) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    db.prepare(`
-      UPDATE products 
-      SET name = ?, description = ?, price = ?, stock = ?, category = ?, image_url = ?
-      WHERE id = ?
-    `).run(
-      name || (existing as any).name,
-      description !== undefined ? description : (existing as any).description,
-      price !== undefined ? price : (existing as any).price,
-      stock !== undefined ? stock : (existing as any).stock,
-      category !== undefined ? category : (existing as any).category,
-      image_url !== undefined ? image_url : (existing as any).image_url,
-      id
+    await run(
+      `UPDATE products
+       SET name = ?, description = ?, price = ?, category = ?, subcategory = ?, image_url = ?, out_of_stock = ?
+       WHERE id = ?`,
+      [
+        name || existing.name,
+        description !== undefined ? description : existing.description,
+        price !== undefined ? price : existing.price,
+        category !== undefined ? category : existing.category,
+        subcategory !== undefined ? subcategory : existing.subcategory,
+        image_url !== undefined ? image_url : existing.image_url,
+        out_of_stock !== undefined ? (out_of_stock ? 1 : 0) : existing.out_of_stock,
+        id,
+      ]
     );
 
-    const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const updated = await queryOne('SELECT * FROM products WHERE id = ?', [id]);
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Error updating product:', error);
@@ -63,17 +75,33 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const unauthorized = requireAdmin(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const { id } = await params;
-    
-    const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+
+    const existing = await queryOne<Product>('SELECT * FROM products WHERE id = ?', [id]);
     if (!existing) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Удаляем сначала связи в order_items, потом сам товар
-    db.prepare('DELETE FROM order_items WHERE product_id = ?').run(id);
-    db.prepare('DELETE FROM products WHERE id = ?').run(id);
+    await run('DELETE FROM products WHERE id = ?', [id]);
+
+    // Удаляем файлы изображений товара (сироты не оставляем).
+    // Файлы лежат в public/uploads/products/, ссылки вида /api/uploads/<file> или /uploads/products/<file>.
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+    for (const imageUrl of parseImages(existing)) {
+      // basename отрезает любые пути/`..` — защита от path traversal в image_url
+      const filename = path.basename(imageUrl);
+      if (!filename) continue;
+      try {
+        await unlink(path.join(uploadsDir, filename));
+      } catch {
+        // Файла нет (уже удалён или ссылка внешняя) — не считаем ошибкой
+      }
+    }
+
     return NextResponse.json({ message: 'Product deleted' });
   } catch (error) {
     console.error('Error deleting product:', error);

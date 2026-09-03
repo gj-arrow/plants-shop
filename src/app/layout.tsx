@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { CartProvider } from "@/contexts/CartContext";
+import { Playfair_Display, Instrument_Sans } from 'next/font/google'
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
-import { SessionProvider } from "next-auth/react";
 import Navbar from "@/components/Navbar";
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['600'],
+  variable: '--font-playfair',
+})
+
+const instrumentSans = Instrument_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-instrument',
+})
+
 export const metadata: Metadata = {
-  title: "Plant Shop — Магазин растений",
-  description: "Современный магазин комнатных растений с доставкой",
+  title: "Зелёная мастерская - растения в Горках",
+  description: "Цветы Людмилы - купить саженцы растений в Горках. Гортензии, хвойные, топиарные стрижки и другое. Доставка по Беларуси: Европочта, Белпочта.",
   icons: {
     icon: [
       {
@@ -14,6 +26,9 @@ export const metadata: Metadata = {
         type: 'image/svg+xml',
       },
     ],
+  },
+  verification: {
+    yandex: '2526a37bb4fe8407',
   },
 };
 
@@ -23,20 +38,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="h-full antialiased">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="min-h-full flex flex-col">
-        <SessionProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-            </CartProvider>
-          </FavoritesProvider>
-        </SessionProvider>
+    <html lang="ru" className={`${playfairDisplay.variable} ${instrumentSans.variable} antialiased`}>
+      <body className="bg-white font-sans">
+        <FavoritesProvider>
+          <Navbar />
+          <main>{children}</main>
+        </FavoritesProvider>
       </body>
     </html>
   );

@@ -2,26 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import AdminAuth from '@/components/AdminAuth';
-import { parseImages } from '@/contexts/CartContext';
+import { parseImages, formatPrice } from '@/lib/product-utils';
+import ProductEditModal from '@/components/ProductEditModal';
 
 interface Product {
   id: number;
   name: string;
   description: string;
   price: number;
-  stock: number;
   category: string;
+  subcategory?: string;
   image_url: string;
+  out_of_stock: boolean | number;
+  created_at?: string;
 }
-
-const emptyProduct: Omit<Product, 'id'> = {
-  name: '',
-  description: '',
-  price: 0,
-  stock: 0,
-  category: '',
-  image_url: '',
-};
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,11 +23,24 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState<Omit<Product, 'id'>>(emptyProduct);
-  const [priceInput, setPriceInput] = useState('0');
-  const [stockInput, setStockInput] = useState('0');
-  const [uploading, setUploading] = useState(false);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterSubcategory, setFilterSubcategory] = useState('');
+  const [sortField, setSortField] = useState<'name' | 'price' | 'created_at'>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const toggleSort = (field: 'name' | 'price') => {
+    if (sortField === field) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
+  // Скролл вверх при заходе на страницу (чтобы не было авто-восстановления скролла)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -53,111 +60,13 @@ export default function AdminProductsPage() {
   }, []);
 
   const openModal = (product?: Product) => {
-    if (product) {
-      setEditingProduct(product);
-      const images = parseImages(product);
-      setFormData({
-        name: product.name,
-        description: product.description || '',
-        price: product.price,
-        stock: product.stock,
-        category: product.category || '',
-        image_url: images.length > 0 ? JSON.stringify(images) : '',
-      });
-      setPriceInput(String(product.price));
-      setStockInput(String(product.stock));
-      setPreviewImages(images);
-    } else {
-      setEditingProduct(null);
-      setFormData(emptyProduct);
-      setPriceInput('0');
-      setStockInput('0');
-      setPreviewImages([]);
-    }
+    setEditingProduct(product || null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
-    setFormData(emptyProduct);
-    setPriceInput('0');
-    setStockInput('0');
-    setPreviewImages([]);
-  };
-
-  const uploadFile = async (file: File): Promise<string> => {
-    const formDataObj = new FormData();
-    formDataObj.append('file', file);
-    const response = await fetch('/api/upload', { method: 'POST', body: formDataObj });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Ошибка загрузки');
-    return data.url;
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-    try {
-      const newUrls: string[] = [];
-      for (const file of Array.from(files)) {
-        const url = await uploadFile(file);
-        newUrls.push(url);
-      }
-
-      const allUrls = [...previewImages, ...newUrls].slice(0, 3);
-      setPreviewImages(allUrls);
-      setFormData(prev => ({
-        ...prev,
-        image_url: allUrls.length > 0 ? JSON.stringify(allUrls) : '',
-      }));
-    } catch (error: any) {
-      alert(error.message || 'Ошибка при загрузке изображения');
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const remaining = previewImages.filter((_, i) => i !== index);
-    setPreviewImages(remaining);
-    setFormData(prev => ({
-      ...prev,
-      image_url: remaining.length > 0 ? JSON.stringify(remaining) : '',
-    }));
-  };
-
-  const setMainImage = (index: number) => {
-    if (index === 0) return;
-    const reordered = [previewImages[index], ...previewImages.filter((_, i) => i !== index)];
-    setPreviewImages(reordered);
-    setFormData(prev => ({
-      ...prev,
-      image_url: JSON.stringify(reordered),
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
-    const method = editingProduct ? 'PUT' : 'POST';
-
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      fetchProducts();
-      closeModal();
-    } else {
-      alert('Ошибка при сохранении товара');
-    }
   };
 
   const handleDelete = async (id: number) => {
@@ -171,42 +80,172 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Доступные подкатегории — из товаров отфильтрованной категории
+  const availableSubcategories = [...new Set(
+    (filterCategory
+      ? products.filter(p => p.category === filterCategory)
+      : products
+    )
+      .map(p => p.subcategory)
+      .filter(Boolean)
+  )];
+
+  // Сбрасываем подкатегорию при смене категории
+  useEffect(() => {
+    setFilterSubcategory('');
+  }, [filterCategory]);
+
+  const filteredProducts = (filterCategory
+    ? products.filter(p => p.category === filterCategory)
+    : products
+  ).filter(p => !filterSubcategory || p.subcategory === filterSubcategory);
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    if (sortField === 'name') return a.name.localeCompare(b.name) * dir;
+    if (sortField === 'created_at') {
+      return (new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()) * dir;
+    }
+    return (a.price - b.price) * dir;
+  });
+
+  const sortArrow = (field: 'name' | 'price' | 'created_at') => {
+    if (sortField !== field) return ' ↕';
+    return sortDir === 'asc' ? ' ↑' : ' ↓';
+  };
+
   return (
     <AdminAuth>
       <div className="min-h-[calc(100vh-4rem)]">
-        <div className="flex justify-between items-center mb-6 fade-in">
+        <div className="flex justify-between items-center mb-4 fade-in">
           <h1 className="text-2xl font-['Playfair_Display'] text-[#2D1B4E] font-bold">🌿 Управление товарами</h1>
           <button
             onClick={() => openModal()}
-            className="bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white px-5 py-2.5 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
+            className="bg-[#8CA89C] text-white px-5 py-2.5 rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
           >
             + Добавить товар
           </button>
         </div>
 
+        {/* Фильтры */}
+        <div className="mb-4 fade-in flex flex-wrap items-center gap-3">
+          <label className="text-sm text-[#1A3326] font-medium">Фильтр:</label>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+          >
+            <option value="">Все категории</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
+
+          {filterCategory && availableSubcategories.length > 0 && (
+            <select
+              value={filterSubcategory}
+              onChange={(e) => setFilterSubcategory(e.target.value)}
+              className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+            >
+              <option value="">Все подкатегории</option>
+              {availableSubcategories.map(sub => (
+                <option key={sub} value={sub}>{sub}</option>
+              ))}
+            </select>
+          )}
+
+          {(filterCategory || filterSubcategory) && (
+            <span className="text-sm text-[#8a7a9a]">
+              {filteredProducts.length} товар{filteredProducts.length !== 1 ? 'ов' : ''}
+            </span>
+          )}
+
+          {/* Сортировка */}
+          <div className="ml-auto flex items-center gap-2">
+            <label className="text-sm text-[#1A3326] font-medium hidden sm:inline">Сортировка:</label>
+            <select
+              value={`${sortField}-${sortDir}`}
+              onChange={(e) => {
+                const [field, dir] = e.target.value.split('-') as ['name' | 'price' | 'created_at', 'asc' | 'desc'];
+                setSortField(field);
+                setSortDir(dir);
+              }}
+              className="px-3 py-2 border-2 border-[rgba(140,168,156,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8CA89C] focus:border-[#8CA89C] transition bg-white appearance-none cursor-pointer"
+            >
+              <option value="created_at-desc">Новые сначала</option>
+              <option value="created_at-asc">Старые сначала</option>
+              <option value="name-asc">Название А→Я</option>
+              <option value="name-desc">Название Я→А</option>
+              <option value="price-asc">Цена ↑</option>
+              <option value="price-desc">Цена ↓</option>
+            </select>
+          </div>
+        </div>
+
         {loading ? (
           <div className="text-center py-8 fade-in">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#4CAF50] mb-2"></div>
-            <p className="text-[#4A3267]">Загрузка...</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#8CA89C] mb-2"></div>
+            <p className="text-[#1A3326]">Загрузка...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(76,175,80,0.12)] overflow-hidden fade-in">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-[#E8F5E9] to-[#F1F8E9]">
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(140,168,156,0.12)] fade-in">
+            {/* Мобильные карточки */}
+            <div className="divide-y divide-[rgba(140,168,156,0.08)] sm:hidden">
+              {sortedProducts.map(product => (
+                <div key={product.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+                    {(() => {
+                      const imgs = parseImages(product);
+                      return imgs.length > 0 ? (
+                        <img src={imgs[0]} alt={product.name} className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <span className="text-lg">🪴</span>
+                      );
+                    })()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[#2D1B4E] text-base leading-snug">{product.name}</div>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#E8F0EA] text-[#8CA89C] inline-block mt-1">{product.category || '-'}</span>
+                    <div className="text-base font-bold text-[#2D1B4E] mt-1">
+                      {product.out_of_stock ? (
+                        <span className="text-red-400 text-sm font-medium">Нет в наличии</span>
+                      ) : (
+                        <>{formatPrice(product.price)} р.</>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button onClick={() => openModal(product)} className="text-[#8CA89C] hover:bg-[#E8F0EA] w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Редактировать">
+                      ✏️
+                    </button>
+                    <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:bg-red-50 w-11 h-11 rounded-xl text-lg btn-press transition flex items-center justify-center" title="Удалить">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Десктопная таблица */}
+            <table className="w-full hidden sm:table">
+              <thead className="bg-[#E8F0EA]">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Товар</th>
-                  <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Категория</th>
-                  <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Цена</th>
-                  <th className="px-4 py-3 text-left text-xs text-[#4A3267] uppercase tracking-wider">Остаток</th>
-                  <th className="px-4 py-3 text-right text-xs text-[#4A3267] uppercase tracking-wider">Действия</th>
+                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider cursor-pointer select-none hover:text-[#8CA89C] transition" onClick={() => toggleSort('name')}>
+                    Товар{sortArrow('name')}
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider">Категория</th>
+                  <th className="px-4 py-3 text-left text-xs text-[#1A3326] uppercase tracking-wider cursor-pointer select-none hover:text-[#8CA89C] transition" onClick={() => toggleSort('price')}>
+                    Цена{sortArrow('price')}
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs text-[#1A3326] uppercase tracking-wider">Действия</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgba(76,175,80,0.08)]">
-                {products.map(product => (
+              <tbody className="divide-y divide-[rgba(140,168,156,0.08)]">
+                {sortedProducts.map(product => (
                   <tr key={product.id} className="hover:bg-[#FDF6F0] transition btn-press">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#E8F5E9] via-[#FDF6F0] to-[#F1F8E9] rounded-xl flex items-center justify-center shadow-sm">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#E8F0EA] via-[#F5F5F0] to-[#E8F0EA] rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
                           {(() => {
                             const imgs = parseImages(product);
                             return imgs.length > 0 ? (
@@ -223,22 +262,21 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm px-3 py-1 rounded-full bg-[#E8F5E9] text-[#4CAF50] font-medium">
+                      <span className="text-sm px-3 py-1 rounded-full bg-[#E8F0EA] text-[#8CA89C] font-medium">
                         {product.category || '-'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">{product.price} р.</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-sm px-3 py-1 rounded-full font-medium ${
-                        product.stock > 0 ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#FFEBEE] text-[#C62828]'
-                      }`}>
-                        {product.stock > 0 ? `✓ ${product.stock}` : '✗ Нет в наличии'}
-                      </span>
+                    <td className="px-4 py-3 text-sm font-bold text-[#2D1B4E]">
+                      {product.out_of_stock ? (
+                        <span className="text-red-400 font-medium">Нет в наличии</span>
+                      ) : (
+                        <>{formatPrice(product.price)} р.</>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         onClick={() => openModal(product)}
-                        className="text-[#4CAF50] hover:bg-[#E8F5E9] px-3 py-1.5 rounded-lg font-medium text-sm btn-press transition mr-2"
+                        className="text-[#8CA89C] hover:bg-[#E8F0EA] px-3 py-1.5 rounded-lg font-medium text-sm btn-press transition mr-2"
                       >
                         ✏️ Редактировать
                       </button>
@@ -256,176 +294,13 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* Модальное окно */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto slide-in">
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-[#2D1B4E] mb-4 flex items-center gap-2">
-                  <span>{editingProduct ? '✏️' : '➕'}</span>
-                  {editingProduct ? 'Редактирование товара' : 'Новый товар'}
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[#4A3267] mb-1">Название</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
-                      placeholder="Например: Монстера деликатесная"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#4A3267] mb-1">Описание</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition resize-none"
-                      placeholder="Описание растения..."
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-[#4A3267] mb-1">Цена (р.)</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={priceInput}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/[^0-9]/g, '');
-                          setPriceInput(digits);
-                          setFormData({ ...formData, price: digits === '' ? 0 : parseInt(digits, 10) });
-                        }}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#4A3267] mb-1">Остаток</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={stockInput}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/[^0-9]/g, '');
-                          setStockInput(digits);
-                          setFormData({ ...formData, stock: digits === '' ? 0 : parseInt(digits, 10) });
-                        }}
-                        className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Категория — на всю ширину */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#4A3267] mb-1">Категория</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-[rgba(76,175,80,0.15)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition bg-white appearance-none cursor-pointer"
-                    >
-                      <option value="">Выберите категорию</option>
-                      {categories.map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Изображения — на всю ширину, крупнее */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#4A3267] mb-2">
-                      Изображения (до 3 шт.)
-                    </label>
-
-                    {/* Сетка превью */}
-                    {previewImages.length > 0 && (
-                      <div className="grid grid-cols-3 gap-3 mb-3">
-                        {previewImages.map((url, index) => (
-                          <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#E8F5E9] group shadow-sm">
-                            <img
-                              src={url}
-                              alt={`Фото ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute top-1.5 right-1.5 bg-[#66BB6A] text-white p-1.5 rounded-full btn-press hover:bg-[#4CAF50] transition opacity-0 group-hover:opacity-100"
-                              title="Удалить"
-                            >
-                              ✕
-                            </button>
-                            {index === 0 ? (
-                              <div className="absolute bottom-1.5 left-1.5 bg-yellow-500 text-white text-xs px-2.5 py-1 rounded-full shadow font-medium">
-                                ⭐ Главная
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => setMainImage(index)}
-                                className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-yellow-600 font-medium"
-                                title="Сделать главной"
-                              >
-                                ⭐ Сделать главной
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        {/* Пустые слоты */}
-                        {Array.from({ length: 3 - previewImages.length }).map((_, i) => (
-                          <div key={`empty-${i}`} className="aspect-[4/3] rounded-xl bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                            <span className="text-gray-300 text-3xl">+</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Кнопка загрузки */}
-                    {previewImages.length < 3 && (
-                      <div className="space-y-2">
-                        <input
-                          type="file"
-                          accept="image/*,.heic,.heif"
-                          multiple
-                          onChange={handleImageUpload}
-                          disabled={uploading}
-                          className="w-full px-4 py-3 border-2 border-[rgba(76,175,80,0.15)] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-[#E8F5E9] file:text-[#4CAF50] file:font-medium file:text-sm hover:file:bg-[#C8E6C9]"
-                        />
-                        {uploading && (
-                          <p className="text-xs text-[#4CAF50]">🔄 Загрузка...</p>
-                        )}
-                      </div>
-                    )}
-                    {previewImages.length === 0 && (
-                      <p className="text-xs text-gray-400 mt-1">Загрузите до 3 изображений товара. Первое будет главным.</p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="flex-1 px-4 py-2.5 border-2 border-[rgba(76,175,80,0.2)] rounded-xl font-medium text-[#4A3267] btn-press hover:bg-[#FDF6F0] transition"
-                    >
-                      Отмена
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-2.5 bg-gradient-to-r from-[#4CAF50] to-[#66BB6A] text-white rounded-xl font-medium btn-press ripple shadow-md hover:shadow-lg transition"
-                    >
-                      {editingProduct ? '💾 Сохранить' : '✨ Создать'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <ProductEditModal
+            product={editingProduct}
+            categories={categories}
+            onClose={closeModal}
+            onSaved={fetchProducts}
+          />
         )}
       </div>
     </AdminAuth>
