@@ -1,0 +1,116 @@
+/* Hallmark · shape: Marquee Hero (draw e3ea8f; Steps и Figures не строю) · genre: editorial · theme: Solstice (deal 2/3, seed prompt-8872·d553428b·2026-11-01·r1) · job: buy · draw: e3ea8f
+ * hero: Ledge (поле-фото сверху, заголовок на бумаге у основания) · nav: wordmark в центре, ссылки по бокам · footer: letter close · imagery: photographs, собственные 9 из public/uploads · signature: растение как этикетка, wells с золотым пунктиром · solstice: long-light
+ * axes: light/high-contrast-serif/warm · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P5 H4 E4 S5 R4 V5 · weakest: R, соблазн был добавить календарь сезона, вычла за отсутствием своих фактов */
+@import "./tokens.css";
+@import "./base.css" layer(base);
+
+/* ---------- навигация ---------- */
+.top { background: var(--color-paper); border-bottom: var(--rule-bar) solid var(--color-ink); }
+.top__in { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-md); min-height: 56px; padding-block: var(--space-sm); }
+.top__links { display: flex; gap: var(--space-xl); }
+.top__links a { font-size: var(--text-sm); font-weight: 500; color: var(--color-ink-2); text-decoration: none; }
+.top__links a:hover { color: var(--color-accent); }
+.top__links a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.top__word { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-ink); text-decoration: none; white-space: nowrap; }
+.top__end { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-lg); }
+.top__tel { font-size: var(--text-sm); font-weight: 500; color: var(--color-ink); text-decoration: none; }
+.top__tel:hover { text-decoration: underline; text-decoration-color: var(--color-accent); }
+
+/* ---------- кнопки ---------- */
+.btn { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 48px; padding: var(--space-md) var(--space-xl); border: 0; border-radius: var(--radius-pill); font: 600 var(--text-md)/1 var(--font-outlier); white-space: nowrap; text-decoration: none; cursor: pointer; transition: background-color var(--dur-short) var(--ease-out); }
+.btn--primary { background: var(--color-accent); color: var(--color-accent-ink); }
+.btn--primary:hover { background: color-mix(in oklab, var(--color-accent) 88%, var(--color-ink)); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn--text { padding: var(--space-lg) 0 var(--space-xs); border-radius: 0; background: none; color: var(--color-ink); border-bottom: var(--rule-bar) solid var(--color-ink); }
+.btn--text:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+/* ---------- hero: Ledge ---------- */
+.hero { background: var(--color-paper); }
+.hero__in { padding-block: var(--space-md) 0; }
+.hero__photo { margin: 0; width: 100%; aspect-ratio: 21 / 9; min-height: 340px; max-height: min(44dvh, 360px); }
+.hero__photo > img { width: 100%; height: 100%; object-fit: cover; outline: var(--rule-hair) solid color-mix(in oklab, var(--color-ink) 10%, transparent); outline-offset: -1px; }
+.hero__text { padding-block: var(--space-md) var(--space-2xl); }
+.hero__text h1 { max-width: 16ch; }
+.hero__lead { margin-top: var(--space-md); max-width: 46ch; font-size: var(--text-lead); color: var(--color-ink-2); }
+.hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-lg); margin-top: var(--space-md); }
+
+/* ---------- этикетка-предложение ---------- */
+.offer { padding-block: var(--section-gap); }
+.offer__in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-3xl); align-items: center; }
+.offer__photo { margin: 0; aspect-ratio: 4 / 5; min-height: 460px; }
+.offer__photo > img { width: 100%; height: 100%; object-fit: cover; outline: var(--rule-hair) solid color-mix(in oklab, var(--color-ink) 10%, transparent); outline-offset: -1px; }
+.well { background: var(--color-paper-2); border: var(--rule-bar) solid var(--color-ink); outline: var(--rule-hair) solid var(--color-gold); outline-offset: -7px; box-shadow: var(--shadow-card); }
+.offer__card { padding: var(--space-2xl) var(--space-2xl) var(--space-xl); }
+.offer__kind { font: 600 var(--text-md)/1.4 var(--font-outlier); color: var(--color-accent); }
+.offer__name { margin-top: var(--space-xs); font-size: var(--text-section); line-height: 1; }
+.offer__rows { margin: var(--space-xl) 0 0; }
+.offer__row { display: flex; justify-content: space-between; gap: var(--space-lg); align-items: baseline; padding-block: var(--space-md); border-bottom: 1px dotted var(--color-gold); }
+.offer__row dt { font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+.offer__row dd { margin: 0; font-size: var(--text-md); color: var(--color-ink); text-align: right; }
+.offer__row--price dt { color: var(--color-ink-2); }
+.offer__row--price dd { font-family: var(--font-display); font-size: var(--text-2xl); color: var(--color-accent); font-variant-numeric: lining-nums tabular-nums; }
+.offer__card .btn--text { margin-top: var(--space-lg); }
+
+/* ---------- каталог ---------- */
+.catalog { padding-block: 0 var(--section-gap); }
+.catalog h2 { max-width: 14ch; }
+.catalog__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); margin: var(--space-2xl) 0 0; padding: 0; list-style: none; }
+.card__photo { margin: 0; aspect-ratio: 1 / 1; }
+.card__photo > img { width: 100%; height: 100%; object-fit: cover; outline: var(--rule-hair) solid color-mix(in oklab, var(--color-ink) 10%, transparent); outline-offset: -1px; }
+.card h3 { margin-top: var(--space-md); font-size: var(--text-title); }
+.card__kind { margin-top: var(--space-2xs); font: 600 var(--text-md)/1.4 var(--font-outlier); color: var(--color-muted); }
+.card__price { margin-top: var(--space-sm); font-family: var(--font-display); font-size: var(--text-xl); font-variant-numeric: lining-nums tabular-nums; }
+.catalog__note { margin-top: var(--space-xl); max-width: 52ch; color: var(--color-muted); font: 600 var(--text-md)/1.5 var(--font-outlier); }
+
+/* ---------- факты доставки ---------- */
+.facts { padding-block: 0 var(--section-gap); }
+.facts h2 { max-width: 16ch; }
+.facts__list { margin: var(--space-2xl) 0 0; padding: 0; list-style: none; border-top: var(--rule-bar) solid var(--color-ink); }
+.facts__list li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: var(--space-xs) var(--gap-columns); align-items: baseline; padding-block: var(--space-lg); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.facts__label { font-size: var(--text-md); font-weight: 500; color: var(--color-ink); }
+.facts__list li > span:last-child { color: var(--color-ink-2); }
+
+/* ---------- утверждение ---------- */
+.statement { padding-block: var(--section-gap-s); background: var(--color-ink); color: var(--color-paper); }
+.statement__line { font-family: var(--font-display); font-size: var(--text-section); line-height: 1.1; max-width: 22ch; }
+.statement__who { margin-top: var(--space-lg); font: 600 var(--text-md)/1.4 var(--font-outlier); color: var(--color-gold); }
+
+/* ---------- контакты ---------- */
+.contacts { padding-block: var(--section-gap); }
+.contacts h2 { max-width: 14ch; }
+.contacts__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); margin: var(--space-2xl) 0 0; padding: 0; list-style: none; }
+.contacts__list li { padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+.contacts__label { display: block; font: 600 var(--text-md)/1.4 var(--font-outlier); color: var(--color-muted); }
+.contacts__list a { display: inline-block; margin-top: var(--space-2xs); font-size: var(--text-lg); font-weight: 500; color: var(--color-ink); text-decoration: none; white-space: nowrap; }
+.contacts__list a:hover { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 1px; }
+.contacts__list a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+/* ---------- письмо-прощание ---------- */
+.foot { padding-block: var(--section-gap-s); border-top: var(--rule-hair) solid var(--color-rule); }
+.foot__sign { font-family: var(--font-display); font-size: var(--text-3xl); line-height: 1; }
+.foot__line { margin-top: var(--space-md); max-width: 56ch; color: var(--color-ink-2); }
+.foot__legal { margin-top: var(--space-lg); font: 600 var(--text-md)/1.5 var(--font-outlier); color: var(--color-muted); }
+
+/* ---------- узкие экраны ---------- */
+@media (max-width: 60rem) {
+  .top__in { grid-template-columns: auto 1fr; }
+  .top__links { display: none; }
+  .top__end .top__tel { display: none; }
+  .offer__in { grid-template-columns: minmax(0, 1fr); }
+  .offer__photo { min-height: 320px; width: 100%; aspect-ratio: 4 / 3; }
+  .catalog__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .facts__list li { grid-template-columns: minmax(0, 1fr); }
+  .statement__line { font-size: var(--text-display-s); }
+  .contacts__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .top__word { font-size: var(--text-lg); }
+  .top__in .btn--primary { padding: var(--space-sm) var(--space-lg); }
+}
+@media (max-width: 40rem) {
+  .catalog__grid { grid-template-columns: minmax(0, 1fr); }
+  .contacts__list { grid-template-columns: minmax(0, 1fr); }
+  .hero__photo { min-height: 240px; }
+}

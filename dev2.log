@@ -1,0 +1,551 @@
+
+> plant-shop@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.255.0.1:3000
+- Environments: .env.local
+✓ Ready in 327ms
+
+ GET / 200 in 401ms (next.js: 245ms, application-code: 156ms)
+ GET /uploads/products/hero.jpg?v=0 404 in 52ms (next.js: 23ms, application-code: 30ms)
+ GET /api/auth 200 in 86ms (next.js: 75ms, application-code: 11ms)
+ GET /api/products 200 in 30ms (next.js: 25ms, application-code: 5ms)
+ GET /api/categories 200 in 52ms (next.js: 48ms, application-code: 4ms)
+ GET /api/auth 200 in 56ms (next.js: 53ms, application-code: 3ms)
+ GET /uploads/products/hero.jpg?v=0 404 in 31ms (next.js: 3ms, application-code: 28ms)
+ GET /api/uploads/1787473187210-vvfn9x.jpg 404 in 642ms (next.js: 632ms, application-code: 9ms)
+ GET /api/uploads/1787497099931-8fbt64.jpeg 404 in 644ms (next.js: 635ms, application-code: 9ms)
+ GET /api/uploads/1788175599114-5jt4df.jpg 404 in 645ms (next.js: 636ms, application-code: 9ms)
+ GET /api/uploads/1787244894796-8eg2ew.jpg 404 in 11ms (next.js: 8ms, application-code: 3ms)
+ GET /api/uploads/1787123366914-317m2n.jpg 404 in 16ms (next.js: 12ms, application-code: 4ms)
+ GET /api/uploads/1787119999596-yeam5x.jpg 404 in 20ms (next.js: 17ms, application-code: 3ms)
+ GET /api/uploads/1787141320659-e5jbdj.jpeg 404 in 5ms (next.js: 2ms, application-code: 2ms)
+ GET /api/uploads/1787141221984-wa4wmz.jpeg 404 in 7ms (next.js: 5ms, application-code: 2ms)
+ GET /api/uploads/1787141363779-vypklh.jpeg 404 in 4ms (next.js: 1429µs, application-code: 2ms)
+ GET /api/uploads/1787141290944-d4e6o0.jpeg 404 in 4ms (next.js: 1939µs, application-code: 2ms)
+ GET /api/uploads/1785098109545-eb9ay7.jpg 200 in 9ms (next.js: 1816µs, application-code: 7ms)
+ GET /api/uploads/1785012813819-ohutj6.jpeg 200 in 5ms (next.js: 1099µs, application-code: 4ms)
+ GET /api/categories 200 in 4ms (next.js: 1300µs, application-code: 3ms)
+ GET /api/products 200 in 4ms (next.js: 1272µs, application-code: 3ms)
+ GET / 200 in 32ms (next.js: 1709µs, application-code: 30ms)
+ GET / 200 in 32ms (next.js: 2ms, application-code: 30ms)
+ GET /uploads/products/hero.jpg?v=0 404 in 37ms (next.js: 4ms, application-code: 33ms)
+ GET /api/auth 200 in 5ms (next.js: 2ms, application-code: 3ms)
+ GET /api/products 200 in 5ms (next.js: 1578µs, application-code: 3ms)
+ GET /api/categories 200 in 9ms (next.js: 6ms, application-code: 4ms)
+ GET /api/auth 200 in 5ms (next.js: 1804µs, application-code: 3ms)
+ GET /api/uploads/1788175599114-5jt4df.jpg 404 in 37ms (next.js: 34ms, application-code: 3ms)
+ GET /api/uploads/1787497099931-8fbt64.jpeg 404 in 44ms (next.js: 40ms, application-code: 4ms)
+ GET /api/uploads/1787473187210-vvfn9x.jpg 404 in 19ms (next.js: 16ms, application-code: 3ms)
+ GET /api/uploads/1787244894796-8eg2ew.jpg 404 in 23ms (next.js: 20ms, application-code: 3ms)
+ GET /api/uploads/1787123366914-317m2n.jpg 404 in 25ms (next.js: 23ms, application-code: 2ms)
+ GET /api/uploads/1787119999596-yeam5x.jpg 404 in 28ms (next.js: 26ms, application-code: 2ms)
+ GET /api/uploads/1787141320659-e5jbdj.jpeg 404 in 4ms (next.js: 1836µs, application-code: 2ms)
+ GET /api/uploads/1787141221984-wa4wmz.jpeg 404 in 7ms (next.js: 5ms, application-code: 2ms)
+ GET /api/uploads/1787141363779-vypklh.jpeg 404 in 5ms (next.js: 3ms, application-code: 3ms)
+ GET /api/uploads/1787141290944-d4e6o0.jpeg 404 in 8ms (next.js: 6ms, application-code: 3ms)
+ GET / 200 in 31ms (next.js: 1873µs, application-code: 29ms)
+ GET /api/auth 200 in 5ms (next.js: 1951µs, application-code: 3ms)
+ GET /api/products 200 in 5ms (next.js: 1712µs, application-code: 3ms)
+ GET /api/categories 200 in 9ms (next.js: 5ms, application-code: 3ms)
+ GET /api/auth 200 in 11ms (next.js: 9ms, application-code: 2ms)
+ GET /api/uploads/1788175599114-5jt4df.jpg 200 in 57ms (next.js: 35ms, application-code: 22ms)
+ GET /api/uploads/1787497099931-8fbt64.jpeg 200 in 58ms (next.js: 38ms, application-code: 20ms)
+ GET /api/uploads/1787473187210-vvfn9x.jpg 200 in 59ms (next.js: 42ms, application-code: 17ms)
+ GET /api/uploads/1787119999596-yeam5x.jpg 200 in 60ms (next.js: 50ms, application-code: 10ms)
+ GET /api/uploads/1787123366914-317m2n.jpg 200 in 62ms (next.js: 47ms, application-code: 14ms)
+ GET /api/uploads/1787244894796-8eg2ew.jpg 200 in 70ms (next.js: 44ms, application-code: 26ms)
+ GET /api/uploads/1787141320659-e5jbdj.jpeg 200 in 21ms (next.js: 13ms, application-code: 8ms)
+ GET /api/uploads/1787141221984-wa4wmz.jpeg 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/uploads/1787141290944-d4e6o0.jpeg 200 in 13ms (next.js: 7ms, application-code: 5ms)
+ GET /api/uploads/1787141363779-vypklh.jpeg 200 in 16ms (next.js: 5ms, application-code: 11ms)
+✓ Compiled in 105ms
+✓ Compiled in 567ms
+ GET / 200 in 114ms (next.js: 12ms, application-code: 102ms)
+ GET / 200 in 34ms (next.js: 15ms, application-code: 19ms)
+ GET / 200 in 34ms (next.js: 3ms, application-code: 31ms)
+ GET / 200 in 178ms (next.js: 35ms, application-code: 144ms)
+ GET / 200 in 127ms (next.js: 2ms, application-code: 124ms)
+ GET /api/auth 200 in 27ms (next.js: 23ms, application-code: 4ms)
+ GET /api/products 200 in 13ms (next.js: 10ms, application-code: 3ms)
+ GET /api/categories 200 in 25ms (next.js: 23ms, application-code: 2ms)
+ GET /api/auth 200 in 28ms (next.js: 26ms, application-code: 2ms)
+ GET / 200 in 82ms (next.js: 31ms, application-code: 51ms)
+ GET / 200 in 38ms (next.js: 2ms, application-code: 36ms)
+ GET / 200 in 14ms (next.js: 1710µs, application-code: 12ms)
+✓ Compiled in 61ms
+ GET /api/auth 200 in 31ms (next.js: 28ms, application-code: 4ms)
+ GET / 200 in 88ms (next.js: 32ms, application-code: 55ms)
+✓ Compiled in 66ms
+ GET / 200 in 52ms (next.js: 33ms, application-code: 19ms)
+✓ Compiled in 56ms
+✓ Compiled in 71ms
+✓ Compiled in 60ms
+✓ Compiled in 62ms
+✓ Compiled in 150ms
+ GET / 200 in 116ms (next.js: 28ms, application-code: 88ms)
+ GET / 200 in 69ms (next.js: 2ms, application-code: 66ms)
+ GET / 200 in 69ms (next.js: 14ms, application-code: 55ms)
+ GET / 200 in 70ms (next.js: 3ms, application-code: 67ms)
+ GET / 200 in 89ms (next.js: 25ms, application-code: 64ms)
+ GET / 200 in 80ms (next.js: 3ms, application-code: 77ms)
+ GET / 200 in 80ms (next.js: 2ms, application-code: 78ms)
+ GET / 200 in 82ms (next.js: 4ms, application-code: 79ms)
+ GET / 200 in 75ms (next.js: 3ms, application-code: 72ms)
+ GET / 200 in 75ms (next.js: 15ms, application-code: 60ms)
+ GET / 200 in 63ms (next.js: 2ms, application-code: 60ms)
+ GET / 200 in 89ms (next.js: 1656µs, application-code: 87ms)
+ GET / 200 in 74ms (next.js: 2ms, application-code: 72ms)
+ GET / 200 in 61ms (next.js: 3ms, application-code: 57ms)
+ GET / 200 in 69ms (next.js: 3ms, application-code: 66ms)
+ GET / 200 in 69ms (next.js: 15ms, application-code: 54ms)
+ GET / 200 in 60ms (next.js: 1672µs, application-code: 58ms)
+ GET / 200 in 47ms (next.js: 2ms, application-code: 45ms)
+ GET / 200 in 34ms (next.js: 1850µs, application-code: 32ms)
+ GET / 200 in 22ms (next.js: 1959µs, application-code: 20ms)
+ GET / 200 in 84ms (next.js: 39ms, application-code: 46ms)
+ GET / 200 in 42ms (next.js: 2ms, application-code: 39ms)
+ GET / 200 in 16ms (next.js: 3ms, application-code: 13ms)
+ GET / 200 in 82ms (next.js: 2ms, application-code: 80ms)
+ GET /api/auth 200 in 69ms (next.js: 61ms, application-code: 7ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 179ms (next.js: 61ms, application-code: 118ms)
+ GET /api/auth 200 in 238ms (next.js: 236ms, application-code: 2ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 306ms (next.js: 228ms, application-code: 78ms)
+ GET / 200 in 33ms (next.js: 2ms, application-code: 31ms)
+ GET /api/auth 200 in 4ms (next.js: 1354µs, application-code: 3ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 84ms (next.js: 2ms, application-code: 82ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 135ms (next.js: 5ms, application-code: 130ms)
+ GET /api/auth 200 in 139ms (next.js: 136ms, application-code: 3ms)
+ GET / 200 in 80ms (next.js: 45ms, application-code: 36ms)
+ GET / 200 in 27ms (next.js: 2ms, application-code: 25ms)
+ GET / 200 in 14ms (next.js: 1990µs, application-code: 12ms)
+ GET / 200 in 75ms (next.js: 1851µs, application-code: 73ms)
+ GET /api/auth 200 in 64ms (next.js: 58ms, application-code: 6ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 100ms (next.js: 18ms, application-code: 82ms)
+ GET /api/auth 200 in 122ms (next.js: 120ms, application-code: 1842µs)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 178ms (next.js: 116ms, application-code: 62ms)
+ GET / 200 in 35ms (next.js: 3ms, application-code: 32ms)
+ GET /api/auth 200 in 4ms (next.js: 1489µs, application-code: 3ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 86ms (next.js: 1801µs, application-code: 84ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 136ms (next.js: 6ms, application-code: 130ms)
+ GET /api/auth 200 in 139ms (next.js: 136ms, application-code: 2ms)
+✓ Compiled in 68ms
+ GET /api/auth 200 in 56ms (next.js: 51ms, application-code: 5ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 160ms (next.js: 78ms, application-code: 82ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 266ms (next.js: 176ms, application-code: 90ms)
+ GET / 200 in 341ms (next.js: 49ms, application-code: 291ms)
+✓ Compiled in 68ms
+✓ Compiled in 52ms
+✓ Compiled in 72ms
+✓ Compiled in 53ms
+✓ Compiled in 52ms
+✓ Compiled in 57ms
+✓ Compiled in 50ms
+✓ Compiled in 55ms
+ GET / 200 in 75ms (next.js: 2ms, application-code: 73ms)
+ GET /api/auth 200 in 5ms (next.js: 1461µs, application-code: 3ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 81ms (next.js: 2ms, application-code: 79ms)
+ GET /api/auth 200 in 87ms (next.js: 85ms, application-code: 1955µs)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 137ms (next.js: 82ms, application-code: 55ms)
+ GET / 200 in 31ms (next.js: 1716µs, application-code: 29ms)
+ GET /api/auth 200 in 4ms (next.js: 1369µs, application-code: 3ms)
+ GET /api/auth 200 in 7ms (next.js: 5ms, application-code: 2ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 58ms (next.js: 2ms, application-code: 56ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 113ms (next.js: 58ms, application-code: 55ms)
+✓ Compiled in 45ms
+ GET / 200 in 80ms (next.js: 57ms, application-code: 24ms)
+✓ Compiled in 36ms
+ GET / 200 in 67ms (next.js: 46ms, application-code: 20ms)
+✓ Compiled in 35ms
+ GET / 200 in 74ms (next.js: 51ms, application-code: 22ms)
+✓ Compiled in 40ms
+ GET / 200 in 74ms (next.js: 55ms, application-code: 20ms)
+✓ Compiled in 36ms
+ GET / 200 in 64ms (next.js: 44ms, application-code: 20ms)
+✓ Compiled in 37ms
+ GET / 200 in 69ms (next.js: 47ms, application-code: 22ms)
+[browser] Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at div (<anonymous>)
+ GET / 200 in 73ms (next.js: 1804µs, application-code: 71ms)
+ GET /api/auth 200 in 60ms (next.js: 54ms, application-code: 6ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 104ms (next.js: 21ms, application-code: 83ms)
+ GET /api/auth 200 in 127ms (next.js: 124ms, application-code: 3ms)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 219ms (next.js: 120ms, application-code: 99ms)
+✓ Compiled in 36ms
+ GET / 200 in 75ms (next.js: 51ms, application-code: 24ms)
+✓ Compiled in 37ms
+ GET / 200 in 69ms (next.js: 46ms, application-code: 24ms)
+✓ Compiled in 41ms
+ GET / 200 in 80ms (next.js: 55ms, application-code: 25ms)
+✓ Compiled in 38ms
+ GET / 200 in 66ms (next.js: 46ms, application-code: 20ms)
+✓ Compiled in 38ms
+ GET / 200 in 72ms (next.js: 52ms, application-code: 20ms)
+✓ Compiled in 35ms
+ GET / 200 in 71ms (next.js: 50ms, application-code: 21ms)
+✓ Compiled in 68ms
+ GET / 200 in 70ms (next.js: 48ms, application-code: 22ms)
+ GET / 200 in 67ms (next.js: 1819µs, application-code: 65ms)
+ GET /api/auth 200 in 63ms (next.js: 58ms, application-code: 6ms)
+Error fetching products: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\products\route.ts:8:36)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/products 500 in 130ms (next.js: 23ms, application-code: 107ms)
+ GET /api/auth 200 in 152ms (next.js: 150ms, application-code: 1984µs)
+Error fetching categories: Error: connect ENOENT /tmp/mysql.sock
+    at queryAll (src\lib\db.ts:36:29)
+    at GET (src\app\api\categories\route.ts:7:38)
+  34 |
+  35 | export async function queryAll<T = any>(sql: string, params?: any[]): Promise<T[]> {
+> 36 |   const [rows] = await pool.execute(sql, params);
+     |                             ^
+  37 |   return rows as T[];
+  38 | }
+  39 | {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'connect',
+  address: '/tmp/mysql.sock',
+  fatal: true
+}
+ GET /api/categories 500 in 208ms (next.js: 147ms, application-code: 61ms)
+✓ Compiled in 31ms
+ GET / 200 in 69ms (next.js: 46ms, application-code: 23ms)
+ GET / 200 in 132ms (next.js: 35ms, application-code: 97ms)
+ GET / 200 in 89ms (next.js: 2ms, application-code: 87ms)
+ GET / 200 in 62ms (next.js: 3ms, application-code: 59ms)
+ GET / 200 in 62ms (next.js: 12ms, application-code: 49ms)
+ GET / 200 in 62ms (next.js: 23ms, application-code: 39ms)
+ GET / 200 in 62ms (next.js: 34ms, application-code: 28ms)
+ GET / 200 in 65ms (next.js: 1615µs, application-code: 63ms)
+ GET / 200 in 51ms (next.js: 3ms, application-code: 48ms)
+ GET / 200 in 38ms (next.js: 4ms, application-code: 34ms)
+ GET / 200 in 38ms (next.js: 14ms, application-code: 24ms)
+ GET / 200 in 36ms (next.js: 23ms, application-code: 13ms)
+ GET /api/products 200 in 62ms (next.js: 54ms, application-code: 8ms)
+ GET /api/products 200 in 4ms (next.js: 1264µs, application-code: 3ms)
+ GET / 200 in 76ms (next.js: 1907µs, application-code: 74ms)
+ GET /api/auth 200 in 87ms (next.js: 79ms, application-code: 8ms)
+ GET /api/products 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ GET /api/categories 200 in 80ms (next.js: 70ms, application-code: 10ms)
+ GET /api/auth 200 in 84ms (next.js: 81ms, application-code: 3ms)
+ GET /api/uploads/1785010804509-on8mxo.jpeg 200 in 70ms (next.js: 46ms, application-code: 25ms)
+ GET /api/uploads/1785010768991-tyg4nl.jpeg 200 in 71ms (next.js: 50ms, application-code: 21ms)
+ GET /api/uploads/1785010749815-bm8tdb.jpeg 200 in 72ms (next.js: 53ms, application-code: 19ms)
+ GET /api/uploads/1785010724022-t1qo6d.jpeg 200 in 72ms (next.js: 55ms, application-code: 17ms)
+ GET /api/uploads/1785010672019-olpyfg.jpeg 200 in 73ms (next.js: 57ms, application-code: 16ms)
+ GET /api/uploads/1785010573904-p17qgn.jpeg 200 in 74ms (next.js: 59ms, application-code: 15ms)
+ GET /api/uploads/1785010429623-pj27rm.jpeg 200 in 35ms (next.js: 2ms, application-code: 33ms)
+ GET /api/uploads/1785010320063-xkcrny.jpeg 200 in 41ms (next.js: 6ms, application-code: 35ms)
+ GET /api/uploads/1785010079997-r4nc4v.jpeg 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/uploads/1785010698490-kcgxlc.jpeg 200 in 12ms (next.js: 3ms, application-code: 10ms)
+ GET /api/uploads/1785010634231-nlmg9i.jpeg 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/uploads/1785010462455-oqoij6.jpeg 200 in 12ms (next.js: 7ms, application-code: 6ms)
+ GET /api/uploads/1787088058891-0uyx6r.jpeg 200 in 18ms (next.js: 5ms, application-code: 13ms)
+ GET /api/uploads/1785155354084-4dpr6k.jpg 200 in 19ms (next.js: 7ms, application-code: 12ms)
+ GET /api/uploads/1785155147968-d47oua.jpg 200 in 19ms (next.js: 11ms, application-code: 9ms)
+ GET /api/uploads/1785155255268-qk5ph5.jpg 200 in 21ms (next.js: 9ms, application-code: 12ms)
+ GET /api/uploads/1785155086445-sqyqrb.jpg 200 in 21ms (next.js: 12ms, application-code: 9ms)
+ GET /api/uploads/1787119870433-nsy3ki.jpg 200 in 36ms (next.js: 3ms, application-code: 33ms)
+ GET /api/uploads/1785155010281-45ju07.jpg 200 in 16ms (next.js: 1688µs, application-code: 14ms)
+ GET /api/uploads/1785154915951-1bbdn5.jpg 200 in 9ms (next.js: 2ms, application-code: 6ms)
+ GET /api/uploads/1785154628865-x61hwu.jpg 200 in 6ms (next.js: 1837µs, application-code: 4ms)
+ GET /api/uploads/1787231910118-ill0hp.jpg 200 in 16ms (next.js: 11ms, application-code: 5ms)
+ GET /api/uploads/1787232166417-5j2q5s.jpg 200 in 19ms (next.js: 8ms, application-code: 11ms)
+ GET /api/uploads/1785011192108-8kqruz.jpeg 200 in 25ms (next.js: 13ms, application-code: 12ms)
+ GET /api/uploads/1787089175502-kkwbgl.jpg 200 in 36ms (next.js: 11ms, application-code: 25ms)
+ GET /api/uploads/1787088638913-tvyqjj.jpg 200 in 44ms (next.js: 2ms, application-code: 42ms)
+ GET /api/uploads/1787088753508-0jcing.jpg 200 in 49ms (next.js: 4ms, application-code: 44ms)
+ GET /api/uploads/1787089005793-u51amm.jpg 200 in 53ms (next.js: 6ms, application-code: 47ms)
+ GET /api/uploads/1787089089006-46pi1u.jpg 200 in 61ms (next.js: 8ms, application-code: 52ms)
+ GET /api/uploads/1785010830004-1fsizs.jpeg 200 in 32ms (next.js: 5ms, application-code: 26ms)
+ GET /api/uploads/1787089237294-i8or3y.jpg 200 in 12ms (next.js: 2ms, application-code: 10ms)
+ GET /api/uploads/1787480728805-2p4uqh.jpg 200 in 14ms (next.js: 1889µs, application-code: 12ms)
+ GET /api/uploads/1787480641080-s1ru47.jpg 200 in 17ms (next.js: 4ms, application-code: 13ms)
+ GET /api/uploads/1787480422904-qwo3qq.jpg 200 in 20ms (next.js: 7ms, application-code: 13ms)
+✓ Compiled in 68ms
+ GET / 200 in 75ms (next.js: 48ms, application-code: 27ms)
+✓ Compiled in 69ms
+ GET / 200 in 75ms (next.js: 52ms, application-code: 23ms)
+✓ Compiled in 70ms
+ GET / 200 in 93ms (next.js: 71ms, application-code: 22ms)
+ GET / 200 in 77ms (next.js: 1767µs, application-code: 75ms)
+ GET /api/auth 200 in 63ms (next.js: 57ms, application-code: 6ms)
+ GET /api/products 200 in 23ms (next.js: 18ms, application-code: 4ms)
+ GET /api/categories 200 in 41ms (next.js: 38ms, application-code: 3ms)
+ GET /api/auth 200 in 44ms (next.js: 42ms, application-code: 2ms)
+✓ Compiled in 38ms
+ GET / 200 in 69ms (next.js: 48ms, application-code: 21ms)
+ GET /api/uploads/1785012757247-jsyt1u.jpeg 200 in 58ms (next.js: 43ms, application-code: 14ms)
+ GET /api/uploads/1785012618438-f9cln4.jpeg 200 in 58ms (next.js: 50ms, application-code: 8ms)

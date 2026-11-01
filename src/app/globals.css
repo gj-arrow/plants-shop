@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /* ============================================
-   Scandinavian Premium — Зелёная мастерская
-   White Cube aesthetic, sage accents
+   Botanical Atelier — Зелёная мастерская
+   Тёплый ivory, глубокий лесной зеленый,
+   латунные акценты, сдержанная роскошь
    ============================================ */
 
 @theme {
@@ -16,11 +17,43 @@
   --color-light-grey: #F5F5F0;
   --color-border: #E5E5E0;
   --color-white: #FFFFFF;
+
+  /* Premium-палитра (публичные страницы) */
+  --color-forest: #17301F;
+  --color-forest-2: #1F4029;
+  --color-ivory: #F6F4EE;
+  --color-paper: #FDFCF8;
+  --color-brass: #A5854F;
+  --color-brass-light: #C9B37E;
+  --color-ink: #22301F;
+  --color-muted: #6E7A6E;
+  --color-line: #E4DFD2;
+  --color-line-dark: #D6D0BE;
 }
 
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* Тёплый бумажный фон страницы + мягкие засветки */
+body {
+  background-color: #F6F4EE;
+  background-image:
+    radial-gradient(1200px 800px at 85% -10%, rgba(140, 168, 156, 0.12), transparent 60%),
+    radial-gradient(1000px 700px at -10% 35%, rgba(165, 133, 79, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Тонкая бумажная текстура поверх фона */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Scrollbar */
@@ -31,17 +64,17 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4D4D0;
+  background: #CFC9B8;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B0B0A8;
+  background: #A5854F;
 }
 
 /* Selection */
 ::selection {
-  background: #8CA89C;
-  color: white;
+  background: #17301F;
+  color: #F6F4EE;
 }
 
 /* Card entrance animation (for async-loaded products) */
@@ -86,33 +119,104 @@ html {
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Card hover */
+/* Card hover: подъём + многослойная тень */
 .card-hover {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(28, 55, 40, 0.08);
+  transform: translateY(-5px);
+  box-shadow:
+    0 2px 6px rgba(23, 48, 31, 0.04),
+    0 18px 44px -12px rgba(23, 48, 31, 0.16);
 }
 
-/* Image zoom on hover */
+/* Image zoom on hover: мягкий наезд + оживление цвета */
 .img-zoom {
   overflow: hidden;
 }
 .img-zoom img {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.group:hover .img-zoom img,
 .img-zoom:hover img {
-  transform: scale(1.03);
+  transform: scale(1.05);
+  filter: saturate(1.06);
 }
 
-/* Button press */
+/* Button press: вдавливание */
 .btn-press {
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .btn-press:active {
-  transform: scale(0.97);
+  transform: scale(0.98) translateY(1px);
+}
+
+/* Primary-кнопка: лесной зеленый с бликом-свипом при наведении */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(160deg, #1F4029, #17301F);
+  box-shadow: 0 1px 2px rgba(23, 48, 31, 0.2), 0 8px 24px -8px rgba(23, 48, 31, 0.35);
+  transition: box-shadow 0.35s ease, transform 0.15s ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 2px 4px rgba(23, 48, 31, 0.22), 0 14px 32px -8px rgba(23, 48, 31, 0.45);
+}
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(246, 244, 238, 0.22) 50%, transparent 60%);
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.btn-primary:hover::after {
+  transform: translateX(130%);
+}
+
+/* Nav-ссылка с латунным подчёркиванием */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 1px;
+  background: #A5854F;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Латунная волосяная линейка-орнамент */
+.brass-rule {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #A5854F, transparent);
+}
+
+/* Hero: глубокий скрим для читаемости текста */
+.hero-scrim {
+  background:
+    linear-gradient(to top, rgba(15, 33, 21, 0.72) 0%, rgba(15, 33, 21, 0.28) 45%, rgba(15, 33, 21, 0.12) 100%);
+}
+
+/* Fallback-фон на время загрузки каталога */
+.bg-gradient-animated {
+  background:
+    radial-gradient(1200px 800px at 85% -10%, rgba(140, 168, 156, 0.12), transparent 60%),
+    #F6F4EE;
 }
 
 /* Hero parallax */
@@ -122,6 +226,6 @@ html {
 
 /* Focus ring */
 *:focus-visible {
-  outline: 2px solid #8CA89C;
+  outline: 2px solid #A5854F;
   outline-offset: 2px;
 }

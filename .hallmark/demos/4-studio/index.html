@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Цветы Людмилы. Растения, выращенные в Горках</title>
+<meta name="description" content="Питомник Людмилы в Горках: гортензии, хвойные, ниваки. Каждый саженец в контейнере, с биркой сорта. Отправка по Беларуси.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&family=Golos+Text:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- Баннер-факт над строкой навигации -->
+<div class="banner">
+  <p class="container banner__text">Отправка Европочтой и Белпочтой по всей Беларуси</p>
+</div>
+<header class="bar proof">
+  <div class="container bar__in">
+    <a class="bar__word" href="/">Цветы Людмилы</a>
+    <nav class="bar__nav" aria-label="Разделы">
+      <a href="#katalog">Растения</a>
+      <a href="#sasazhencem">С саженцем</a>
+      <a href="#kontakty">Контакты</a>
+    </nav>
+    <a class="bar__tel" href="tel:+375298425952">+375 (29) 842-59-52</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Hero · Poster: фото во всю ширину, текст в нижнем левом углу -->
+  <section class="hero" aria-label="Питомник">
+    <figure class="hero__photo" data-slot="hero" data-alt="Цветущий рододендрон в питомнике">
+      <img src="../../../public/uploads/products/hero.jpg" alt="" width="1100" height="1100" fetchpriority="high" style="object-position: 50% 58%;">
+    </figure>
+    <div class="hero__scrim" aria-hidden="true"></div>
+    <div class="container hero__content">
+      <h1>Растения, выращенные в&nbsp;Горках</h1>
+      <p class="hero__lead">Гортензии, хвойные и ниваки из питомника Людмилы. Доставка по Беларуси.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#katalog">Смотреть растения</a>
+        <a class="btn" href="tel:+375298425952">Позвонить</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Указатель растений: строки под чернильной линейкой -->
+  <section class="index" id="katalog">
+    <div class="container">
+      <h2>Что стоит в контейнерах</h2>
+      <ul class="index__list">
+        <li class="index__row">
+          <figure class="index__photo crop" data-slot="row-1" data-alt="Гортензия Мата Хари">
+            <img src="../../../public/uploads/products/1787244894796-8eg2ew.jpg" alt="" width="1125" height="2000" loading="lazy">
+          </figure>
+          <div class="index__body">
+            <h3>«Мата Хари»</h3>
+            <p class="index__kind">гортензия крупнолистная, С5</p>
+          </div>
+          <p class="index__price num">40&nbsp;р</p>
+        </li>
+        <li class="index__row">
+          <figure class="index__photo crop" data-slot="row-2" data-alt="Ниваки, туя на штамбе">
+            <img src="../../../public/uploads/products/1787089089006-46pi1u.jpg" alt="" width="844" height="1500" loading="lazy">
+          </figure>
+          <div class="index__body">
+            <h3>Ниваки, штамб</h3>
+            <p class="index__kind">туя западная, высота 1,5&nbsp;м</p>
+          </div>
+          <p class="index__price num">60&nbsp;р</p>
+        </li>
+        <li class="index__row">
+          <figure class="index__photo crop" data-slot="row-3" data-alt="Гортензия Burning Hot">
+            <img src="../../../public/uploads/products/1787466332895-ibhoxf.jpg" alt="" width="749" height="1000" loading="lazy">
+          </figure>
+          <div class="index__body">
+            <h3>«Burning Hot»</h3>
+            <p class="index__kind">гортензия крупнолистная, С3</p>
+          </div>
+          <p class="index__price num">40&nbsp;р</p>
+        </li>
+        <li class="index__row">
+          <figure class="index__photo crop" data-slot="row-4" data-alt="Сосна горная Пумилио">
+            <img src="../../../public/uploads/products/1787119870433-nsy3ki.jpg" alt="" width="844" height="1500" loading="lazy">
+          </figure>
+          <div class="index__body">
+            <h3>«Пумилио»</h3>
+            <p class="index__kind">сосна горная, С3</p>
+          </div>
+          <p class="index__price num">25&nbsp;р</p>
+        </li>
+        <li class="index__row">
+          <figure class="index__photo crop" data-slot="row-5" data-alt="Саженец винограда">
+            <img src="../../../public/uploads/products/1787480429769-biuczx.jpg" alt="" width="844" height="1500" loading="lazy">
+          </figure>
+          <div class="index__body">
+            <h3>Виноград</h3>
+            <p class="index__kind">саженец, контейнер</p>
+          </div>
+          <p class="index__price num">25&nbsp;р</p>
+        </li>
+      </ul>
+      <p class="index__note">Цена за саженец в контейнере. Ещё есть метельчатые гортензии, хосты и земляника.</p>
+    </div>
+  </section>
+
+  <!-- Ниваки крупно -->
+  <section class="wide" aria-label="Ниваки крупным планом">
+    <div class="container">
+      <figure class="wide__photo crop crop--sheet" data-slot="wide" data-alt="Ниваки, туя на штамбе у забора">
+        <img src="../../../public/uploads/products/1787089005793-u51amm.jpg" alt="Ниваки, туя на штамбе шарами, высота 1,5 м" width="844" height="1500" loading="lazy" style="object-position: 50% 42%;">
+      </figure>
+      <p class="wide__caption">Ниваки, туя на штамбе, высота 1,5&nbsp;м. Формировка стрижкой, два раза за сезон.</p>
+    </div>
+  </section>
+
+  <!-- Доставка: голые факты -->
+  <section class="facts">
+    <div class="container">
+      <h2>Как доедет</h2>
+      <ul class="facts__list">
+        <li><span class="facts__label">Европочта и Белпочта</span><span>по всей Беларуси</span></li>
+        <li><span class="facts__label">Крупномеры и ниваки</span><span>самовывоз, г. Горки</span></li>
+        <li><span class="facts__label">Бронь и оплата</span><span>по договорённости по телефону</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- С саженцем: фото слева, панели справа -->
+  <section class="with" id="sasazhencem">
+    <div class="container with__in">
+      <figure class="with__photo crop crop--sheet" data-slot="with" data-alt="Саженец гортензии с биркой сорта">
+        <img src="../../../public/uploads/products/1787466332895-ibhoxf.jpg" alt="Саженец гортензии с биркой сорта Burning Hot" width="749" height="1000" loading="lazy">
+      </figure>
+      <div class="with__panels">
+        <h2>С каждым саженцем</h2>
+        <div class="with__panel">
+          <h3>Бирка с сортом</h3>
+          <p>Название сорта и питомник-производитель на бирке, как на фото слева.</p>
+        </div>
+        <div class="with__panel">
+          <h3>Контейнер</h3>
+          <p>Закрытая корневая система: горшки от С1,5 до С15, зависит от растения.</p>
+        </div>
+        <div class="with__panel">
+          <h3>Отправка</h3>
+          <p>Европочта и Белпочта по Беларуси, крупномеры самовывозом из Горков.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Контакты -->
+  <section class="contacts" id="kontakty">
+    <div class="container">
+      <h2>Свяжитесь со мной</h2>
+      <ul class="contacts__list">
+        <li><span class="contacts__label">Телефон</span><a href="tel:+375298425952">+375 (29) 842-59-52</a></li>
+        <li><span class="contacts__label">Viber</span><a href="https://viber.click/375298425952" target="_blank" rel="noopener noreferrer">+375 (29) 842-59-52</a></li>
+        <li><span class="contacts__label">Telegram</span><a href="https://t.me/+375298425952" target="_blank" rel="noopener noreferrer">написать в Telegram</a></li>
+        <li><span class="contacts__label">Instagram</span><a href="https://www.instagram.com/tereshko3584/" target="_blank" rel="noopener noreferrer">@tereshko3584</a></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot proof">
+  <div class="container">
+    <p class="foot__word">Цветы Людмилы</p>
+    <p class="foot__colophon">Питомник в Горках, Могилёвская область. Доставка: Европочта, Белпочта. Терешко Людмила Леонидовна, самозанятая, УНП МА1500564.</p>
+  </div>
+</footer>
+
+<script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
+document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
+</body>
+</html>

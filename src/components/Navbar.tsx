@@ -42,7 +42,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm"
+        className="fixed top-0 left-0 right-0 z-50 bg-paper/95 backdrop-blur-md border-b border-line/70 shadow-[0_1px_24px_rgba(23,48,31,0.05)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -54,12 +54,12 @@ export default function Navbar() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
-              className="text-xl font-bold no-underline cursor-pointer"
+              className="text-xl no-underline cursor-pointer group"
             >
-              <span className="font-['Playfair_Display'] font-bold text-[#8CA89C]">
+              <span className="font-display font-semibold text-forest tracking-wide transition-colors duration-300 group-hover:text-forest-2">
                 Зелёная
               </span>{' '}
-              <span className="font-['Playfair_Display'] font-bold text-[#1A3326]">
+              <span className="font-display italic font-medium text-brass tracking-wide transition-colors duration-300 group-hover:text-brass">
                 мастерская
               </span>
             </button>
@@ -67,13 +67,13 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-8">
               <button
                 onClick={() => scrollToSection('catalog')}
-                className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
+                className="nav-link text-sm text-muted tracking-[0.08em] hover:text-forest transition-colors cursor-pointer"
               >
                 Каталог
               </button>
               <button
                 onClick={() => scrollToSection('contacts')}
-                className="text-sm text-[#6B7280] tracking-wide hover:text-[#1A3326] transition cursor-pointer"
+                className="nav-link text-sm text-muted tracking-[0.08em] hover:text-forest transition-colors cursor-pointer"
               >
                 Контакты
               </button>
@@ -83,7 +83,7 @@ export default function Navbar() {
               {(!customUser || customUser.role !== 'admin') && (
                 <Link
                   href="/favorites"
-                  className="relative p-2 text-[#8CA89C] hover:text-[#1A3326] transition no-underline"
+                  className="relative p-2 text-muted hover:text-forest hover:scale-110 transition-all duration-300 no-underline"
                 >
                   <svg
                     width="18"
@@ -98,7 +98,7 @@ export default function Navbar() {
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                   {favorites.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 bg-brass text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
                       {favorites.length}
                     </span>
                   )}
@@ -109,13 +109,13 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center gap-2">
                   <Link
                     href="/admin/products"
-                    className="text-base bg-[#8CA89C] text-white px-4 py-2 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
+                    className="text-base bg-forest text-white px-4 py-2 rounded-full font-medium hover:bg-forest-2 hover:shadow-lg hover:shadow-forest/20 hover:-translate-y-px transition-all no-underline"
                   >
                     Товары
                   </Link>
                   <Link
                     href="/admin/categories"
-                    className="text-base bg-[#8CA89C] text-white px-4 py-2 rounded-full font-medium hover:bg-[#5B7F6B] transition no-underline"
+                    className="text-base bg-forest text-white px-4 py-2 rounded-full font-medium hover:bg-forest-2 hover:shadow-lg hover:shadow-forest/20 hover:-translate-y-px transition-all no-underline"
                   >
                     Категории
                   </Link>
@@ -124,7 +124,7 @@ export default function Navbar() {
                       await fetch('/api/auth', { method: 'DELETE' });
                       window.location.reload();
                     }}
-                    className="text-sm text-[#8CA89C] hover:text-red-500 font-medium transition cursor-pointer"
+                    className="text-sm text-muted hover:text-red-500 font-medium transition cursor-pointer"
                   >
                     Выйти
                   </button>
@@ -166,14 +166,14 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/20" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-20 left-0 right-0 bg-white shadow-lg rounded-b-2xl mx-4 p-6 flex flex-col gap-4">
+          <div className="absolute inset-0 bg-forest/25 backdrop-blur-[2px]" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-20 left-0 right-0 bg-paper shadow-[0_24px_60px_-12px_rgba(23,48,31,0.25)] rounded-b-2xl mx-4 p-6 flex flex-col gap-4 border border-line/70">
             <button
               onClick={() => {
                 scrollToSection('catalog');
                 setMobileOpen(false);
               }}
-              className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
+              className="text-base text-ink font-medium text-left py-2 border-b border-line/70"
             >
               Каталог
             </button>
@@ -182,7 +182,7 @@ export default function Navbar() {
                 scrollToSection('contacts');
                 setMobileOpen(false);
               }}
-              className="text-base text-[#1A3326] font-medium text-left py-2 border-b border-[#E5E5E0]"
+              className="text-base text-ink font-medium text-left py-2 border-b border-line/70"
             >
               Контакты
             </button>
@@ -191,14 +191,14 @@ export default function Navbar() {
                 <Link
                   href="/admin/products"
                   onClick={() => setMobileOpen(false)}
-                  className="text-base text-[#1A3326] font-medium py-2 border-b border-[#E5E5E0] no-underline"
+                  className="text-base text-ink font-medium py-2 border-b border-line/70 no-underline"
                 >
                   Товары
                 </Link>
                 <Link
                   href="/admin/categories"
                   onClick={() => setMobileOpen(false)}
-                  className="text-base text-[#1A3326] font-medium py-2 border-b border-[#E5E5E0] no-underline"
+                  className="text-base text-ink font-medium py-2 border-b border-line/70 no-underline"
                 >
                   Категории
                 </Link>
@@ -207,7 +207,7 @@ export default function Navbar() {
                     await fetch('/api/auth', { method: 'DELETE' });
                     window.location.reload();
                   }}
-                  className="text-base text-[#8CA89C] font-medium text-left py-2"
+                  className="text-base text-brass font-medium text-left py-2"
                 >
                   Выйти
                 </button>

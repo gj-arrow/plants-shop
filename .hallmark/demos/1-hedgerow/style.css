@@ -1,0 +1,99 @@
+/* Hallmark · shape: FAQ-led field guide (draw 50aff9, Counter→Poster: заказ без корзины, действие звонок) · genre: editorial · theme: Hedgerow (deal 1/3, seed prompt-8872·d553428b·2026-11-01·r1) · job: buy · draw: 50aff9
+ * hero: Poster · nav: masthead · footer: mast · imagery: photographs, собственные 8 из public/uploads · signature: каталог как полевой определитель с чартрезовой линейкой · hedgerow: hedge
+ * axes: dark/high-contrast-serif/chromatic-green · posture: drenched · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P5 H4 E4 S4 R4 V5 · weakest: E, сгибы и цену проверки рендером; подмешала тире в строй фраз нет, стоп-слова вычтены */
+@import "./tokens.css";
+@import "./base.css" layer(base);
+
+/* ---------- masthead ---------- */
+.masthead { background: var(--color-paper); }
+.masthead__in { padding-block: var(--space-lg) 0; text-align: center; }
+.masthead__word { font-family: var(--font-display); font-size: var(--text-2xl); line-height: 1.1; color: var(--color-ink); text-decoration: none; }
+.masthead__sub { margin-top: var(--space-2xs); font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+.masthead__nav { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-md) var(--space-xl); padding-block: var(--space-md); margin-top: var(--space-sm); border-top: var(--rule-hair) solid var(--color-rule); }
+.masthead__nav a { font-size: var(--text-sm); font-weight: 500; color: var(--color-ink-2); text-decoration: none; }
+.masthead__nav a:hover { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); }
+.masthead__nav a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* ---------- hero: Poster ---------- */
+.hero { position: relative; min-height: min(88dvh, 800px); display: flex; align-items: flex-end; }
+.hero__photo { position: absolute; inset: 0; margin: 0; }
+.hero__photo > img { width: 100%; height: 100%; object-fit: cover; }
+.hero__scrim { position: absolute; inset: 0; z-index: 2; background: linear-gradient(8deg, color-mix(in oklab, var(--color-paper) 78%, transparent) 0%, color-mix(in oklab, var(--color-paper) 38%, transparent) 42%, transparent 72%); }
+.hero__content { position: relative; z-index: 3; padding-block: var(--space-4xl) var(--space-3xl); }
+.hero__content h1 { color: var(--color-ink); max-width: 12ch; }
+.hero__lead { margin-top: var(--space-lg); max-width: 44ch; font-size: var(--text-lead); line-height: 1.5; color: var(--color-ink-2); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-md); margin-top: var(--space-xl); }
+
+/* ---------- controls (both pills, states) ---------- */
+.btn { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 48px; padding: 0 var(--space-lg); border: 1.5px solid var(--color-accent); border-radius: var(--radius-pill); font: 700 var(--text-md)/1 var(--font-body); white-space: nowrap; text-decoration: none; cursor: pointer; transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out); }
+.btn--primary { background: var(--color-accent); color: var(--color-accent-ink); }
+.btn--primary:hover { background: var(--color-accent-2); border-color: var(--color-accent-2); }
+.btn--ghost { background: transparent; color: var(--color-accent); }
+.btn--ghost:hover { background: color-mix(in oklab, var(--color-accent) 14%, transparent); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+/* ---------- определитель ---------- */
+.guide { padding-block: var(--section-gap); }
+.guide h2 { max-width: 14ch; }
+.guide__note { margin-top: var(--space-md); max-width: 52ch; color: var(--color-muted); }
+.guide__list { margin: var(--space-2xl) 0 0; padding: 0; list-style: none; border-top: 1.5px solid var(--color-accent); }
+.guide__row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr) auto; gap: var(--space-xs) var(--gap-columns); align-items: baseline; padding-block: var(--space-lg); border-bottom: var(--rule-hair) solid var(--color-rule); transition: border-color var(--dur-short) var(--ease-out); }
+.guide__row:hover, .guide__row:focus-within { border-bottom-color: var(--color-accent); }
+.guide__row h3 { font-size: var(--text-2xl); line-height: 1.15; color: var(--color-ink); }
+.guide__kind { grid-row: 1; grid-column: 2; font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+.guide__line { grid-column: 2; font-size: var(--text-md); color: var(--color-ink-2); }
+.guide__price { grid-row: 1 / span 2; grid-column: 3; align-self: center; justify-self: end; font-family: var(--font-display); font-size: var(--text-2xl); color: var(--color-accent); font-variant-numeric: lining-nums tabular-nums; }
+.guide__more { margin-top: var(--space-xl); max-width: 52ch; color: var(--color-muted); }
+
+/* ---------- ниваки крупно ---------- */
+.wide { padding-block: 0 var(--section-gap); }
+.wide__photo { margin: 0; width: 100%; aspect-ratio: 21 / 9; min-height: 440px; }
+.wide__caption { display: block; margin-top: var(--space-md); font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+
+/* ---------- FAQ ---------- */
+.faq { padding-block: 0 var(--section-gap); }
+.faq__pair { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-sm) var(--gap-columns); padding-block: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule); }
+.faq__pair:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
+.faq__pair h2 { font-size: var(--text-display-s); }
+.faq__pair p { margin-top: var(--space-md); max-width: 58ch; color: var(--color-ink-2); }
+@media (max-width: 60rem) {
+  .faq__pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- контакты: смена бумаги ---------- */
+.contacts { background: var(--color-paper-2); padding-block: var(--section-gap-s); }
+.contacts h2 { max-width: 14ch; }
+.contacts__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-xl) var(--gap-columns); margin: var(--space-2xl) 0 0; padding: 0; list-style: none; }
+.contacts__list li { padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); }
+.contacts__label { display: block; font-size: var(--text-sm); font-weight: 500; color: var(--color-muted); }
+.contacts__list a { display: inline-block; margin-top: var(--space-xs); font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-ink); text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: var(--color-accent); text-underline-offset: 0.18em; white-space: nowrap; }
+.contacts__list a:hover { text-decoration-thickness: 2px; }
+.contacts__list a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+
+/* ---------- подвал ---------- */
+.foot { padding-block: var(--section-gap-s); }
+.foot__in { display: grid; gap: var(--space-lg); }
+.foot__word { font-family: var(--font-display); font-size: var(--text-3xl); color: var(--color-ink); }
+.foot__nav { display: flex; flex-wrap: wrap; gap: var(--space-md) var(--space-xl); }
+.foot__nav a { font-size: var(--text-sm); font-weight: 500; color: var(--color-ink-2); text-decoration: none; }
+.foot__nav a:hover { color: var(--color-ink); text-decoration-color: var(--color-accent); text-decoration-line: underline; }
+.foot__legal { border-top: var(--rule-hair) solid var(--color-rule); padding-top: var(--space-lg); font-size: var(--text-sm); color: var(--color-muted); }
+.foot__legal p + p { margin-top: var(--space-2xs); }
+
+/* ---------- узкие экраны ---------- */
+@media (max-width: 60rem) {
+  .hero { min-height: 84dvh; }
+  .guide__row { grid-template-columns: minmax(0, 1fr) auto; }
+  .guide__kind { grid-row: auto; grid-column: 1; }
+  .guide__line { grid-column: 1; }
+  .guide__price { grid-row: 1; grid-column: 2; }
+  .wide__photo { min-height: 300px; aspect-ratio: 4 / 3; }
+  .contacts__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 40rem) {
+  .contacts__list { grid-template-columns: minmax(0, 1fr); }
+}

@@ -43,7 +43,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   }, [fullscreen, images.length]);
 
   return (
-    <section className="min-h-screen bg-white pt-20 pb-16">
+    <section className="min-h-screen pt-20 pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -120,7 +120,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
       <div className="max-w-7xl mx-auto px-6">
         <Link
           href="/#catalog"
-          className="inline-flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-sage transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-forest transition-all hover:-translate-x-0.5 mb-5"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m7-7l-7 7 7 7" />
@@ -130,7 +130,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16">
           <div className="lg:col-span-6 reveal visible">
-            <div className="bg-[#F5F5F0] rounded-sm overflow-hidden cursor-zoom-in w-fit mx-auto">
+            <div className="bg-paper border border-line/70 rounded-md overflow-hidden cursor-zoom-in w-fit mx-auto p-3 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_14px_40px_-18px_rgba(23,48,31,0.16)] transition-shadow duration-500 hover:shadow-[0_1px_2px_rgba(23,48,31,0.05),0_20px_52px_-18px_rgba(23,48,31,0.24)]">
               {images.length > 0 ? (
                 <img
                   src={images[selectedImage]}
@@ -148,8 +148,8 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-16 h-16 rounded-sm overflow-hidden border transition-colors ${
-                      selectedImage === i ? 'border-sage' : 'border-[#E5E5E0] hover:border-sage'
+                    className={`w-16 h-16 rounded-md overflow-hidden border p-0.5 bg-paper transition-all duration-300 ${
+                      selectedImage === i ? 'border-brass shadow-[0_0_0_1px_rgba(165,133,79,0.4)]' : 'border-line hover:border-brass/60 hover:-translate-y-px'
                     }`}
                   >
                     <img src={img} alt="" className={`w-full h-full object-contain ${product.out_of_stock ? 'opacity-60' : ''}`} />
@@ -161,27 +161,30 @@ export default function ProductDetailClient({ product }: { product: Product }) {
 
           <div className="lg:col-span-6 reveal visible reveal-delay-1">
             {product.category && (
-              <span className="text-sage text-xs tracking-[0.15em] uppercase">
+              <span className="text-brass text-xs tracking-[0.2em] uppercase font-medium">
                 {product.category}
-                {product.subcategory && <span className="text-[#9CA3AF]"> / {product.subcategory}</span>}
+                {product.subcategory && <span className="text-muted/70"> / {product.subcategory}</span>}
               </span>
             )}
 
-            <h1 className="font-display text-3xl sm:text-4xl text-[#1A3326] mt-2 leading-tight">
+            <h1 className="font-display text-3xl sm:text-4xl text-forest mt-3 leading-tight">
               {product.name}
             </h1>
 
-            <div className="text-3xl text-sage font-medium mt-4">
+            <div className="text-3xl text-forest font-display font-medium mt-5 pb-5 border-b border-line/70">
               {product.out_of_stock ? (
-                <span className="text-red-400 text-2xl font-medium">Нет в наличии</span>
+                <span className="text-[#B4544A] text-2xl font-medium">Нет в наличии</span>
               ) : (
-                <>{showPriceFrom(product) ? 'от ' : ''}{formatPrice(product.price)} BYN</>
+                <>
+                  {showPriceFrom(product) && <span className="text-brass italic font-normal">от </span>}
+                  {formatPrice(product.price)} <span className="text-muted text-base font-sans tracking-wide">BYN</span>
+                </>
               )}
             </div>
 
             {product.description && (
               <div className="mt-6">
-                <p className="text-[#6B7280] leading-relaxed whitespace-pre-line">{product.description}</p>
+                <p className="text-muted leading-[1.8] whitespace-pre-line">{product.description}</p>
               </div>
             )}
 
@@ -190,7 +193,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             {!isAdmin && (
               <button
                 onClick={() => toggleFavorite(product.id)}
-                className="w-full mt-8 px-8 py-4 bg-sage text-white rounded-full text-sm tracking-wide hover:bg-sage-dark transition-colors btn-press inline-flex items-center justify-center gap-2"
+                className="w-full mt-8 px-8 py-4 btn-primary text-ivory rounded-full text-sm tracking-[0.06em] btn-press inline-flex items-center justify-center gap-2"
               >
                 <svg
                   width="18"
@@ -212,7 +215,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               <>
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="w-full mt-8 px-8 py-4 border-2 border-sage text-sage rounded-full text-sm tracking-wide hover:bg-sage hover:text-white transition-colors btn-press inline-flex items-center justify-center gap-2"
+                  className="w-full mt-8 px-8 py-4 border-2 border-forest/50 text-forest rounded-full text-sm tracking-wide hover:bg-forest hover:text-ivory hover:shadow-lg hover:shadow-forest/20 transition-all btn-press inline-flex items-center justify-center gap-2"
                 >
                   ✏️ Редактировать
                 </button>
@@ -233,9 +236,9 @@ export default function ProductDetailClient({ product }: { product: Product }) {
               </>
             )}
 
-            <p className="mt-4 text-sm text-[#6B7280] leading-relaxed text-center">
+            <p className="mt-4 text-sm text-muted leading-relaxed text-center">
               Получить консультацию и уточнить наличие товара можно по телефону{' '}
-              <a href="tel:+375298425952" className="text-sage hover:underline whitespace-nowrap">+375 (29) 842-59-52</a>
+              <a href="tel:+375298425952" className="text-brass hover:text-forest hover:underline underline-offset-2 whitespace-nowrap transition-colors">+375 (29) 842-59-52</a>
             </p>
 
 

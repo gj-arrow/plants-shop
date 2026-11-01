@@ -1,0 +1,102 @@
+[
+ {
+  "prompt": "Питомник растений Людмилы в Горках: демо 4 вариантов обновления главной",
+  "entry": "demo-run v4",
+  "shape": "Marquee Hero",
+  "theme": "studio",
+  "axes": "light/roman-serif/warm",
+  "hero": "Poster",
+  "nav": "banner over bar",
+  "footer": "colophon",
+  "imagery": "photographs, собственные 8",
+  "signature": "растения как печатные листы с метками",
+  "sections": [
+   "hero Poster",
+   "index rows",
+   "wide photo",
+   "facts 3-across",
+   "pinned with",
+   "contacts",
+   "footer colophon"
+  ],
+  "waived": [],
+  "draw": "393036",
+  "date": "2026-11-01",
+  "mode": "build"
+ },
+ {
+  "prompt": "Питомник растений Людмилы в Горках: демо 4 вариантов обновления главной",
+  "entry": "demo-run v3",
+  "shape": "Catalogue",
+  "theme": "loom",
+  "axes": "light/roman-serif/cool",
+  "hero": "Counter (offer+price)",
+  "nav": "search-led bar",
+  "footer": "colophon",
+  "imagery": "photographs, собственные 8",
+  "signature": "каталог-узорная тетрадь, цены крупно",
+  "sections": [
+   "hero offer",
+   "book rows",
+   "spec sheet",
+   "post rows",
+   "indigo band",
+   "footer colophon"
+  ],
+  "waived": [
+   "23: индиго-полоса = материал темы"
+  ],
+  "draw": "ebed79",
+  "date": "2026-11-01",
+  "mode": "build"
+ },
+ {
+  "prompt": "Питомник растений Людмилы в Горках: демо 4 вариантов обновления главной",
+  "entry": "demo-run v2",
+  "shape": "Marquee Hero",
+  "theme": "solstice",
+  "axes": "light/high-contrast-serif/warm",
+  "hero": "Ledge",
+  "nav": "wordmark centred",
+  "footer": "letter close",
+  "imagery": "photographs, собственные 9",
+  "signature": "предложение-этикетка с золотым пунктиром",
+  "sections": [
+   "hero Ledge",
+   "offer well",
+   "catalog grid",
+   "facts rows",
+   "statement ink",
+   "contacts",
+   "footer letter"
+  ],
+  "waived": [],
+  "draw": "e3ea8f",
+  "date": "2026-11-01",
+  "mode": "build"
+ },
+ {
+  "prompt": "Питомник растений Людмилы в Горках: демо 4 вариантов обновления главной",
+  "entry": "demo-run v1",
+  "shape": "FAQ-led field guide",
+  "theme": "hedgerow",
+  "axes": "dark/high-contrast-serif/chromatic-green",
+  "hero": "Poster",
+  "nav": "masthead",
+  "footer": "mast",
+  "imagery": "photographs, собственные 8",
+  "signature": "каталог-определитель с чартрезовой линейкой",
+  "sections": [
+   "hero Poster",
+   "guide index",
+   "wide photo",
+   "faq pairs",
+   "contacts band",
+   "footer mast"
+  ],
+  "waived": [],
+  "draw": "50aff9",
+  "date": "2026-11-01",
+  "mode": "build"
+ }
+]

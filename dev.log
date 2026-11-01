@@ -1,0 +1,18 @@
+﻿
+> plant-shop@0.1.0 dev
+> next dev
+
+тЦ▓ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.255.0.1:3000
+- Environments: .env.local
+тЬУ Ready in 333ms
+node.exe : тЪа The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.o
+rg/docs/messages/middleware-to-proxy
+C:\Program Files\nodejs\npm.ps1:30 знак:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (тЪа The "middle...leware-to-proxy:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
