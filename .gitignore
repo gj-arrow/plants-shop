@@ -52,3 +52,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright / build / OS junk
+.playwright-cli/
+output/
+.zcode/
+Thumbs.db
+Desktop.ini
